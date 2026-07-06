@@ -31,6 +31,11 @@ Gotchas learned:
 - updateTodo merges patches, so the composer must submit optional keys as explicit
   undefined to CLEAR them on edit (JSON persist drops undefined keys).
 - dnd-kit + React 19: no issues; PointerSensor with distance 5 keeps row clicks working.
+- The npm optional-deps lock bug STRUCK AGAIN after the incremental dnd-kit install
+  (same "Missing @emnapi/* from lock file" npm ci failure on CI). Durable fix now in
+  place: @emnapi/core and @emnapi/runtime are explicit optionalDependencies in
+  package.json, so every lock resolution includes them. RULE: after any npm install
+  that touches the lock, run `npm ci` locally before pushing.
 
 NEXT: Phase 4 — GitHub integration + sync (ROADMAP): PAT settings page, activity
 feed, commit/PR monitor, contribution heatmap (GraphQL w/ ghchart image fallback),
