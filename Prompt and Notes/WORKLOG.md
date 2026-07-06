@@ -5,6 +5,31 @@ where to pick up.
 
 ---
 
+## Session 10 — 2026-07-06/07 (Phase 7 complete — fresh usage budget)
+
+Owner's budget refreshed; owner back at desk (no longer remote). Shipped the ENTIRE
+Resource Center in one session, three commits: framework + Batch A (a9516da),
+Batch B (78cc7b6), Batch C (this commit). 28/28 topic guides live at
+/leetcode/:slug with the full rubric from the owner brief: intuition, common
+patterns, a real TypeScript template with a note, common mistakes, complexity,
+rehearsal questions, 4-6 linked LC problems each, and study-next progression.
+Handbook grid lives on the LeetCode page and needs no username. Content-integrity
+tests guard slugs/completeness/links (90 tests total green).
+
+Notes:
+- Guides are plain TS data in src/data/guides/{types,batchA,batchB,batchC1,batchC2}.
+  Editing content = edit those files; tests catch broken progression links.
+- Bundle-size warning appeared with all content in the main chunk — Phase 13 item:
+  route-level lazy loading for the guides.
+- Weak-area Focus card on LC stats could deep-link into handbook topics once
+  per-topic stats exist (future nicety, noted not planned).
+
+NEXT: Phase 12 (career modules port + legacy import) is the next UNBLOCKED phase.
+Then Phase 13 polish (incl. README rewrite + lazy loading). Still blocked on owner:
+4b sync (PAT), Phase 11 reminders (Google OAuth), LC pipeline (username).
+
+---
+
 ## Session 9 — 2026-07-06 (Phase 10, ~76% usage)
 
 Shipped full achievements: catalog grown 6 -> 16 rules across assignments, todos,

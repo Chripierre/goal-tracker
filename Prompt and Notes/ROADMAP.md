@@ -123,12 +123,21 @@ deferral applies to the Phase 11 Google Calendar OAuth setup.
 - [~] Daily question: plain link to the problemset (the daily-question APIs are the
       same dead/flaky community surface; revisit if a reliable source appears)
 
-## Phase 7 — LeetCode Resource Center (content-heavy; ship in batches) — NEXT
+## Phase 7 — LeetCode Resource Center — DONE 2026-07-06 (all 28 guides)
 
-- [ ] Handbook framework: topic page template (intuition, patterns, mistakes, templates, complexity, progression, linked problems)
-- [ ] Batch A: Arrays, Strings, Hash Maps, Two Pointers/Sliding Window, Binary Search, Prefix Sum
-- [ ] Batch B: Linked Lists, Stacks/Queues/Monotonic, Trees, BST, Heaps, Tries, Recursion, Sorting
-- [ ] Batch C: Graphs, DFS/BFS, Topological Sort, Union Find, DP, Memoization, Backtracking, Greedy, Bit Manipulation, Divide & Conquer, Math, Geometry
+- [x] Framework: typed TopicGuide model (src/data/guides/), planned-topic index with
+      availability, handbook grid on the LeetCode page (works without a username),
+      per-topic pages at /leetcode/:slug (intuition, patterns, TS template, mistakes,
+      complexity, rehearsal questions, linked LC problems, study-next progression),
+      content-integrity tests (unique slugs, completeness, valid progression links)
+- [x] Batch A (6): arrays+two pointers, strings, hash maps, sliding window,
+      binary search, prefix sum
+- [x] Batch B (9): linked lists, queues+deques, stacks+monotonic, recursion, sorting,
+      trees, BST, heaps, tries
+- [x] Batch C (13): graphs, DFS, BFS, topological sort, union-find, DP, memoization,
+      backtracking, greedy, bit manipulation, divide & conquer, math, geometry
+- NOTE for Phase 13: guide content ships in the main JS chunk and tripped the
+  bundle-size warning — lazy-load the guides (route-level code splitting) in polish.
 
 ## Phase 8 — Interview practice game — DONE 2026-07-06
 
@@ -179,7 +188,7 @@ deferral applies to the Phase 11 Google Calendar OAuth setup.
 - [ ] ICS export channel
 - [ ] Optional Actions email channel (needs Phase 4 sync)
 
-## Phase 12 — Career modules port + legacy import
+## Phase 12 — Career modules port + legacy import — NEXT (next unblocked phase)
 
 - [ ] Port seed arrays to typed `src/data/` content
 - [ ] Career feature group: applications, network, scholarships, internships, gaps, certs, projects
