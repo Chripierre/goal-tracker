@@ -5,6 +5,43 @@ where to pick up.
 
 ---
 
+## Session 4 — 2026-07-06 (Phase 4)
+
+Shipped GitHub integration; split state sync into Phase 4b (storage-core surgery
+deserves its own session — recorded in ROADMAP).
+
+Shipped: lib/github/ (token store in its OWN persist key gt_gh_token so it can never
+travel with exports/sync; REST+GraphQL client with 10-min localStorage cache and
+GithubError statuses; pure event parser covering 10 event types; heatmap level
+buckets) — parser+levels unit tested (59 total). Real Settings page (profile, GitHub
+username+token with live /user validation, LeetCode username, export/import/reset —
+export excludes the token by construction). GitHub page: profile card, GraphQL
+heatmap when token present / ghchart img with dark filter otherwise, activity feed,
+repos with stats, skeletons, friendly 403 rate-limit copy. Dashboard GitHub
+mini-panel. New nav item (GitBranch icon — lucide 1.x dropped brand icons).
+
+Browser-verified live: feed showed this session's own pushes, repo card showed
+goal-tracker, fallback heatmap rendered with today's cells green. Token/GraphQL path
+is code-complete but unverified until the owner saves a PAT (heads-up: if GraphQL
+rejects fine-grained tokens, recommend a classic token with read:user).
+
+Gotchas learned:
+- react-hooks set-state-in-effect also forbids the sync "reset states at effect top"
+  pattern for refetch-on-key-change. Fix: keyed child component
+  (<GithubData key={user:token}>) so remount resets state naturally.
+- The stale console entry from a previous page persists across browse navigations —
+  check console AFTER goto, filter by timestamp.
+
+NEXT: Phase 4b — GitHub state sync (multi-device): app-state JSON to a private
+goal-tracker-data repo via contents API; last-write-wins on updatedAt; conflict
+banner; sync status UI + manual sync; token needs contents write on that repo.
+Design questions to settle at start: debounce cadence, pull-on-load ordering, and
+guarding against clock skew (consider both updatedAt and a monotonic counter).
+Still open: owner GCP setup walkthrough for Google Calendar API (Phase 11);
+legacy career-analysis scrub decision; gstack upgrade + onboarding prompts.
+
+---
+
 ## Session 3 — 2026-07-06 (Phase 3)
 
 Mid-phase scope pivot from the owner: todos must be PERSONAL and standalone — no

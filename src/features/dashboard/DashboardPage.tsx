@@ -1,4 +1,4 @@
-import { useMemo } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router'
 import {
   Activity,
@@ -18,9 +18,13 @@ import { generateAssignments } from '@/lib/assignments/generate'
 import { assignmentDays, completionsSinceDay } from '@/lib/assignments/stats'
 import { formatRelative, localDayKey, startOfMonth, startOfWeek } from '@/lib/dates'
 import { completedAssignmentIds, effectiveAssignmentCompletions } from '@/lib/events/completion'
+import { fetchEvents } from '@/lib/github/client'
+import { toFeed, type GhFeedItem } from '@/lib/github/parse'
+import { useGithubToken } from '@/lib/github/token'
 import { isOverdue } from '@/lib/todos/filter'
 import { useAppStore } from '@/lib/storage/store'
 import { currentStreak } from '@/lib/streak/streak'
+import { EventList } from '@/features/github/EventList'
 
 function greeting(now: Date): string {
   const h = now.getHours()
@@ -74,6 +78,20 @@ export function DashboardPage() {
   const openTodos = todos.filter((t) => !t.completedAt)
   const todosDueToday = openTodos.filter((t) => t.dueDay === todayKey).length
   const todosOverdue = openTodos.filter((t) => isOverdue(t, todayKey)).length
+
+  const ghUsername = useAppStore((s) => s.settings.ghUsername)
+  const ghToken = useGithubToken((s) => s.token)
+  const [ghFeed, setGhFeed] = useState<GhFeedItem[] | null>(null)
+  useEffect(() => {
+    if (!ghUsername) return
+    let alive = true
+    fetchEvents(ghUsername, ghToken || undefined)
+      .then((d) => alive && setGhFeed(toFeed(d)))
+      .catch(() => alive && setGhFeed([]))
+    return () => {
+      alive = false
+    }
+  }, [ghUsername, ghToken])
 
   const stats = useMemo(() => {
     const current = new Date()
@@ -206,6 +224,30 @@ export function DashboardPage() {
                 <span className="text-text-3">open</span>
               </span>
             </div>
+          )}
+        </Card>
+
+        <Card>
+          <div className="flex items-center justify-between px-4 pb-1 pt-4">
+            <h2 className="text-sm font-semibold text-text-2">GitHub</h2>
+            <Link
+              to="/github"
+              className="flex items-center gap-0.5 rounded-md text-xs font-medium text-accent outline-none transition-colors hover:text-accent-hover focus-visible:ring-2 focus-visible:ring-accent"
+            >
+              View all
+              <ChevronRight className="size-3.5" aria-hidden />
+            </Link>
+          </div>
+          {!ghUsername ? (
+            <p className="px-4 pb-5 pt-1 text-sm text-text-3">
+              Connect your GitHub username in Settings.
+            </p>
+          ) : ghFeed === null ? (
+            <p className="px-4 pb-5 pt-1 text-sm text-text-3">Loading activity…</p>
+          ) : ghFeed.length === 0 ? (
+            <p className="px-4 pb-5 pt-1 text-sm text-text-3">No recent public activity.</p>
+          ) : (
+            <EventList items={ghFeed} limit={3} />
           )}
         </Card>
         </div>

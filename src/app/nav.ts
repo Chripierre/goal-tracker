@@ -2,6 +2,7 @@ import {
   Award,
   ClipboardList,
   Code2,
+  GitBranch,
   LayoutDashboard,
   ListTodo,
   Flag,
@@ -47,6 +48,13 @@ export const NAV_ITEMS: NavItem[] = [
     icon: Flag,
     description: 'Weekly and monthly projects with rubrics and auto-created repos.',
     phase: 5,
+  },
+  {
+    to: '/github',
+    label: 'GitHub',
+    icon: GitBranch,
+    description: 'Activity, repositories, and your contribution graph.',
+    phase: 4,
   },
   {
     to: '/leetcode',

@@ -12,6 +12,7 @@ import {
   type ActivityEvent,
   type ActivityEventType,
   type AppState,
+  type Settings,
   type Todo,
 } from './schema'
 
@@ -27,6 +28,10 @@ interface AppStore extends AppState {
   completeTodo: (id: string) => void
   uncompleteTodo: (id: string) => void
   moveTodo: (activeId: string, overId: string) => void
+  updateSettings: (patch: Partial<Settings>) => void
+  /** Replaces app state from an exported backup (runs the normal migration). */
+  importState: (data: unknown) => void
+  resetState: () => void
 }
 
 function mkEvent(type: ActivityEventType, refId?: string, label?: string): ActivityEvent {
@@ -90,6 +95,16 @@ export const useAppStore = create<AppStore>()(
           todos.splice(to, 0, moved)
           return { todos }
         }),
+      updateSettings: (patch) =>
+        set((s) => ({ settings: { ...s.settings, ...patch } })),
+      importState: (data) => {
+        const migrated = migrateState(
+          data,
+          (data as { schemaVersion?: number })?.schemaVersion ?? 0,
+        )
+        set(migrated)
+      },
+      resetState: () => set(defaultAppState()),
     }),
     {
       name: STORAGE_KEY,

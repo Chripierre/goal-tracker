@@ -67,12 +67,29 @@ chosen reminder channel.
       test-user consent). True SMS is out (Google retired Calendar SMS; would need a
       paid SMS service) — Calendar mobile notifications are the practical channel.
 
-## Phase 4 — GitHub integration + sync — NEXT
+## Phase 4 — GitHub integration — DONE 2026-07-06
 
-- [ ] Settings: fine-grained PAT (local-only, warning copy)
-- [ ] Activity feed, commit monitor, PR monitor, repo stats
-- [ ] Contribution heatmap (GraphQL; image fallback without token)
-- [ ] State sync to private `goal-tracker-data` repo (multi-device)
+Split decision (2026-07-06): state sync moved to its own sub-phase (4b below) —
+it rewires the storage core and must not ship rushed alongside UI work.
+
+- [x] Settings page (real): profile name, GitHub username + PAT (local-only, its own
+      storage key `gt_gh_token`, never exported/synced; validated via /user on save),
+      LeetCode username, data export / import / reset (interim multi-device path)
+- [x] GitHub module page (new nav item): profile summary, activity feed (pushes, PRs
+      merged/closed, issues, comments, branches, stars, forks, releases),
+      repositories with stats; skeleton loading states; 403/404-aware error copy
+- [x] Contribution heatmap: GraphQL-rendered when a token is set; ghchart image
+      fallback (dark filter) without one — token path untested until owner adds one
+- [x] Dashboard: recent GitHub activity mini-panel
+- [x] REST responses cached 10 min in localStorage (gt_ghc:*) for rate-limit sanity
+- [x] Browser-verified against the live API (see WORKLOG Session 4)
+
+## Phase 4b — GitHub state sync (multi-device) — NEXT
+
+- [ ] App state JSON synced to a private `goal-tracker-data` repo via the contents
+      API; last-write-wins on updatedAt with a conflict banner; token needs
+      contents write on that one repo; the token itself NEVER syncs
+- [ ] Sync status indicator + manual "Sync now"
 
 ## Phase 5 — Weekly & monthly challenges
 
