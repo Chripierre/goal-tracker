@@ -28,15 +28,22 @@ Goal: deployed, navigable, dark, responsive app shell with real storage core and
 - [x] Browser smoke test of the live site: loads clean (no console errors), dashboard
       renders, SPA nav works, deep-link 404 redirect works, mobile layout verified
 
-## Phase 2 — Core loop: assignments, streak, dashboard v1 — NEXT
+## Phase 2 — Core loop: assignments, streak, dashboard v1 — DONE 2026-07-06
 
-- [ ] Daily assignment generator (seeded from ported legacy TASKS + rotation rules)
-- [ ] Complete-assignment flow appends events; streak/weekly/monthly derive live
-- [ ] Dashboard v1: progress cards, streak flame, today panel, recent activity feed
-- [ ] Historical record view (per-day log)
-- [ ] Achievements groundwork: unlock rules evaluated on event append (cache unlocks)
+- [x] Daily assignment generator — deterministic pure function of dayKey over built-in
+      templates (2 rotating pools: study, career); assignments are never stored, only
+      completion events (`refId = dayKey/templateId`, label snapshot on the event)
+- [x] Complete-assignment flow appends events; undo is an `assignment_uncompleted`
+      tombstone (latest-per-refId wins); streak/weekly/monthly derive live, day
+      attribution from the refId's dayKey (midnight-safe)
+- [x] Dashboard v1: stat cards on real selectors, today panel with inline completion,
+      recent activity feed (completions + unlocks, relative time)
+- [x] Historical record view — per-day log on Assignments page (last 14 days, perfect badge)
+- [x] Achievements groundwork: 6 rules, evaluated on complete, permanent unlock cache
+      (survives undo); schema v2 migration
+- [x] Browser-verified end to end on dev server (see WORKLOG Session 2)
 
-## Phase 3 — TODO system
+## Phase 3 — TODO system — NEXT
 
 - [ ] Todos: priorities, deadlines, tags, categories, recurring rules
 - [ ] Filtering, search, sort; drag-and-drop reorder

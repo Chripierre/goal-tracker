@@ -26,4 +26,16 @@ describe('migrateState', () => {
   it('drops non-array events', () => {
     expect(migrateState({ events: 'corrupt' }, 1).events).toEqual([])
   })
+
+  it('migrates v1 state (no achievements field) to v2 with an empty cache', () => {
+    const v1 = { schemaVersion: 1, settings: { lcUsername: 'chris' }, events: [] }
+    const out = migrateState(v1, 1)
+    expect(out.achievements).toEqual([])
+    expect(out.schemaVersion).toBe(SCHEMA_VERSION)
+  })
+
+  it('preserves existing achievement unlocks', () => {
+    const unlocks = [{ id: 'first-assignment', unlockedAt: 5 }]
+    expect(migrateState({ achievements: unlocks }, 2).achievements).toEqual(unlocks)
+  })
 })

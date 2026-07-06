@@ -5,6 +5,39 @@ where to pick up.
 
 ---
 
+## Session 2 — 2026-07-06 (Phase 2)
+
+Built and shipped Phase 2, the core loop. All gates green locally: typecheck, lint,
+34/34 tests, build. Verified interactively in the browser against the dev server:
+complete -> streak 0->1 + feed entry + "First step" unlock; undo -> streak drops,
+unlock stays (permanent by design); complete all 5 -> "Perfect day" unlock; reload ->
+everything persists (7 events incl. the tombstone pair, 2 cached unlocks in gt_v1).
+
+Design decisions locked (details in ROADMAP Phase 2 + code):
+- Assignments are GENERATED, never stored: pure function of dayKey over
+  src/data/assignmentTemplates.ts. Only completion events persist.
+- Undo = tombstone event; latest-per-refId wins (lib/events/completion.ts).
+- Streak/day attribution uses the refId's dayKey, not event ts (midnight-safe).
+- Achievements: lib/achievements/achievements.ts, evaluated inside
+  completeAssignment only; unlocks permanent; schema v2 adds the cache.
+
+Gotchas learned:
+- eslint react-hooks now runs React Compiler diagnostics:
+  `preserve-manual-memoization` rejects useMemo deps derived from a RETAINED
+  mutable Date and memos it can't reproduce. Fix pattern: inline `new Date()` per
+  use (keep deps primitive), and drop manual useMemo for cheap derivations.
+- Sidebar footer phase label (AppShell.tsx) is static — bump it each phase.
+- Prod (github.io) has its own localStorage; dev-server test data does not carry
+  over. Fresh start on prod is expected, not a bug.
+
+NEXT: Phase 3 — TODO system (ROADMAP): full todo CRUD with priorities, deadlines,
+tags, recurring rules, filter/search/sort, drag-and-drop; completions feed the same
+event log (todo_completed already in the event union); overdue surfacing on
+dashboard. Also pending: owner call on scrubbing self-authored career analysis in
+legacy/; gstack upgrade + onboarding prompts still deferred.
+
+---
+
 ## Session 1 — 2026-07-06
 
 Context: repo was created earlier this session (initial commit of the legacy vanilla

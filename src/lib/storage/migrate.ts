@@ -15,5 +15,6 @@ export function migrateState(persisted: unknown, _fromVersion: number): AppState
     schemaVersion: SCHEMA_VERSION,
     settings: { ...base.settings, ...(p.settings ?? {}) },
     events: Array.isArray(p.events) ? p.events : [],
+    achievements: Array.isArray(p.achievements) ? p.achievements : [],
   }
 }

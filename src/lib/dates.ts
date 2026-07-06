@@ -31,3 +31,14 @@ export function startOfMonth(d: Date): Date {
   res.setDate(1)
   return res
 }
+
+export function formatRelative(ts: number, now: number = Date.now()): string {
+  const seconds = Math.round((now - ts) / 1000)
+  if (seconds < 60) return 'just now'
+  const rtf = new Intl.RelativeTimeFormat(undefined, { numeric: 'auto' })
+  const minutes = Math.round(seconds / 60)
+  if (minutes < 60) return rtf.format(-minutes, 'minute')
+  const hours = Math.round(minutes / 60)
+  if (hours < 24) return rtf.format(-hours, 'hour')
+  return rtf.format(-Math.round(hours / 24), 'day')
+}

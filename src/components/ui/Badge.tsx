@@ -1,6 +1,6 @@
 import type { HTMLAttributes } from 'react'
 
-type BadgeVariant = 'neutral' | 'accent' | 'success' | 'warning' | 'danger'
+export type BadgeVariant = 'neutral' | 'accent' | 'success' | 'warning' | 'danger'
 
 const variants: Record<BadgeVariant, string> = {
   neutral: 'border-border bg-surface-2 text-text-2',
