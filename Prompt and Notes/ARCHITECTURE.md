@@ -159,6 +159,28 @@ accepting the `cp_tracker_v1` JSON (owner copies it from the old app's devtools 
   keyboard paths for everything; Radix primitives adopted per-component when dialogs/
   menus arrive rather than hand-rolling.
 
+## 8b. Status addendum (2026-07-06, end of build day 1)
+
+Where the code stands relative to the sections above — trust code over sketches:
+
+- Schema is v5: `{ schemaVersion, settings, events, achievements, todos, challenges,
+  gameResults }` (schema.ts is the truth). Versioned additive migrations in migrate.ts,
+  one test per bump.
+- Shipped engines in src/lib/: assignments (deterministic generation + tombstone
+  completions), streak (current + longest), achievements (16 rules over an
+  AchievementInput of all four data kinds; toasts via transient lib/toast store),
+  todos (recurrence/mutations/filter/gcal), challenges (ISO-week rotation + scoring),
+  github (client/parse/heatmap; PAT isolated in gt_gh_token), leetcode (synced-file
+  first), game (daily question selection + scoring), analytics (day counts,
+  consistency).
+- Data-source change vs §5: the community LeetCode proxy is DEAD (503, 2026-07-06);
+  the daily GitHub Action (leetcode-data.yml + scripts/fetch-leetcode.mjs) is the
+  primary source and is inert until LC_USERNAME is set in the yml.
+- Every nav item is a real routed page; router is an explicit list; no placeholders.
+- react-hooks runs React Compiler diagnostics: no retained-Date deps in memos, no
+  sync setState in effects (use keyed children / render-time prev-state), no
+  Date.now() in render-reachable code (stamp timestamps in store actions).
+
 ## 9. Risks / constraints register
 
 - LeetCode community APIs are unstable → Action-based pipeline is the hedge; degrade gracefully.

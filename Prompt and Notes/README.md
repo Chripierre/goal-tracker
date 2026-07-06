@@ -46,6 +46,19 @@ must never author commits here. Concretely:
    a plain `github.com` remote would route to the wrong account's credentials.
 3. Repo settings on github.com (Pages, visibility, secrets) require the owner to be
    signed into the browser as **Chripierre**.
+3b. NEW MACHINE / TOTAL CRASH RECOVERY — nothing but this repo is required:
+   - Clone from github.com/Chripierre/goal-tracker (it is public; read needs no auth).
+   - To PUSH again: generate a fresh key (`ssh-keygen -t ed25519 -f ~/.ssh/id_chripierre`),
+     add the .pub to github.com/settings/keys while signed in as Chripierre, then create
+     `~/.ssh/config` with:
+       Host github-chripierre
+         HostName github.com
+         User git
+         IdentityFile ~/.ssh/id_chripierre
+   - Then apply the repo-local fixes in step 2 above and verify with step 1.
+   - App data note: user data lives in each browser's localStorage (key gt_v1), not in
+     the repo — Settings has Export/Import backup for moving it. The GitHub token
+     (gt_gh_token) must simply be re-entered.
 4. Privacy standing rule: the repo went public on 2026-07-06 after a scrub. Never commit
    third-party personal data (names, profiles) or private application-strategy notes.
    Private copies of the scrubbed data live OUTSIDE the repo in
