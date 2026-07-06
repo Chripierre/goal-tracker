@@ -17,5 +17,6 @@ export function migrateState(persisted: unknown, _fromVersion: number): AppState
     events: Array.isArray(p.events) ? p.events : [],
     achievements: Array.isArray(p.achievements) ? p.achievements : [],
     todos: Array.isArray(p.todos) ? p.todos : [],
+    challenges: Array.isArray(p.challenges) ? p.challenges : [],
   }
 }

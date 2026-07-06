@@ -84,21 +84,31 @@ it rewires the storage core and must not ship rushed alongside UI work.
 - [x] REST responses cached 10 min in localStorage (gt_ghc:*) for rate-limit sanity
 - [x] Browser-verified against the live API (see WORKLOG Session 4)
 
-## Phase 4b — GitHub state sync (multi-device) — NEXT
+## Phase 4b — GitHub state sync (multi-device) — DEFERRED (owner action needed)
+
+Deferred 2026-07-06: owner is remote-controlling and cannot mint tokens right now.
+Resume once the owner saves a PAT with contents write access (Settings). Same
+deferral applies to the Phase 11 Google Calendar OAuth setup.
 
 - [ ] App state JSON synced to a private `goal-tracker-data` repo via the contents
       API; last-write-wins on updatedAt with a conflict banner; token needs
       contents write on that one repo; the token itself NEVER syncs
 - [ ] Sync status indicator + manual "Sync now"
 
-## Phase 5 — Weekly & monthly challenges
+## Phase 5 — Weekly & monthly challenges — DONE 2026-07-06
 
-- [ ] Challenge generator (requirements, milestones, due dates, rubric, deliverables)
-- [ ] Auto repo creation via API (naming: `week-NN-slug`, `month-mon-slug`)
-- [ ] Completion flow: checklist scoring, completion %, archive, dashboard update
-- [ ] Challenge history view
+- [x] Deterministic generator: ISO-week/month keyed rotation over 8 weekly + 4 monthly
+      templates (src/data/challengeTemplates.ts); challenge materializes into state on
+      Start (schema v4, id = 2026-W28 / 2026-07); isoWeek + rotation + scoring tested
+- [x] Challenge card: requirements, milestone checklist with live %, due day,
+      deliverables, testing requirement
+- [x] Repo linkage: createRepo via API when a token exists; prefilled github.com/new
+      link + paste-URL fallback otherwise (token path untested — owner tokenless)
+- [x] Completion flow: rubric self-scoring (points-weighted), confirm dialog, score +
+      completion % archived, challenge_completed event lands in dashboard feed
+- [x] History view with score badges; browser-verified full lifecycle (Session 5)
 
-## Phase 6 — LeetCode stats
+## Phase 6 — LeetCode stats — NEXT
 
 - [ ] Scheduled Action pipeline writing `leetcode.json`; client fallback proxy
 - [ ] Stats: solved, difficulty split, LC streak, trends, weak-area analysis

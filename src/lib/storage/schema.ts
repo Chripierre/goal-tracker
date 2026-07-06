@@ -1,4 +1,4 @@
-export const SCHEMA_VERSION = 3
+export const SCHEMA_VERSION = 4
 export const STORAGE_KEY = 'gt_v1'
 
 export interface Settings {
@@ -60,6 +60,24 @@ export interface Todo {
   completedAt?: number
 }
 
+export type ChallengeKind = 'week' | 'month'
+
+/** A started weekly/monthly challenge; id is the period key (2026-W28 / 2026-07). */
+export interface ChallengeRecord {
+  id: string
+  kind: ChallengeKind
+  templateSlug: string
+  startedAt: number
+  dueDay: string
+  milestonesDone: string[]
+  rubricChecked: string[]
+  repoUrl?: string
+  status: 'active' | 'completed'
+  completedAt?: number
+  score?: number
+  completionPct?: number
+}
+
 export interface AppState {
   schemaVersion: typeof SCHEMA_VERSION
   settings: Settings
@@ -67,6 +85,7 @@ export interface AppState {
   achievements: Unlock[]
   /** Array order is the manual sort order. */
   todos: Todo[]
+  challenges: ChallengeRecord[]
 }
 
 export function defaultAppState(): AppState {
@@ -82,5 +101,6 @@ export function defaultAppState(): AppState {
     events: [],
     achievements: [],
     todos: [],
+    challenges: [],
   }
 }

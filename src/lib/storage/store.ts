@@ -12,6 +12,7 @@ import {
   type ActivityEvent,
   type ActivityEventType,
   type AppState,
+  type ChallengeRecord,
   type Settings,
   type Todo,
 } from './schema'
@@ -32,6 +33,10 @@ interface AppStore extends AppState {
   /** Replaces app state from an exported backup (runs the normal migration). */
   importState: (data: unknown) => void
   resetState: () => void
+  startChallenge: (record: Omit<ChallengeRecord, 'startedAt' | 'milestonesDone' | 'rubricChecked' | 'status'>) => void
+  toggleChallengeItem: (id: string, field: 'milestonesDone' | 'rubricChecked', itemId: string) => void
+  setChallengeRepo: (id: string, repoUrl: string) => void
+  completeChallenge: (id: string, result: { score: number; completionPct: number; label: string }) => void
 }
 
 function mkEvent(type: ActivityEventType, refId?: string, label?: string): ActivityEvent {
@@ -97,6 +102,59 @@ export const useAppStore = create<AppStore>()(
         }),
       updateSettings: (patch) =>
         set((s) => ({ settings: { ...s.settings, ...patch } })),
+      startChallenge: (record) =>
+        set((s) =>
+          s.challenges.some((c) => c.id === record.id)
+            ? s
+            : {
+                challenges: [
+                  ...s.challenges,
+                  {
+                    ...record,
+                    startedAt: Date.now(),
+                    milestonesDone: [],
+                    rubricChecked: [],
+                    status: 'active' as const,
+                  },
+                ],
+              },
+        ),
+      toggleChallengeItem: (id, field, itemId) =>
+        set((s) => ({
+          challenges: s.challenges.map((c) => {
+            if (c.id !== id || c.status !== 'active') return c
+            const list = c[field]
+            return {
+              ...c,
+              [field]: list.includes(itemId)
+                ? list.filter((x) => x !== itemId)
+                : [...list, itemId],
+            }
+          }),
+        })),
+      setChallengeRepo: (id, repoUrl) =>
+        set((s) => ({
+          challenges: s.challenges.map((c) => (c.id === id ? { ...c, repoUrl } : c)),
+        })),
+      completeChallenge: (id, result) =>
+        set((s) => {
+          const target = s.challenges.find((c) => c.id === id)
+          if (!target || target.status === 'completed') return s
+          return {
+            challenges: s.challenges.map((c) =>
+              c.id === id
+                ? {
+                    ...c,
+                    status: 'completed' as const,
+                    completedAt: Date.now(),
+                    score: result.score,
+                    completionPct: result.completionPct,
+                  }
+                : c,
+            ),
+            events: [...s.events, mkEvent('challenge_completed', id, result.label)],
+          }
+        }),
       importState: (data) => {
         const migrated = migrateState(
           data,
@@ -115,6 +173,7 @@ export const useAppStore = create<AppStore>()(
         events: s.events,
         achievements: s.achievements,
         todos: s.todos,
+        challenges: s.challenges,
       }),
       migrate: (persisted, version) => migrateState(persisted, version),
     },

@@ -5,6 +5,30 @@ where to pick up.
 
 ---
 
+## Session 5 — 2026-07-06 (Phase 5, owner remote)
+
+Owner went remote mid-day and cannot mint tokens: Phase 4b (needs owner PAT) and the
+Google Calendar OAuth (Phase 11) are DEFERRED until the owner is back at a browser
+where he can create credentials. Proceeded to Phase 5, which needs nothing from him.
+
+Shipped challenges: schema v4 (ChallengeRecord keyed by period id), deterministic
+ISO-week/month template rotation (8 weekly + 4 monthly tight templates), start ->
+milestone checklist with live % -> repo linkage (API create when token exists;
+prefilled github.com/new + paste fallback now) -> points-weighted rubric self-score
+-> confirm -> archive with score/pct + challenge_completed event -> history with
+score badges. 68 tests green (isoWeek edges incl. 2027-01-01 -> 2026-W53, rotation
+determinism, scoring math, v3->v4 migration). Browser-verified the full lifecycle
+including the confirm dialog (browse dialog-accept) and the dashboard feed entry;
+dev-origin test data cleared after QA.
+
+NEXT: Phase 6 — LeetCode stats (needs only the lcUsername the owner can type any
+time; community proxy fallback + the GitHub-Actions data pipeline both work without
+owner action). After that: Phase 7 Resource Center is CONTENT-HEAVY (batch it),
+Phase 8 interview game, Phase 9 analytics. When the owner is back at a desk:
+Phase 4b sync PAT, then Google Calendar OAuth walkthrough.
+
+---
+
 ## Session 4 — 2026-07-06 (Phase 4)
 
 Shipped GitHub integration; split state sync into Phase 4b (storage-core surgery

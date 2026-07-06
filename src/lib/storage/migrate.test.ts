@@ -49,4 +49,10 @@ describe('migrateState', () => {
     const todos = [{ id: 't1', title: 'x', priority: 'low', category: 'personal', tags: [], createdAt: 1 }]
     expect(migrateState({ todos }, 3).todos).toEqual(todos)
   })
+
+  it('migrates v3 state (no challenges field) to v4 with an empty list', () => {
+    const out = migrateState({ schemaVersion: 3, todos: [] }, 3)
+    expect(out.challenges).toEqual([])
+    expect(out.schemaVersion).toBe(SCHEMA_VERSION)
+  })
 })

@@ -119,6 +119,30 @@ export function fetchRepos(username: string, token?: string): Promise<GhRepo[]> 
   )
 }
 
+/** Creates a repo for the authenticated user. Needs repo/administration permissions. */
+export async function createRepo(
+  name: string,
+  description: string,
+  token: string,
+): Promise<{ html_url: string }> {
+  const res = await fetch(`${API}/user/repos`, {
+    method: 'POST',
+    headers: { ...headers(token), 'Content-Type': 'application/json' },
+    body: JSON.stringify({ name, description, auto_init: true }),
+  })
+  if (!res.ok) {
+    let message = `GitHub API error ${res.status}`
+    try {
+      const body = (await res.json()) as { message?: string }
+      if (body.message) message = body.message
+    } catch {
+      // keep generic message
+    }
+    throw new GithubError(res.status, message)
+  }
+  return res.json() as Promise<{ html_url: string }>
+}
+
 /** Contribution calendar requires GraphQL, which requires a token. */
 export function fetchContributions(
   username: string,

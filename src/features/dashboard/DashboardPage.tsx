@@ -113,7 +113,16 @@ export function DashboardPage() {
     label: `Unlocked: ${ACHIEVEMENTS_BY_ID.get(u.id)?.title ?? u.id}`,
     kind: 'unlock' as const,
   }))
-  const feed = [...completionItems, ...unlockItems].sort((a, b) => b.ts - a.ts).slice(0, 8)
+  const challengeItems: FeedItem[] = events
+    .filter((e) => e.type === 'challenge_completed')
+    .map((e) => ({
+      ts: e.ts,
+      label: e.label ?? 'Challenge completed',
+      kind: 'completion' as const,
+    }))
+  const feed = [...completionItems, ...unlockItems, ...challengeItems]
+    .sort((a, b) => b.ts - a.ts)
+    .slice(0, 8)
 
   const dateLine = now.toLocaleDateString(undefined, {
     weekday: 'long',
