@@ -5,6 +5,32 @@ where to pick up.
 
 ---
 
+## Session 6 — 2026-07-06 (Phase 6, owner remote, ~50% usage budget)
+
+Shipped LeetCode stats lean. KEY FINDING: the legacy app's data source
+(leetcode-stats-api.herokuapp.com) is DEAD — 503 — so the Actions pipeline is the
+only reliable path. scripts/fetch-leetcode.mjs verified locally against a real
+account (LC GraphQL works fine server-side, no CORS): full stats + calendar.
+leetcode-data.yml runs daily at 05:00 UTC + manual dispatch, commits
+public/data/leetcode.json, but is INERT until LC_USERNAME is filled in the yml
+(one-line edit once the owner shares his LeetCode username — ASK HIM).
+
+Client chain: synced file (<48h, username match) -> proxy fallback (dead today,
+kept in case it resurrects) -> honest error card pointing at the workflow. Page:
+solved/rank/LC-streak card, difficulty coverage cards with bars, 8-week trend
+(hand-rolled bars — deliberately no chart dependency yet), weak-area focus card
+(difficulty-coverage v1). QA done by generating the data file locally for a public
+account, verifying the synced path end to end, then deleting the file + clearing
+dev storage. 72 tests green.
+
+NEXT: Phase 7 Resource Center — CONTENT-HEAVY: build the handbook framework +
+Batch A topics only, defer B/C given the usage budget. Or jump to Phase 8/9 (code-
+heavy, cheaper) and batch content when budget refreshes — decide with owner.
+PENDING OWNER (one line each, any time): LeetCode username; later a PAT (Phase 4b)
+and Google OAuth (Phase 11).
+
+---
+
 ## Session 5 — 2026-07-06 (Phase 5, owner remote)
 
 Owner went remote mid-day and cannot mint tokens: Phase 4b (needs owner PAT) and the

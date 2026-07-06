@@ -3,6 +3,7 @@ import { AppShell } from './AppShell'
 import { NAV_ITEMS } from './nav'
 import { AssignmentsPage } from '@/features/assignments/AssignmentsPage'
 import { ChallengesPage } from '@/features/challenges/ChallengesPage'
+import { LeetCodePage } from '@/features/leetcode/LeetCodePage'
 import { TodosPage } from '@/features/todos/TodosPage'
 import { GithubPage } from '@/features/github/GithubPage'
 import { SettingsPage } from '@/features/settings/SettingsPage'
@@ -23,12 +24,19 @@ export const router = createBrowserRouter(
         { path: 'todos', element: <TodosPage /> },
         { path: 'challenges', element: <ChallengesPage /> },
         { path: 'github', element: <GithubPage /> },
+        { path: 'leetcode', element: <LeetCodePage /> },
         { path: 'settings', element: <SettingsPage /> },
         ...NAV_ITEMS.filter(
           (item) =>
-            !['/', '/assignments', '/todos', '/challenges', '/github', '/settings'].includes(
-              item.to,
-            ),
+            ![
+              '/',
+              '/assignments',
+              '/todos',
+              '/challenges',
+              '/github',
+              '/leetcode',
+              '/settings',
+            ].includes(item.to),
         ).map((item) => ({
           path: item.to.slice(1),
           element: <PlaceholderPage item={item} />,

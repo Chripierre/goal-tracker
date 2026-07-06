@@ -1,0 +1,36 @@
+name: LeetCode data
+
+on:
+  schedule:
+    - cron: '0 5 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+env:
+  # Set this to the owner's LeetCode username to activate the daily sync.
+  LC_USERNAME: ''
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - run: node scripts/fetch-leetcode.mjs
+        env:
+          LC_USERNAME: ${{ env.LC_USERNAME }}
+      - name: Commit data file if changed
+        run: |
+          if [ -n "$(git status --porcelain public/data/leetcode.json 2>/dev/null)" ]; then
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add public/data/leetcode.json
+            git commit -m "chore: refresh leetcode data"
+            git push
+          else
+            echo "No changes."
+          fi

@@ -108,13 +108,22 @@ deferral applies to the Phase 11 Google Calendar OAuth setup.
       completion % archived, challenge_completed event lands in dashboard feed
 - [x] History view with score badges; browser-verified full lifecycle (Session 5)
 
-## Phase 6 — LeetCode stats — NEXT
+## Phase 6 — LeetCode stats — DONE 2026-07-06
 
-- [ ] Scheduled Action pipeline writing `leetcode.json`; client fallback proxy
-- [ ] Stats: solved, difficulty split, LC streak, trends, weak-area analysis
-- [ ] Daily question surfacing on dashboard
+- [x] Daily Actions pipeline (leetcode-data.yml + scripts/fetch-leetcode.mjs): queries
+      LC GraphQL server-side, commits public/data/leetcode.json. INERT until
+      LC_USERNAME is set in the workflow file (owner's username still unknown).
+      Script verified locally against a real account.
+- [x] Client: synced-file first (48h freshness), community proxy fallback with 10-min
+      cache. FINDING: leetcode-stats-api.herokuapp.com is DEAD (503) — the pipeline
+      is the only reliable source now; error copy says exactly that.
+- [x] Stats page: solved + rank + LC submission streak, difficulty split with
+      coverage % bars, 8-week trend chart (hand-rolled, no chart dep), weak-area
+      focus card (difficulty-based v1; per-topic waits for Phase 7 data)
+- [~] Daily question: plain link to the problemset (the daily-question APIs are the
+      same dead/flaky community surface; revisit if a reliable source appears)
 
-## Phase 7 — LeetCode Resource Center (content-heavy; ship in batches)
+## Phase 7 — LeetCode Resource Center (content-heavy; ship in batches) — NEXT
 
 - [ ] Handbook framework: topic page template (intuition, patterns, mistakes, templates, complexity, progression, linked problems)
 - [ ] Batch A: Arrays, Strings, Hash Maps, Two Pointers/Sliding Window, Binary Search, Prefix Sum
