@@ -17,14 +17,39 @@ this file first, then follow the resume protocol below.
 ## Resume protocol
 
 1. Read `WORKLOG.md` — the newest entry says exactly where work stopped and what is next.
-2. Read `ROADMAP.md` — find the phase marked IN PROGRESS.
+2. Read `ROADMAP.md` — find the phase marked NEXT or IN PROGRESS.
 3. Skim `ARCHITECTURE.md` sections relevant to that phase. Decisions there are settled;
    do not relitigate them without new information. If you must deviate, record why in
    WORKLOG and update ARCHITECTURE.
-4. Run `npm install` then `npm run build` in the repo root to confirm a working baseline
+4. Run the identity checks in "Git identity and publishing" below BEFORE any commit.
+5. Run `npm install` then `npm run build` in the repo root to confirm a working baseline
    before changing anything.
-5. Work in small commits. Update `ROADMAP.md` checkboxes and append to `WORKLOG.md` as
+6. Work in small commits. Update `ROADMAP.md` checkboxes and append to `WORKLOG.md` as
    you go — treat the docs as part of the deliverable.
+
+## Git identity and publishing — READ BEFORE COMMITTING
+
+This repo is PUBLIC and belongs to the owner's personal GitHub account **Chripierre**.
+The machine also carries an unrelated global git identity for other work; that identity
+must never author commits here. Concretely:
+
+1. Verify before the first commit of a session:
+   - `git config user.name` -> `Christian Pierre`
+   - `git config user.email` -> `Chripierre@users.noreply.github.com`
+   - `git remote -v` -> `git@github-chripierre:Chripierre/goal-tracker.git`
+   - `ssh -T git@github-chripierre` -> greets "Hi Chripierre!"
+2. If any check fails (e.g. after a fresh clone), fix REPO-LOCALLY — never `--global`:
+   - `git config user.name "Christian Pierre"`
+   - `git config user.email "Chripierre@users.noreply.github.com"`
+   - `git remote set-url origin git@github-chripierre:Chripierre/goal-tracker.git`
+   The `github-chripierre` SSH alias lives in `~/.ssh/config` (key `~/.ssh/id_chripierre`);
+   a plain `github.com` remote would route to the wrong account's credentials.
+3. Repo settings on github.com (Pages, visibility, secrets) require the owner to be
+   signed into the browser as **Chripierre**.
+4. Privacy standing rule: the repo went public on 2026-07-06 after a scrub. Never commit
+   third-party personal data (names, profiles) or private application-strategy notes.
+   Private copies of the scrubbed data live OUTSIDE the repo in
+   `%USERPROFILE%\Desktop\goal-tracker-private\`.
 
 ## Project facts
 
