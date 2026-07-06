@@ -130,11 +130,17 @@ deferral applies to the Phase 11 Google Calendar OAuth setup.
 - [ ] Batch B: Linked Lists, Stacks/Queues/Monotonic, Trees, BST, Heaps, Tries, Recursion, Sorting
 - [ ] Batch C: Graphs, DFS/BFS, Topological Sort, Union Find, DP, Memoization, Backtracking, Greedy, Bit Manipulation, Divide & Conquer, Math, Geometry
 
-## Phase 8 — Interview practice game — NEXT (owner budget permitting)
+## Phase 8 — Interview practice game — DONE 2026-07-06
 
-- [ ] Wordle-inspired daily interview question game; categories per prompt
-- [ ] Score, streak, timer, hints, explanations, local leaderboard
-- [ ] Question bank content (batched, per category)
+- [x] Wordle-style daily round: 5 questions picked deterministically per day
+      (lib/game, tested) from a 45-question bank — 3 per category across all 15
+      categories in the owner brief (src/data/interviewQuestions.ts)
+- [x] 30s timer per question with speed bonus (+50 max), hints (−25), color-coded
+      reveal with explanations, score accrual; one round per day (schema v5
+      gameResults, store stamps completedAt — react-compiler purity rule)
+- [x] Play streak (reuses streak engine), local top-10 leaderboard, personal-best
+      callout; full round browser-verified incl. replay lock (Session 8)
+- Later: grow the question bank in content batches alongside Phase 7
 
 ## Phase 9 — Analytics — DONE 2026-07-06 (built before 7/8 — code-heavy, token-cheap)
 

@@ -18,5 +18,6 @@ export function migrateState(persisted: unknown, _fromVersion: number): AppState
     achievements: Array.isArray(p.achievements) ? p.achievements : [],
     todos: Array.isArray(p.todos) ? p.todos : [],
     challenges: Array.isArray(p.challenges) ? p.challenges : [],
+    gameResults: Array.isArray(p.gameResults) ? p.gameResults : [],
   }
 }

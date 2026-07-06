@@ -55,4 +55,10 @@ describe('migrateState', () => {
     expect(out.challenges).toEqual([])
     expect(out.schemaVersion).toBe(SCHEMA_VERSION)
   })
+
+  it('migrates v4 state (no gameResults field) to v5 with an empty list', () => {
+    const out = migrateState({ schemaVersion: 4, challenges: [] }, 4)
+    expect(out.gameResults).toEqual([])
+    expect(out.schemaVersion).toBe(SCHEMA_VERSION)
+  })
 })

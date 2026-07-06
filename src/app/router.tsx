@@ -7,6 +7,7 @@ import { ChallengesPage } from '@/features/challenges/ChallengesPage'
 import { LeetCodePage } from '@/features/leetcode/LeetCodePage'
 import { TodosPage } from '@/features/todos/TodosPage'
 import { GithubPage } from '@/features/github/GithubPage'
+import { InterviewPage } from '@/features/interview/InterviewPage'
 import { SettingsPage } from '@/features/settings/SettingsPage'
 import { DashboardPage } from '@/features/dashboard/DashboardPage'
 import { NotFoundPage } from '@/components/NotFoundPage'
@@ -26,6 +27,7 @@ export const router = createBrowserRouter(
         { path: 'challenges', element: <ChallengesPage /> },
         { path: 'github', element: <GithubPage /> },
         { path: 'leetcode', element: <LeetCodePage /> },
+        { path: 'interview', element: <InterviewPage /> },
         { path: 'analytics', element: <AnalyticsPage /> },
         { path: 'settings', element: <SettingsPage /> },
         ...NAV_ITEMS.filter(
@@ -37,6 +39,7 @@ export const router = createBrowserRouter(
               '/challenges',
               '/github',
               '/leetcode',
+              '/interview',
               '/analytics',
               '/settings',
             ].includes(item.to),

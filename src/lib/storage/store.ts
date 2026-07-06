@@ -13,6 +13,7 @@ import {
   type ActivityEventType,
   type AppState,
   type ChallengeRecord,
+  type GameResult,
   type Settings,
   type Todo,
 } from './schema'
@@ -37,6 +38,8 @@ interface AppStore extends AppState {
   toggleChallengeItem: (id: string, field: 'milestonesDone' | 'rubricChecked', itemId: string) => void
   setChallengeRepo: (id: string, repoUrl: string) => void
   completeChallenge: (id: string, result: { score: number; completionPct: number; label: string }) => void
+  /** One result per day; later submissions for the same day are ignored. */
+  recordGameResult: (result: Omit<GameResult, 'completedAt'>) => void
 }
 
 function mkEvent(type: ActivityEventType, refId?: string, label?: string): ActivityEvent {
@@ -102,6 +105,12 @@ export const useAppStore = create<AppStore>()(
         }),
       updateSettings: (patch) =>
         set((s) => ({ settings: { ...s.settings, ...patch } })),
+      recordGameResult: (result) =>
+        set((s) =>
+          s.gameResults.some((r) => r.dayKey === result.dayKey)
+            ? s
+            : { gameResults: [...s.gameResults, { ...result, completedAt: Date.now() }] },
+        ),
       startChallenge: (record) =>
         set((s) =>
           s.challenges.some((c) => c.id === record.id)
@@ -174,6 +183,7 @@ export const useAppStore = create<AppStore>()(
         achievements: s.achievements,
         todos: s.todos,
         challenges: s.challenges,
+        gameResults: s.gameResults,
       }),
       migrate: (persisted, version) => migrateState(persisted, version),
     },

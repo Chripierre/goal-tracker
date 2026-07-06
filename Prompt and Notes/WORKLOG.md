@@ -5,6 +5,25 @@ where to pick up.
 
 ---
 
+## Session 8 — 2026-07-06 (Phase 8, ~60% usage)
+
+Shipped the interview game: deterministic daily 5-question round over a 45-question
+bank (3 x 15 categories), 30s timer + speed bonus, hint penalty, explanations,
+once-per-day lock, play streak, local top-10 leaderboard. Schema v5 (gameResults).
+82 tests green. Browser-verified a full round (score 296 recorded, lock held after
+reload); test data cleared.
+
+Gotcha: react-hooks/purity flags Date.now() in functions the compiler cannot prove
+are handler-only — stamp timestamps in STORE actions instead (recordGameResult
+takes Omit<GameResult,'completedAt'>). Same family as the earlier Date-in-memo rule.
+
+Remaining build phases: 7 (Resource Center content batches — biggest token item),
+10 (achievements full), 11 (reminders — needs owner Google OAuth), 12 (career port
++ legacy import), 13 (polish + README rewrite), 4b (sync — needs owner PAT).
+PENDING OWNER: LeetCode username / PAT / Google OAuth.
+
+---
+
 ## Session 7 — 2026-07-06 (Phase 9 out of order — owner's token-budget call)
 
 Owner chose Phase 9 before 7/8 (code-heavy beats content-heavy at ~50% budget).

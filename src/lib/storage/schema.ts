@@ -1,4 +1,4 @@
-export const SCHEMA_VERSION = 4
+export const SCHEMA_VERSION = 5
 export const STORAGE_KEY = 'gt_v1'
 
 export interface Settings {
@@ -78,6 +78,15 @@ export interface ChallengeRecord {
   completionPct?: number
 }
 
+/** One interview-game run; one per day, Wordle-style. */
+export interface GameResult {
+  dayKey: string
+  score: number
+  correct: number
+  total: number
+  completedAt: number
+}
+
 export interface AppState {
   schemaVersion: typeof SCHEMA_VERSION
   settings: Settings
@@ -86,6 +95,7 @@ export interface AppState {
   /** Array order is the manual sort order. */
   todos: Todo[]
   challenges: ChallengeRecord[]
+  gameResults: GameResult[]
 }
 
 export function defaultAppState(): AppState {
@@ -102,5 +112,6 @@ export function defaultAppState(): AppState {
     achievements: [],
     todos: [],
     challenges: [],
+    gameResults: [],
   }
 }
