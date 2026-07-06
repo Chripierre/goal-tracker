@@ -5,6 +5,34 @@ where to pick up.
 
 ---
 
+## Session 11 — 2026-07-07 (Phase 12, ~60% usage)
+
+Shipped the career module. Key move: NO content retyping — scripts/extract-career.mjs
+slices legacy/tracker.js at the 'function uid()' marker, vm-evaluates the data section
+with a stubbed localStorage, and writes src/data/career.json (100 items, exact
+fidelity). Typed wrapper in src/data/career.ts; tsconfig gained resolveJsonModule.
+
+Career page: 9 tabs with counts. Reference tabs (checklist/gaps/certs/projects) +
+opportunity tabs (jobs/scholarships/internships with cat/tier filters) + personal
+tracking tabs (applications/network CRUD). Personal data (checks, namespaced
+statuses kind:id, applications, contacts) = schema v6 career slice, localStorage
+only — the privacy line holds: nothing personal enters the public repo.
+
+Legacy import: Settings -> Import legacy tracker maps cp_tracker_v1 JSON (mapping
+pure + unit-tested; netStatus dropped deliberately — scrubbed prospects have nothing
+to attach to; custom tasks become career-category todos tagged 'imported').
+DevTools copy instructions shown in Settings.
+
+92+ tests green (mapping + v6 migration). Browser-verified incl. namespaced status
+persistence. Chunk-size warning still standing -> Phase 13 lazy-loading item.
+
+NEXT: Phase 13 — polish & release: README rewrite (per the owner brief's
+Documentation section), route-level lazy loading (bundle warning), a11y pass,
+error boundaries, LICENSE. Blocked-on-owner list unchanged: LC username, PAT (4b),
+Google OAuth (11).
+
+---
+
 ## Session 10 — 2026-07-06/07 (Phase 7 complete — fresh usage budget)
 
 Owner's budget refreshed; owner back at desk (no longer remote). Shipped the ENTIRE

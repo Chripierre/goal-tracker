@@ -17,12 +17,15 @@ import {
   type ActivityEvent,
   type ActivityEventType,
   type AppState,
+  type CareerApplication,
+  type CareerContact,
   type ChallengeRecord,
   type GameResult,
   type Settings,
   type Todo,
   type Unlock,
 } from './schema'
+import type { LegacyImport } from '../career/legacy'
 
 export type NewTodoInput = Omit<Todo, 'id' | 'createdAt' | 'completedAt' | 'spawnedFrom'>
 
@@ -46,6 +49,16 @@ interface AppStore extends AppState {
   completeChallenge: (id: string, result: { score: number; completionPct: number; label: string }) => void
   /** One result per day; later submissions for the same day are ignored. */
   recordGameResult: (result: Omit<GameResult, 'completedAt'>) => void
+  setCareerCheck: (id: string, done: boolean) => void
+  setCareerStatus: (key: string, status: string) => void
+  addApplication: (input: Omit<CareerApplication, 'id'>) => void
+  updateApplication: (id: string, patch: Partial<Omit<CareerApplication, 'id'>>) => void
+  deleteApplication: (id: string) => void
+  addContact: (input: Omit<CareerContact, 'id' | 'addedAt'>) => void
+  updateContact: (id: string, patch: Partial<Omit<CareerContact, 'id' | 'addedAt'>>) => void
+  deleteContact: (id: string) => void
+  /** Merges a mapped cp_tracker_v1 import into career state and todos. */
+  applyLegacyImport: (mapped: LegacyImport) => void
 }
 
 function mkEvent(type: ActivityEventType, refId?: string, label?: string): ActivityEvent {
@@ -132,6 +145,66 @@ export const useAppStore = create<AppStore>()(
         }),
       updateSettings: (patch) =>
         set((s) => ({ settings: { ...s.settings, ...patch } })),
+      setCareerCheck: (id, done) =>
+        set((s) => ({ career: { ...s.career, checks: { ...s.career.checks, [id]: done } } })),
+      setCareerStatus: (key, status) =>
+        set((s) => ({
+          career: { ...s.career, statuses: { ...s.career.statuses, [key]: status } },
+        })),
+      addApplication: (input) =>
+        set((s) => ({
+          career: {
+            ...s.career,
+            applications: [...s.career.applications, { ...input, id: uid() }],
+          },
+        })),
+      updateApplication: (id, patch) =>
+        set((s) => ({
+          career: {
+            ...s.career,
+            applications: s.career.applications.map((a) =>
+              a.id === id ? { ...a, ...patch } : a,
+            ),
+          },
+        })),
+      deleteApplication: (id) =>
+        set((s) => ({
+          career: {
+            ...s.career,
+            applications: s.career.applications.filter((a) => a.id !== id),
+          },
+        })),
+      addContact: (input) =>
+        set((s) => ({
+          career: {
+            ...s.career,
+            contacts: [...s.career.contacts, { ...input, id: uid(), addedAt: Date.now() }],
+          },
+        })),
+      updateContact: (id, patch) =>
+        set((s) => ({
+          career: {
+            ...s.career,
+            contacts: s.career.contacts.map((c) => (c.id === id ? { ...c, ...patch } : c)),
+          },
+        })),
+      deleteContact: (id) =>
+        set((s) => ({
+          career: {
+            ...s.career,
+            contacts: s.career.contacts.filter((c) => c.id !== id),
+          },
+        })),
+      applyLegacyImport: (mapped) =>
+        set((s) => ({
+          career: {
+            ...s.career,
+            checks: { ...s.career.checks, ...mapped.career.checks },
+            statuses: { ...s.career.statuses, ...mapped.career.statuses },
+            applications: [...s.career.applications, ...mapped.career.applications],
+          },
+          todos: [...s.todos, ...mapped.todos],
+        })),
       recordGameResult: (result) => {
         const s = get()
         if (s.gameResults.some((r) => r.dayKey === result.dayKey)) return
@@ -225,6 +298,7 @@ export const useAppStore = create<AppStore>()(
         todos: s.todos,
         challenges: s.challenges,
         gameResults: s.gameResults,
+        career: s.career,
       }),
       migrate: (persisted, version) => migrateState(persisted, version),
     },

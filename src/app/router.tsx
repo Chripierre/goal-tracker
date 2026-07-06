@@ -3,6 +3,7 @@ import { AppShell } from './AppShell'
 import { AchievementsPage } from '@/features/achievements/AchievementsPage'
 import { AnalyticsPage } from '@/features/analytics/AnalyticsPage'
 import { AssignmentsPage } from '@/features/assignments/AssignmentsPage'
+import { CareerPage } from '@/features/career/CareerPage'
 import { ChallengesPage } from '@/features/challenges/ChallengesPage'
 import { LeetCodePage } from '@/features/leetcode/LeetCodePage'
 import { TopicPage } from '@/features/leetcode/TopicPage'
@@ -25,6 +26,7 @@ export const router = createBrowserRouter(
         { path: 'assignments', element: <AssignmentsPage /> },
         { path: 'todos', element: <TodosPage /> },
         { path: 'challenges', element: <ChallengesPage /> },
+        { path: 'career', element: <CareerPage /> },
         { path: 'github', element: <GithubPage /> },
         { path: 'leetcode', element: <LeetCodePage /> },
         { path: 'leetcode/:slug', element: <TopicPage /> },

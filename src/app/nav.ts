@@ -1,5 +1,6 @@
 import {
   Award,
+  Briefcase,
   ClipboardList,
   Code2,
   GitBranch,
@@ -48,6 +49,13 @@ export const NAV_ITEMS: NavItem[] = [
     icon: Flag,
     description: 'Weekly and monthly projects with rubrics and auto-created repos.',
     phase: 5,
+  },
+  {
+    to: '/career',
+    label: 'Career',
+    icon: Briefcase,
+    description: 'Checklist, gaps, certs, jobs, scholarships, internships, applications.',
+    phase: 12,
   },
   {
     to: '/github',

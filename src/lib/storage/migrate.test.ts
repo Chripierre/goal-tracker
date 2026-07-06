@@ -61,4 +61,16 @@ describe('migrateState', () => {
     expect(out.gameResults).toEqual([])
     expect(out.schemaVersion).toBe(SCHEMA_VERSION)
   })
+
+  it('migrates v5 state (no career field) to v6 with defaults, preserving partials', () => {
+    expect(migrateState({ schemaVersion: 5 }, 5).career).toEqual({
+      checks: {},
+      statuses: {},
+      applications: [],
+      contacts: [],
+    })
+    const partial = migrateState({ career: { checks: { t01: true } } }, 6)
+    expect(partial.career.checks).toEqual({ t01: true })
+    expect(partial.career.contacts).toEqual([])
+  })
 })

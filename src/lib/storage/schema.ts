@@ -1,4 +1,4 @@
-export const SCHEMA_VERSION = 5
+export const SCHEMA_VERSION = 6
 export const STORAGE_KEY = 'gt_v1'
 
 export interface Settings {
@@ -87,6 +87,40 @@ export interface GameResult {
   completedAt: number
 }
 
+export interface CareerApplication {
+  id: string
+  company: string
+  role: string
+  /** Local day key. */
+  appliedOn?: string
+  status: string
+  notes?: string
+}
+
+export interface CareerContact {
+  id: string
+  name: string
+  context?: string
+  status: string
+  addedAt: number
+}
+
+/**
+ * Personal career-tracking state. Reference content (scholarships, certs, ...)
+ * ships in src/data/career.json; everything personal lives here, local-only.
+ * statuses keys are namespaced `${kind}:${itemId}` to avoid id collisions.
+ */
+export interface CareerState {
+  checks: Record<string, boolean>
+  statuses: Record<string, string>
+  applications: CareerApplication[]
+  contacts: CareerContact[]
+}
+
+export function defaultCareerState(): CareerState {
+  return { checks: {}, statuses: {}, applications: [], contacts: [] }
+}
+
 export interface AppState {
   schemaVersion: typeof SCHEMA_VERSION
   settings: Settings
@@ -96,6 +130,7 @@ export interface AppState {
   todos: Todo[]
   challenges: ChallengeRecord[]
   gameResults: GameResult[]
+  career: CareerState
 }
 
 export function defaultAppState(): AppState {
@@ -113,5 +148,6 @@ export function defaultAppState(): AppState {
     todos: [],
     challenges: [],
     gameResults: [],
+    career: defaultCareerState(),
   }
 }

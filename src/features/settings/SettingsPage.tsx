@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/Button'
 import { Card } from '@/components/ui/Card'
 import { TextInput } from '@/components/ui/TextInput'
 import { localDayKey } from '@/lib/dates'
+import { mapLegacyState } from '@/lib/career/legacy'
 import { fetchAuthenticatedUser } from '@/lib/github/client'
 import { useGithubToken } from '@/lib/github/token'
 import { useAppStore } from '@/lib/storage/store'
@@ -31,6 +32,7 @@ export function SettingsPage() {
   const updateSettings = useAppStore((s) => s.updateSettings)
   const importState = useAppStore((s) => s.importState)
   const resetState = useAppStore((s) => s.resetState)
+  const applyLegacyImport = useAppStore((s) => s.applyLegacyImport)
   const token = useGithubToken((s) => s.token)
   const setToken = useGithubToken((s) => s.setToken)
 
@@ -41,6 +43,23 @@ export function SettingsPage() {
   const [tokenStatus, setTokenStatus] = useState('')
   const [dataStatus, setDataStatus] = useState('')
   const fileRef = useRef<HTMLInputElement>(null)
+  const legacyRef = useRef<HTMLInputElement>(null)
+
+  function importLegacy(file: File) {
+    file
+      .text()
+      .then((text) => {
+        const mapped = mapLegacyState(JSON.parse(text))
+        if (!mapped) {
+          setDataStatus('That file does not look like cp_tracker_v1 data.')
+          return
+        }
+        if (!window.confirm(`${mapped.summary}\n\nMerge into your current data?`)) return
+        applyLegacyImport(mapped)
+        setDataStatus(mapped.summary)
+      })
+      .catch(() => setDataStatus('Could not read that file as JSON.'))
+  }
 
   function saveProfile() {
     updateSettings({ displayName: displayName.trim() || 'there' })
@@ -191,10 +210,31 @@ export function SettingsPage() {
                 e.target.value = ''
               }}
             />
+            <Button variant="ghost" onClick={() => legacyRef.current?.click()}>
+              Import legacy tracker
+            </Button>
+            <input
+              ref={legacyRef}
+              type="file"
+              accept="application/json,.json,.txt"
+              className="hidden"
+              aria-label="Import legacy cp_tracker_v1 file"
+              onChange={(e) => {
+                const f = e.target.files?.[0]
+                if (f) importLegacy(f)
+                e.target.value = ''
+              }}
+            />
             <Button variant="danger" onClick={resetAll}>
               Reset all data
             </Button>
           </div>
+          <p className="mt-2 text-xs text-text-3">
+            Legacy import: in the OLD tracker's browser tab run
+            copy(localStorage.getItem('cp_tracker_v1')) in DevTools, save it as a .json
+            file, and import it here — checkmarks, statuses, applications, and custom
+            tasks carry over.
+          </p>
           {dataStatus && <p className="mt-2 text-xs text-text-2">{dataStatus}</p>}
         </Section>
       </div>

@@ -188,13 +188,24 @@ deferral applies to the Phase 11 Google Calendar OAuth setup.
 - [ ] ICS export channel
 - [ ] Optional Actions email channel (needs Phase 4 sync)
 
-## Phase 12 — Career modules port + legacy import — NEXT (next unblocked phase)
+## Phase 12 — Career modules port + legacy import — DONE 2026-07-07
 
-- [ ] Port seed arrays to typed `src/data/` content
-- [ ] Career feature group: applications, network, scholarships, internships, gaps, certs, projects
-- [ ] Settings → Import legacy `cp_tracker_v1` JSON
+- [x] Seed data ported with ZERO retyping: scripts/extract-career.mjs vm-evaluates the
+      legacy DATA SECTION into src/data/career.json (100 items: 28 tasks, 6 projects,
+      8 certs, 11 jobs, 9 gaps, 21 scholarships, 17 internships) + typed wrapper
+      src/data/career.ts. Prospects/built-in apps stay excluded (privacy scrub).
+- [x] Career page (new nav item, 9 tabs): Checklist (grouped, checkable), Skill gaps,
+      Certs, Projects, Jobs, Scholarships (tier filter), Internships (category filter)
+      — all with per-item status selects — plus personal Applications and Network
+      tabs (CRUD, localStorage-only, never in the public repo)
+- [x] Schema v6: career {checks, statuses (namespaced kind:id), applications, contacts}
+- [x] Settings -> "Import legacy tracker": maps cp_tracker_v1 (checks, five status
+      maps namespaced, apps -> applications, custom tasks -> career-category todos;
+      netStatus intentionally dropped — prospects were scrubbed). Mapping unit-tested.
+- [x] Browser-verified: tabs, checklist persistence, namespaced status persistence
+      (scholarship:s01 = submitted), scholarships render all 21 with tiers (Session 11)
 
-## Phase 13 — Polish & release
+## Phase 13 — Polish & release — NEXT (last unblocked phase)
 
 - [ ] A11y audit, keyboard pass, skeletons/transitions sweep
 - [ ] Test hardening, error boundaries, empty/error states everywhere

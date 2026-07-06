@@ -1,4 +1,4 @@
-import { SCHEMA_VERSION, defaultAppState, type AppState } from './schema'
+import { SCHEMA_VERSION, defaultAppState, defaultCareerState, type AppState } from './schema'
 
 /**
  * Additive, never destructive: unknown input falls back to defaults, known
@@ -19,5 +19,9 @@ export function migrateState(persisted: unknown, _fromVersion: number): AppState
     todos: Array.isArray(p.todos) ? p.todos : [],
     challenges: Array.isArray(p.challenges) ? p.challenges : [],
     gameResults: Array.isArray(p.gameResults) ? p.gameResults : [],
+    career:
+      p.career && typeof p.career === 'object'
+        ? { ...defaultCareerState(), ...p.career }
+        : defaultCareerState(),
   }
 }
