@@ -2,6 +2,7 @@ import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 import { uid } from '../uid'
 import { evaluateAchievements } from '../achievements/achievements'
+import { completeTodoIn, uncompleteTodoIn } from '../todos/mutations'
 import { migrateState } from './migrate'
 import type { DailyAssignment } from '../assignments/generate'
 import {
@@ -11,12 +12,21 @@ import {
   type ActivityEvent,
   type ActivityEventType,
   type AppState,
+  type Todo,
 } from './schema'
+
+export type NewTodoInput = Omit<Todo, 'id' | 'createdAt' | 'completedAt' | 'spawnedFrom'>
 
 interface AppStore extends AppState {
   appendEvent: (type: ActivityEventType, refId?: string, label?: string) => void
   completeAssignment: (assignment: DailyAssignment) => void
   uncompleteAssignment: (assignment: DailyAssignment) => void
+  addTodo: (input: NewTodoInput) => void
+  updateTodo: (id: string, patch: Partial<Omit<Todo, 'id' | 'createdAt'>>) => void
+  deleteTodo: (id: string) => void
+  completeTodo: (id: string) => void
+  uncompleteTodo: (id: string) => void
+  moveTodo: (activeId: string, overId: string) => void
 }
 
 function mkEvent(type: ActivityEventType, refId?: string, label?: string): ActivityEvent {
@@ -56,6 +66,30 @@ export const useAppStore = create<AppStore>()(
             mkEvent('assignment_uncompleted', assignment.id, assignment.title),
           ],
         })),
+      addTodo: (input) =>
+        set((s) => ({
+          todos: [...s.todos, { ...input, id: uid(), createdAt: Date.now() }],
+        })),
+      updateTodo: (id, patch) =>
+        set((s) => ({
+          todos: s.todos.map((t) => (t.id === id ? { ...t, ...patch } : t)),
+        })),
+      deleteTodo: (id) =>
+        set((s) => ({ todos: s.todos.filter((t) => t.id !== id) })),
+      completeTodo: (id) =>
+        set((s) => ({ todos: completeTodoIn(s.todos, id, new Date()) })),
+      uncompleteTodo: (id) =>
+        set((s) => ({ todos: uncompleteTodoIn(s.todos, id) })),
+      moveTodo: (activeId, overId) =>
+        set((s) => {
+          const from = s.todos.findIndex((t) => t.id === activeId)
+          const to = s.todos.findIndex((t) => t.id === overId)
+          if (from < 0 || to < 0 || from === to) return s
+          const todos = [...s.todos]
+          const [moved] = todos.splice(from, 1)
+          todos.splice(to, 0, moved)
+          return { todos }
+        }),
     }),
     {
       name: STORAGE_KEY,
@@ -65,6 +99,7 @@ export const useAppStore = create<AppStore>()(
         settings: s.settings,
         events: s.events,
         achievements: s.achievements,
+        todos: s.todos,
       }),
       migrate: (persisted, version) => migrateState(persisted, version),
     },

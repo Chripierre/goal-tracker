@@ -84,6 +84,12 @@ interface AppState {
 Engines in `src/lib/` are UI-free pure TS: `streak.ts`, `assignments.ts`,
 `achievements.ts`, `analytics.ts`. This is where the unit tests concentrate.
 
+Exception (owner decision 2026-07-06): personal TODOS are plain entities
+(`todos: Todo[]`, `completedAt` on the entity) and do NOT write activity events,
+feed the streak, or touch assignment stats — the owner uses them for separate
+personal work and the same effort must not count twice. The event log remains the
+source of truth for assignments, challenges, and practice only.
+
 ## 4. Project structure
 
 ```

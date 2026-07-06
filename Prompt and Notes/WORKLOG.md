@@ -5,6 +5,42 @@ where to pick up.
 
 ---
 
+## Session 3 — 2026-07-06 (Phase 3)
+
+Mid-phase scope pivot from the owner: todos must be PERSONAL and standalone — no
+coupling to assignments/challenges/streak/events (no double counting), calendar-first,
+Google Calendar as the notification channel. Decision recorded in ROADMAP Phase 3 +
+ARCHITECTURE §3 before building. The event union dropped 'todo_completed' (todos
+live entirely on the entity; completedAt drives everything).
+
+Shipped: schema v3 (todos array; array order = manual order), recurrence engine
+(spawn-on-complete anchored to max(dueDay, today), monthly end-clamping), tombstoneless
+entity undo (removes still-open spawned successor), filter/sort/search lib, Google
+Calendar all-day template links, quick-add/edit composer, list view with dnd-kit
+drag reorder + segmented status + tag-chip filters, month calendar view (chips toggle
+completion, overdue red, add-on-day prefills composer, selected-day panel), dashboard
+Todos panel. 52 tests green; typecheck/lint/build clean.
+
+Browser-verified on dev server: add (controlled inputs via native setters), recurring
+complete -> spawn due +7d with spawnedFrom link, undo from Done tab -> spawn removed +
+reopened, calendar chip/day panel/gcal href, dashboard panel counts, fresh-state reload.
+
+Gotchas learned:
+- react-hooks `set-state-in-effect` also fires for prop-sync effects — use the
+  render-time prev-state adjustment pattern (TodoComposer, same as AppShell drawer).
+- updateTodo merges patches, so the composer must submit optional keys as explicit
+  undefined to CLEAR them on edit (JSON persist drops undefined keys).
+- dnd-kit + React 19: no issues; PointerSensor with distance 5 keeps row clicks working.
+
+NEXT: Phase 4 — GitHub integration + sync (ROADMAP): PAT settings page, activity
+feed, commit/PR monitor, contribution heatmap (GraphQL w/ ghchart image fallback),
+then state sync to a private goal-tracker-data repo. Phase 11 carries the Google
+Calendar API OAuth sync (owner GCP setup needed — walk him through console steps).
+Still open: owner call on scrubbing self-authored career analysis in legacy/;
+gstack upgrade + onboarding prompts deferred.
+
+---
+
 ## Session 2 — 2026-07-06 (Phase 2)
 
 Built and shipped Phase 2, the core loop. All gates green locally: typecheck, lint,

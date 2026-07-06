@@ -49,7 +49,7 @@ describe('effectiveAssignmentCompletions', () => {
 
   it('ignores unrelated event types', () => {
     const events: ActivityEvent[] = [
-      { id: 'x', ts: 1, type: 'todo_completed', refId: 'd1/a' },
+      { id: 'x', ts: 1, type: 'challenge_completed', refId: 'd1/a' },
       { id: 'y', ts: 2, type: 'practice_logged' },
     ]
     expect(effectiveAssignmentCompletions(events)).toEqual([])

@@ -1,4 +1,4 @@
-export const SCHEMA_VERSION = 2
+export const SCHEMA_VERSION = 3
 export const STORAGE_KEY = 'gt_v1'
 
 export interface Settings {
@@ -12,14 +12,17 @@ export interface Settings {
 export type ActivityEventType =
   | 'assignment_completed'
   | 'assignment_uncompleted'
-  | 'todo_completed'
   | 'practice_logged'
   | 'challenge_completed'
 
 /**
- * Append-only. All streaks, stats, and achievements derive from these.
+ * Append-only. Streaks, stats, and achievements derive from these.
  * Undo is a tombstone event (assignment_uncompleted), never a deletion —
  * the latest completed/uncompleted event per refId wins.
+ *
+ * Personal todos deliberately do NOT write events (owner decision): they are
+ * separate from assignments/challenges and must not double-count toward the
+ * streak or stats. Their state lives on the Todo entity alone.
  */
 export interface ActivityEvent {
   id: string
@@ -36,11 +39,34 @@ export interface Unlock {
   unlockedAt: number
 }
 
+export type TodoPriority = 'urgent' | 'high' | 'medium' | 'low'
+export type TodoCategory = 'personal' | 'coding' | 'study' | 'career' | 'errand' | 'other'
+export type RecurrenceFreq = 'daily' | 'weekly' | 'monthly'
+
+export interface Todo {
+  id: string
+  title: string
+  notes?: string
+  priority: TodoPriority
+  category: TodoCategory
+  tags: string[]
+  /** Local day key YYYY-MM-DD; day-granular like the rest of the app. */
+  dueDay?: string
+  /** Recurring todos spawn their next occurrence when completed. */
+  recurrence?: RecurrenceFreq
+  /** Id of the completed occurrence that spawned this one (undo cleanup). */
+  spawnedFrom?: string
+  createdAt: number
+  completedAt?: number
+}
+
 export interface AppState {
   schemaVersion: typeof SCHEMA_VERSION
   settings: Settings
   events: ActivityEvent[]
   achievements: Unlock[]
+  /** Array order is the manual sort order. */
+  todos: Todo[]
 }
 
 export function defaultAppState(): AppState {
@@ -55,5 +81,6 @@ export function defaultAppState(): AppState {
     },
     events: [],
     achievements: [],
+    todos: [],
   }
 }

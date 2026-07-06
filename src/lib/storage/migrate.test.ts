@@ -38,4 +38,15 @@ describe('migrateState', () => {
     const unlocks = [{ id: 'first-assignment', unlockedAt: 5 }]
     expect(migrateState({ achievements: unlocks }, 2).achievements).toEqual(unlocks)
   })
+
+  it('migrates v2 state (no todos field) to v3 with an empty list', () => {
+    const out = migrateState({ schemaVersion: 2, events: [], achievements: [] }, 2)
+    expect(out.todos).toEqual([])
+    expect(out.schemaVersion).toBe(SCHEMA_VERSION)
+  })
+
+  it('preserves existing todos', () => {
+    const todos = [{ id: 't1', title: 'x', priority: 'low', category: 'personal', tags: [], createdAt: 1 }]
+    expect(migrateState({ todos }, 3).todos).toEqual(todos)
+  })
 })

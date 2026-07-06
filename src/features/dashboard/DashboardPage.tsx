@@ -18,6 +18,7 @@ import { generateAssignments } from '@/lib/assignments/generate'
 import { assignmentDays, completionsSinceDay } from '@/lib/assignments/stats'
 import { formatRelative, localDayKey, startOfMonth, startOfWeek } from '@/lib/dates'
 import { completedAssignmentIds, effectiveAssignmentCompletions } from '@/lib/events/completion'
+import { isOverdue } from '@/lib/todos/filter'
 import { useAppStore } from '@/lib/storage/store'
 import { currentStreak } from '@/lib/streak/streak'
 
@@ -58,6 +59,7 @@ interface FeedItem {
 export function DashboardPage() {
   const events = useAppStore((s) => s.events)
   const achievements = useAppStore((s) => s.achievements)
+  const todos = useAppStore((s) => s.todos)
   const displayName = useAppStore((s) => s.settings.displayName)
   const complete = useAppStore((s) => s.completeAssignment)
   const uncomplete = useAppStore((s) => s.uncompleteAssignment)
@@ -68,6 +70,10 @@ export function DashboardPage() {
   const assignments = generateAssignments(todayKey)
   const completedIds = useMemo(() => completedAssignmentIds(events), [events])
   const doneToday = assignments.filter((a) => completedIds.has(a.id)).length
+
+  const openTodos = todos.filter((t) => !t.completedAt)
+  const todosDueToday = openTodos.filter((t) => t.dueDay === todayKey).length
+  const todosOverdue = openTodos.filter((t) => isOverdue(t, todayKey)).length
 
   const stats = useMemo(() => {
     const current = new Date()
@@ -144,6 +150,7 @@ export function DashboardPage() {
           </div>
         </Card>
 
+        <div className="flex flex-col gap-4">
         <Card>
           <h2 className="px-4 pb-1 pt-4 text-sm font-semibold text-text-2">Recent activity</h2>
           {feed.length === 0 ? (
@@ -166,6 +173,42 @@ export function DashboardPage() {
             </div>
           )}
         </Card>
+
+        <Card className="p-4">
+          <div className="flex items-center justify-between">
+            <h2 className="text-sm font-semibold text-text-2">Todos</h2>
+            <Link
+              to="/todos"
+              className="flex items-center gap-0.5 rounded-md text-xs font-medium text-accent outline-none transition-colors hover:text-accent-hover focus-visible:ring-2 focus-visible:ring-accent"
+            >
+              View all
+              <ChevronRight className="size-3.5" aria-hidden />
+            </Link>
+          </div>
+          {todos.length === 0 ? (
+            <p className="mt-3 text-sm text-text-3">
+              Your personal list is empty — nothing here counts toward the streak.
+            </p>
+          ) : (
+            <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm">
+              <span>
+                <span className="font-mono font-semibold tabular-nums">{todosDueToday}</span>{' '}
+                <span className="text-text-3">due today</span>
+              </span>
+              <span className={todosOverdue > 0 ? 'text-danger' : ''}>
+                <span className="font-mono font-semibold tabular-nums">{todosOverdue}</span>{' '}
+                <span className={todosOverdue > 0 ? 'text-danger/80' : 'text-text-3'}>
+                  overdue
+                </span>
+              </span>
+              <span>
+                <span className="font-mono font-semibold tabular-nums">{openTodos.length}</span>{' '}
+                <span className="text-text-3">open</span>
+              </span>
+            </div>
+          )}
+        </Card>
+        </div>
       </div>
 
       <section className="mt-8">

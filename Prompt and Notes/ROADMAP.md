@@ -43,14 +43,31 @@ Goal: deployed, navigable, dark, responsive app shell with real storage core and
       (survives undo); schema v2 migration
 - [x] Browser-verified end to end on dev server (see WORKLOG Session 2)
 
-## Phase 3 — TODO system — NEXT
+## Phase 3 — TODO system (personal, standalone) — DONE 2026-07-06
 
-- [ ] Todos: priorities, deadlines, tags, categories, recurring rules
-- [ ] Filtering, search, sort; drag-and-drop reorder
-- [ ] Todo completion feeds event log / streak
-- [ ] Overdue surfacing on dashboard
+Owner decision (2026-07-06): todos are the owner's PERSONAL list, deliberately
+DECOUPLED from assignments/challenges, the streak, and the event log — the same
+work must not be counted twice. Calendar-first workflow; Google Calendar is the
+chosen reminder channel.
 
-## Phase 4 — GitHub integration + sync
+- [x] Todo entities in state (schema v3): priorities, day-granular deadlines, tags,
+      categories, recurrence (daily/weekly/monthly; completion spawns the next
+      occurrence anchored to max(dueDay, today); undo removes a still-open successor)
+- [x] List view: quick-add composer (also inline edit), filters (status/priority/
+      category/tag-chip), search, sort (manual/priority/due/created), drag-and-drop
+      manual order via dnd-kit (array order IS the manual order)
+- [x] Calendar view: month grid, chips on due days (toggle to complete), overdue in
+      red, add-on-a-day (+ prefills composer), selected-day panel with full rows
+- [x] Per-todo "Add to Google Calendar" link (all-day event template; zero setup)
+- [x] Dashboard: standalone Todos panel (due today / overdue / open) separate from
+      assignment stats
+- [x] Browser-verified end to end (see WORKLOG Session 3)
+- MOVED to Phase 11: Google Calendar API OAuth sync (auto-create/update events with
+      reminders) — requires owner GCP setup (project, Calendar API, OAuth client ID,
+      test-user consent). True SMS is out (Google retired Calendar SMS; would need a
+      paid SMS service) — Calendar mobile notifications are the practical channel.
+
+## Phase 4 — GitHub integration + sync — NEXT
 
 - [ ] Settings: fine-grained PAT (local-only, warning copy)
 - [ ] Activity feed, commit monitor, PR monitor, repo stats
@@ -96,7 +113,10 @@ Goal: deployed, navigable, dark, responsive app shell with real storage core and
 ## Phase 11 — Reminders
 
 - [ ] ReminderChannel interface; browser notifications channel
-- [ ] ICS / Google Calendar links channel
+- [ ] Google Calendar API sync channel for todos (client-side OAuth via Google Identity
+      Services; owner GCP setup required) — todos auto-create/update calendar events
+      with reminders; this is the owner's preferred notification path
+- [ ] ICS export channel
 - [ ] Optional Actions email channel (needs Phase 4 sync)
 
 ## Phase 12 — Career modules port + legacy import
