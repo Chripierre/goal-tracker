@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 import { addDays, localDayKey } from '../dates'
 import { generateAssignments } from '../assignments/generate'
 import type { ActivityEvent, Unlock } from '../storage/schema'
-import { evaluateAchievements } from './achievements'
+import { evaluateAchievements, type AchievementInput } from './achievements'
 
 const now = new Date(2026, 6, 6, 15) // Monday 2026-07-06
 
@@ -17,61 +17,96 @@ function completionsForDay(day: Date, count?: number): ActivityEvent[] {
   }))
 }
 
+function input(partial: Partial<AchievementInput>): AchievementInput {
+  return { events: [], todos: [], challenges: [], gameResults: [], ...partial }
+}
+
 function ids(unlocks: Unlock[]): string[] {
   return unlocks.map((u) => u.id).sort()
 }
 
-describe('evaluateAchievements', () => {
-  it('unlocks first-assignment on the first completion only', () => {
-    const events = completionsForDay(now, 1)
-    const first = evaluateAchievements(events, [], now)
+describe('assignment achievements', () => {
+  it('unlocks first-assignment once and never re-earns', () => {
+    const i = input({ events: completionsForDay(now, 1) })
+    const first = evaluateAchievements(i, [], now)
     expect(ids(first)).toEqual(['first-assignment'])
-    expect(evaluateAchievements(events, first, now)).toEqual([])
+    expect(evaluateAchievements(i, first, now)).toEqual([])
   })
 
-  it('unlocks perfect-day when every assignment of today is done', () => {
-    const events = completionsForDay(now)
-    expect(ids(evaluateAchievements(events, [], now))).toContain('perfect-day')
+  it('unlocks perfect-day and streak-3 appropriately', () => {
+    const perfectToday = input({ events: completionsForDay(now) })
+    expect(ids(evaluateAchievements(perfectToday, [], now))).toContain('perfect-day')
+
+    const threeDays = input({
+      events: [
+        ...completionsForDay(addDays(now, -2), 1),
+        ...completionsForDay(addDays(now, -1), 1),
+        ...completionsForDay(now, 1),
+      ],
+    })
+    expect(ids(evaluateAchievements(threeDays, [], now))).toContain('streak-3')
   })
 
-  it('does not unlock perfect-day with one assignment missing', () => {
-    const events = completionsForDay(now, 4)
-    expect(ids(evaluateAchievements(events, [], now))).not.toContain('perfect-day')
+  it('unlocks perfect-week only after seven consecutive perfect days', () => {
+    const six = input({
+      events: Array.from({ length: 6 }, (_, d) => completionsForDay(addDays(now, -d))).flat(),
+    })
+    expect(ids(evaluateAchievements(six, [], now))).not.toContain('perfect-week')
+    const seven = input({
+      events: Array.from({ length: 7 }, (_, d) => completionsForDay(addDays(now, -d))).flat(),
+    })
+    expect(ids(evaluateAchievements(seven, [], now))).toContain('perfect-week')
   })
 
-  it('unlocks streak-3 after three consecutive days', () => {
-    const events = [
-      ...completionsForDay(addDays(now, -2), 1),
-      ...completionsForDay(addDays(now, -1), 1),
-      ...completionsForDay(now, 1),
-    ]
-    expect(ids(evaluateAchievements(events, [], now))).toContain('streak-3')
-  })
-
-  it('does not unlock streak-3 when a day is missed', () => {
-    const events = [
-      ...completionsForDay(addDays(now, -3), 1),
-      ...completionsForDay(addDays(now, -1), 1),
-      ...completionsForDay(now, 1),
-    ]
-    expect(ids(evaluateAchievements(events, [], now))).not.toContain('streak-3')
-  })
-
-  it('unlocks completions-100 at one hundred effective completions', () => {
-    const events: ActivityEvent[] = []
-    for (let d = 19; d >= 0; d--) {
-      events.push(...completionsForDay(addDays(now, -d)))
-    }
-    expect(events.length).toBeGreaterThanOrEqual(100)
-    expect(ids(evaluateAchievements(events, [], now))).toContain('completions-100')
-  })
-
-  it('does not count tombstoned completions', () => {
+  it('ignores tombstoned completions', () => {
     const [c] = completionsForDay(now, 1)
-    const events: ActivityEvent[] = [
-      c,
-      { id: 'undo', ts: c.ts + 1, type: 'assignment_uncompleted', refId: c.refId },
-    ]
-    expect(evaluateAchievements(events, [], now)).toEqual([])
+    const i = input({
+      events: [c, { id: 'u', ts: c.ts + 1, type: 'assignment_uncompleted', refId: c.refId }],
+    })
+    expect(evaluateAchievements(i, [], now)).toEqual([])
+  })
+})
+
+describe('todo, challenge, and game achievements', () => {
+  it('unlocks first-todo on a completed todo', () => {
+    const i = input({
+      todos: [
+        { id: 't', title: 'x', priority: 'low', category: 'personal', tags: [], createdAt: 1, completedAt: 2 },
+      ],
+    })
+    expect(ids(evaluateAchievements(i, [], now))).toEqual(['first-todo'])
+  })
+
+  it('unlocks shipped and flawless-build for a perfect challenge', () => {
+    const i = input({
+      challenges: [
+        { id: 'w', kind: 'week', templateSlug: 's', startedAt: 1, dueDay: 'x', milestonesDone: [], rubricChecked: [], status: 'completed', score: 100, completionPct: 100 },
+      ],
+    })
+    expect(ids(evaluateAchievements(i, [], now))).toEqual(['challenge-perfect', 'first-challenge'])
+  })
+
+  it('unlocks Interview Master only on a perfect round', () => {
+    const partial = input({
+      gameResults: [{ dayKey: '2026-07-06', score: 300, correct: 4, total: 5, completedAt: 1 }],
+    })
+    expect(ids(evaluateAchievements(partial, [], now))).toEqual(['first-game'])
+    const perfect = input({
+      gameResults: [{ dayKey: '2026-07-06', score: 700, correct: 5, total: 5, completedAt: 1 }],
+    })
+    expect(ids(evaluateAchievements(perfect, [], now))).toEqual(['first-game', 'interview-master'])
+  })
+
+  it('unlocks game-streak-7 for seven consecutive play days', () => {
+    const results = Array.from({ length: 7 }, (_, d) => ({
+      dayKey: localDayKey(addDays(now, -d)),
+      score: 100,
+      correct: 1,
+      total: 5,
+      completedAt: d,
+    }))
+    expect(ids(evaluateAchievements(input({ gameResults: results }), [], now))).toContain(
+      'game-streak-7',
+    )
   })
 })

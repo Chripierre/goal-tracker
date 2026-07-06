@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { NavLink, Outlet, useLocation } from 'react-router'
-import { Menu, Target, X } from 'lucide-react'
+import { Award, Menu, Target, X } from 'lucide-react'
+import { useToasts } from '@/lib/toast'
 import { NAV_ITEMS } from './nav'
 
 function Brand() {
@@ -39,6 +40,37 @@ function NavList({ onNavigate }: { onNavigate?: () => void }) {
   )
 }
 
+function ToastStack() {
+  const toasts = useToasts((s) => s.toasts)
+  const dismiss = useToasts((s) => s.dismiss)
+  if (toasts.length === 0) return null
+  return (
+    <div className="pointer-events-none fixed bottom-4 right-4 z-50 flex w-80 flex-col gap-2">
+      {toasts.map((t) => (
+        <div
+          key={t.id}
+          role="status"
+          className="pointer-events-auto flex items-start gap-2.5 rounded-lg border border-warning/30 bg-surface p-3 shadow-lg"
+        >
+          <Award className="mt-0.5 size-4 shrink-0 text-warning" aria-hidden />
+          <div className="min-w-0 flex-1">
+            <p className="text-sm font-medium">{t.title}</p>
+            {t.detail && <p className="mt-0.5 text-xs text-text-3">{t.detail}</p>}
+          </div>
+          <button
+            type="button"
+            aria-label="Dismiss"
+            onClick={() => dismiss(t.id)}
+            className="rounded p-0.5 text-text-3 outline-none transition-colors hover:text-text focus-visible:ring-2 focus-visible:ring-accent"
+          >
+            <X className="size-3.5" aria-hidden />
+          </button>
+        </div>
+      ))}
+    </div>
+  )
+}
+
 export function AppShell() {
   const [open, setOpen] = useState(false)
   const location = useLocation()
@@ -66,7 +98,7 @@ export function AppShell() {
         <Brand />
         <NavList />
         <p className="border-t border-border-subtle px-6 py-4 text-xs text-text-3">
-          Phase 8 — Interview
+          Phase 10 — Achievements
         </p>
       </aside>
 
@@ -114,6 +146,7 @@ export function AppShell() {
             <Outlet />
           </div>
         </main>
+        <ToastStack />
       </div>
     </div>
   )

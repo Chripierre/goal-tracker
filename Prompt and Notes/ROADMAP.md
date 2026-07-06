@@ -155,10 +155,20 @@ deferral applies to the Phase 11 Google Calendar OAuth setup.
       signal ever exists); LC solved lives on the LeetCode page
 - [x] Browser-verified against seeded multi-day data (Session 7)
 
-## Phase 10 — Achievements (full)
+## Phase 10 — Achievements (full) — DONE 2026-07-06
 
-- [ ] Full rule catalog (30-day streak, 100 LC, first project, 100 commits, perfect week/month, Interview Master, DP Expert...)
-- [ ] Achievement gallery UI + unlock toasts
+- [x] 16-rule catalog over owned data: assignments (first, perfect day/week/month,
+      streak 3/7/30, century), todos (first, 50), challenges (first, flawless 100%,
+      five shipped), interview game (first round, Interview Master 5/5, 7-day play
+      streak). Rule ids stable; unlocks permanent.
+- [x] Evaluation on every completing action (assignment, todo, challenge, game) —
+      store actions rebuilt on get()+set so toast side effects stay out of reducers
+- [x] Gallery page: unlocked-first grid with dates, locked dimmed, progress bar
+- [x] Unlock toasts: transient zustand store (lib/toast), auto-dismiss 5s, stacked
+      bottom-right in the shell; browser-verified live (Session 9)
+- Deferred honestly: 100-commits / 100-LC rules need external stats persisted into
+  state — revisit when the LC pipeline is active (username) or with Phase 4b sync.
+- DP Expert and other topic-based rules arrive with Phase 7 topic data.
 
 ## Phase 11 — Reminders
 

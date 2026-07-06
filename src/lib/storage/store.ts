@@ -1,7 +1,12 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 import { uid } from '../uid'
-import { evaluateAchievements } from '../achievements/achievements'
+import {
+  ACHIEVEMENTS_BY_ID,
+  evaluateAchievements,
+  type AchievementInput,
+} from '../achievements/achievements'
+import { useToasts } from '../toast'
 import { completeTodoIn, uncompleteTodoIn } from '../todos/mutations'
 import { migrateState } from './migrate'
 import type { DailyAssignment } from '../assignments/generate'
@@ -16,6 +21,7 @@ import {
   type GameResult,
   type Settings,
   type Todo,
+  type Unlock,
 } from './schema'
 
 export type NewTodoInput = Omit<Todo, 'id' | 'createdAt' | 'completedAt' | 'spawnedFrom'>
@@ -52,26 +58,37 @@ function mkEvent(type: ActivityEventType, refId?: string, label?: string): Activ
   }
 }
 
+/** Evaluates new unlocks against a prospective state and raises toasts for them. */
+function newUnlocksFor(input: AchievementInput, unlocked: readonly Unlock[]): Unlock[] {
+  const fresh = evaluateAchievements(input, unlocked, new Date())
+  for (const u of fresh) {
+    const def = ACHIEVEMENTS_BY_ID.get(u.id)
+    useToasts.getState().push(`Achievement unlocked: ${def?.title ?? u.id}`, def?.description)
+  }
+  return fresh
+}
+
 export const useAppStore = create<AppStore>()(
   persist(
-    (set) => ({
+    (set, get) => ({
       ...defaultAppState(),
       appendEvent: (type, refId, label) =>
         set((s) => ({ events: [...s.events, mkEvent(type, refId, label)] })),
-      completeAssignment: (assignment) =>
-        set((s) => {
-          const events = [
-            ...s.events,
-            mkEvent('assignment_completed', assignment.id, assignment.title),
-          ]
-          const newUnlocks = evaluateAchievements(events, s.achievements, new Date())
-          return {
-            events,
-            achievements: newUnlocks.length
-              ? [...s.achievements, ...newUnlocks]
-              : s.achievements,
-          }
-        }),
+      completeAssignment: (assignment) => {
+        const s = get()
+        const events = [
+          ...s.events,
+          mkEvent('assignment_completed', assignment.id, assignment.title),
+        ]
+        const fresh = newUnlocksFor(
+          { events, todos: s.todos, challenges: s.challenges, gameResults: s.gameResults },
+          s.achievements,
+        )
+        set({
+          events,
+          ...(fresh.length ? { achievements: [...s.achievements, ...fresh] } : {}),
+        })
+      },
       uncompleteAssignment: (assignment) =>
         set((s) => ({
           events: [
@@ -89,8 +106,18 @@ export const useAppStore = create<AppStore>()(
         })),
       deleteTodo: (id) =>
         set((s) => ({ todos: s.todos.filter((t) => t.id !== id) })),
-      completeTodo: (id) =>
-        set((s) => ({ todos: completeTodoIn(s.todos, id, new Date()) })),
+      completeTodo: (id) => {
+        const s = get()
+        const todos = completeTodoIn(s.todos, id, new Date())
+        const fresh = newUnlocksFor(
+          { events: s.events, todos, challenges: s.challenges, gameResults: s.gameResults },
+          s.achievements,
+        )
+        set({
+          todos,
+          ...(fresh.length ? { achievements: [...s.achievements, ...fresh] } : {}),
+        })
+      },
       uncompleteTodo: (id) =>
         set((s) => ({ todos: uncompleteTodoIn(s.todos, id) })),
       moveTodo: (activeId, overId) =>
@@ -105,12 +132,19 @@ export const useAppStore = create<AppStore>()(
         }),
       updateSettings: (patch) =>
         set((s) => ({ settings: { ...s.settings, ...patch } })),
-      recordGameResult: (result) =>
-        set((s) =>
-          s.gameResults.some((r) => r.dayKey === result.dayKey)
-            ? s
-            : { gameResults: [...s.gameResults, { ...result, completedAt: Date.now() }] },
-        ),
+      recordGameResult: (result) => {
+        const s = get()
+        if (s.gameResults.some((r) => r.dayKey === result.dayKey)) return
+        const gameResults = [...s.gameResults, { ...result, completedAt: Date.now() }]
+        const fresh = newUnlocksFor(
+          { events: s.events, todos: s.todos, challenges: s.challenges, gameResults },
+          s.achievements,
+        )
+        set({
+          gameResults,
+          ...(fresh.length ? { achievements: [...s.achievements, ...fresh] } : {}),
+        })
+      },
       startChallenge: (record) =>
         set((s) =>
           s.challenges.some((c) => c.id === record.id)
@@ -145,25 +179,32 @@ export const useAppStore = create<AppStore>()(
         set((s) => ({
           challenges: s.challenges.map((c) => (c.id === id ? { ...c, repoUrl } : c)),
         })),
-      completeChallenge: (id, result) =>
-        set((s) => {
-          const target = s.challenges.find((c) => c.id === id)
-          if (!target || target.status === 'completed') return s
-          return {
-            challenges: s.challenges.map((c) =>
-              c.id === id
-                ? {
-                    ...c,
-                    status: 'completed' as const,
-                    completedAt: Date.now(),
-                    score: result.score,
-                    completionPct: result.completionPct,
-                  }
-                : c,
-            ),
-            events: [...s.events, mkEvent('challenge_completed', id, result.label)],
-          }
-        }),
+      completeChallenge: (id, result) => {
+        const s = get()
+        const target = s.challenges.find((c) => c.id === id)
+        if (!target || target.status === 'completed') return
+        const challenges = s.challenges.map((c) =>
+          c.id === id
+            ? {
+                ...c,
+                status: 'completed' as const,
+                completedAt: Date.now(),
+                score: result.score,
+                completionPct: result.completionPct,
+              }
+            : c,
+        )
+        const events = [...s.events, mkEvent('challenge_completed', id, result.label)]
+        const fresh = newUnlocksFor(
+          { events, todos: s.todos, challenges, gameResults: s.gameResults },
+          s.achievements,
+        )
+        set({
+          challenges,
+          events,
+          ...(fresh.length ? { achievements: [...s.achievements, ...fresh] } : {}),
+        })
+      },
       importState: (data) => {
         const migrated = migrateState(
           data,

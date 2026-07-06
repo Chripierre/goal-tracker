@@ -5,6 +5,26 @@ where to pick up.
 
 ---
 
+## Session 9 — 2026-07-06 (Phase 10, ~76% usage)
+
+Shipped full achievements: catalog grown 6 -> 16 rules across assignments, todos,
+challenges, and the interview game (incl. Interview Master and perfect week/month
+via consecutivePerfectDays). evaluateAchievements now takes an AchievementInput
+{events, todos, challenges, gameResults}; all four completing store actions
+evaluate and raise toasts. Store actions refactored to (set, get) style — compute
+next state, fire toasts, then one set() — keeps side effects out of reducers.
+lib/toast.ts is a transient (non-persisted) zustand store with self-managed 5s
+timeouts; ToastStack renders in AppShell. Gallery page with unlocked-first sort.
+Router simplified to an explicit route list (no placeholders remain — every nav
+item is a real page now). 87 tests green; unlock->toast->gallery browser-verified.
+
+Deferred: 100-commits/100-LC/DP-Expert rules need external or topic data (noted in
+ROADMAP). Remaining phases: 7 (content batches), 11 (Google OAuth), 12 (career
+port + legacy import), 13 (polish + README rewrite), 4b (PAT sync).
+PENDING OWNER unchanged: LeetCode username / PAT / Google OAuth.
+
+---
+
 ## Session 8 — 2026-07-06 (Phase 8, ~60% usage)
 
 Shipped the interview game: deterministic daily 5-question round over a 45-question
