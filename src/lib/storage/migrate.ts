@@ -1,0 +1,19 @@
+import { SCHEMA_VERSION, defaultAppState, type AppState } from './schema'
+
+/**
+ * Additive, never destructive: unknown input falls back to defaults, known
+ * fields are kept, new fields are filled from defaults. Future schema bumps
+ * chain their transforms here keyed off fromVersion.
+ */
+export function migrateState(persisted: unknown, _fromVersion: number): AppState {
+  const base = defaultAppState()
+  if (!persisted || typeof persisted !== 'object') return base
+  const p = persisted as Partial<AppState>
+  return {
+    ...base,
+    ...p,
+    schemaVersion: SCHEMA_VERSION,
+    settings: { ...base.settings, ...(p.settings ?? {}) },
+    events: Array.isArray(p.events) ? p.events : [],
+  }
+}

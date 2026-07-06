@@ -1,0 +1,1963 @@
+// ================================================================
+// Christian Pierre — Goal & Career Tracker
+// ================================================================
+//
+// HOW TO EDIT YOUR DATA:
+//   All your tasks, projects, certs, prospects, and gaps live in
+//   the DATA SECTION below (search for "DATA SECTION").
+//   Edit those arrays, save the file, then refresh your browser.
+//
+// HOW TO OPEN:
+//   Double-click index.html  OR  run: python serve.py
+//
+// STORAGE:
+//   Checkboxes, statuses, and custom tasks auto-save to
+//   localStorage under the key "cp_tracker_v1".
+//   Clearing browser data will reset them.
+// ================================================================
+
+
+// ----------------------------------------------------------------
+// STATE
+// ----------------------------------------------------------------
+const STORAGE_KEY = 'cp_tracker_v1';
+
+function defaultState() {
+  return {
+    checks:        {},   // { taskId: true } — built-in task completions
+    custom:        [],   // user-added tasks: { id, text, priority, meta, done }
+    apps:          [],   // user-added applications
+    netStatus:     {},   // { prospectId: 'not_contacted'|'sent'|'connected'|'no_response'|'skip' }
+    certStatus:    {},   // { certId: 'not_started'|'studying'|'scheduled'|'completed'|'skipped' }
+    projStatus:    {},   // { projId: 'not_started'|'in_progress'|'deployed' }
+    appStatus:     {},   // override status for built-in apps
+    scholStatus:   {},   // { scholarshipId: 'not_started'|'in_progress'|'submitted'|'awarded'|'declined'|'ineligible' }
+    theme:         'light',
+    activeTab:     'tasks',
+    netFilter:     'all',
+    scholFilter:   'all',
+    scholStage:    'all',
+    internStatus:  {},
+    internFilter:  'all',
+    internStage:   'all',
+    jobStatus:     {},   // { listingId: status string }
+    customJobs:    [],   // user-added listings
+    jobFilter:     'all',
+  };
+}
+
+let st = Object.assign(defaultState(), JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}'));
+
+function save() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(st));
+}
+
+
+// ================================================================
+// DATA SECTION — EDIT YOUR CONTENT HERE
+// ================================================================
+
+const TASKS = [
+  // priority: 'urgent' | 'high' | 'ongoing'
+  // id: unique string — do not change once set (breaks saved checkboxes)
+
+  // URGENT -------------------------------------------------------
+  { id: 't01', priority: 'urgent',
+    text: 'Create professional GitHub account',
+    meta: 'Retire burner accounts. Use real name. No public portfolio = no proof of SWE skills. This is the #1 priority.' },
+
+  { id: 't02', priority: 'urgent',
+    text: 'Replace [YOUR-USERNAME] placeholders in resume .tex',
+    meta: 'File: Desktop/Hand off/Christian_Pierre_SWE_Resume.tex — lines 90-92. Fill in LinkedIn and GitHub handles before applying anywhere.' },
+
+  { id: 't03', priority: 'urgent',
+    text: 'Install WSL2 and practice Linux filesystem commands',
+    meta: 'IDT explicitly requires Linux file systems. 2-day fix: ls, cd, chmod, grep, ps, systemctl. Add Linux (WSL2) to Technical Skills once done.' },
+
+  { id: 't04', priority: 'urgent',
+    text: 'Confirm SQL: write JOIN, GROUP BY, subquery, window function, compound WHERE',
+    meta: 'SQL is on the resume but flagged as unproven in your handoff. Do this before any technical screen. If you can explain it, you can claim it.' },
+
+  { id: 't05', priority: 'urgent',
+    text: 'Apply to IDT Associate SWE posting (Mount Laurel, NJ)',
+    meta: 'Fix Linux gap first — then apply. 15-20% odds. Clearance-eligible U.S. citizen is your edge. Salary $72k-$114k.' },
+
+  // HIGH ---------------------------------------------------------
+  { id: 't06', priority: 'high',
+    text: 'Build simple REST API locally — Flask/FastAPI or Spring Boot, test with Postman',
+    meta: 'Must be able to say "I have built a REST endpoint and understand request/response flow" before any IDT technical screen.' },
+
+  { id: 't07', priority: 'high',
+    text: 'Compile updated resume on Overleaf and export final PDF',
+    meta: 'Go to overleaf.com → New Project → paste .tex. All fonts pre-installed. Replace [YOUR-USERNAME] first.' },
+
+  { id: 't08', priority: 'high',
+    text: 'Confirm SAMS details for resume bullets',
+    meta: 'Need: Python library used, model type (CNN/RF/SVM?), accuracy metric, advisor or faculty name. Current bullets have placeholders.' },
+
+  { id: 't09', priority: 'high',
+    text: 'Confirm SAMS cohort size — replace [X] in honors line',
+    meta: 'Resume says "one of [X] students selected nationally for SAMS." Look up the official CMU SAMS page if needed.' },
+
+  { id: 't10', priority: 'high',
+    text: 'Confirm Watershed: ArcGIS or QGIS (or both)?',
+    meta: 'Resume says ArcGIS/QGIS. Confirm which tool(s) you actually used so you can back it up in an interview without hesitation.' },
+
+  { id: 't11', priority: 'high',
+    text: 'Confirm Governor\'s STEM Scholars: team size + research project topic',
+    meta: 'Leadership entry needs a number. "Guide X scholars on [topic]" is far stronger than the current vague bullet.' },
+
+  { id: 't12', priority: 'high',
+    text: 'Note any data tools used at NJM Insurance (Excel, Power BI, case mgmt system)',
+    meta: 'Even basic data tools strengthen the analytics angle on the NJM bullet. Think about what you actually open at work.' },
+
+  { id: 't13', priority: 'high',
+    text: 'Make Boss AI repo public with README + architecture write-up + demo GIF',
+    meta: 'The work already exists. This is a free GitHub win. Strong README proves SWE/algorithms/Git to any reviewer.' },
+
+  { id: 't14', priority: 'high',
+    text: 'Send LinkedIn connection requests to top 5 network prospects',
+    meta: 'See Network tab. Personalize each message — mention the shared program (QuestBridge, SAMS, MOSTEC, RSI).' },
+
+  // ONGOING ------------------------------------------------------
+  { id: 't15', priority: 'ongoing',
+    text: 'LeetCode DS&A daily practice',
+    meta: 'Future FAANG track. Not blocking IDT but builds long-term competitiveness. Even 1 problem/day compounds.' },
+
+  { id: 't16', priority: 'ongoing',
+    text: 'Governor\'s STEM Scholars — active team lead responsibilities',
+    meta: 'Sep 2023 - Present. Document team size and project outputs as they happen for future resume updates.' },
+
+  { id: 't17', priority: 'ongoing',
+    text: 'MCCC CS coursework',
+    meta: 'Degree completion is the long-term play. Every course strengthens the "equivalent experience" argument. Transfer or GT OMSCS later.' },
+
+  { id: 't18', priority: 'ongoing',
+    text: 'DoD Pathways internship — apply Fall 2026 for Summer 2027',
+    meta: 'TRMC STEM internships. Apply on ClearanceJobs.net and ClearedJobs.net. This converts the "no DoD exposure" gap.' },
+
+  { id: 't19', priority: 'ongoing',
+    text: 'Study Power BI for PL-300 certification',
+    meta: 'First recommended cert. ~$165. 4-6 weeks of study. Pairs directly with the Analytics Dashboard portfolio project.' },
+
+  // --- SCHOLARSHIP ACTION ITEMS ---
+  { id: 't20', priority: 'urgent',
+    text: 'File FAFSA immediately — MCCC code 002641',
+    meta: 'Go to studentaid.gov. This one action unlocks Pell Grant ($7,395), TAG ($3,120), CCOG (full tuition), SEOG ($1,000), and EOF eligibility. File TODAY. Deadline: April 15 for full-year aid.' },
+
+  { id: 't21', priority: 'urgent',
+    text: 'Complete NJFAMS account at hesaa.org after filing FAFSA',
+    meta: 'NJ state aid (TAG, CCOG) requires a separate NJFAMS portal account. Create it within 24 hours of filing FAFSA. Some steps require manual action in the portal.' },
+
+  { id: 't22', priority: 'urgent',
+    text: 'Contact MCCC EOF office — call 609-570-3423 or visit Library Building 2nd floor',
+    meta: 'EOF = up to $1,600/yr grant + free advising, tutoring, mentoring, summer academy. You are the exact student EOF was designed for. Director: Al-Lateef Farmer (farmera@mccc.edu).' },
+
+  { id: 't23', priority: 'high',
+    text: 'Sign up for Jack Kent Cooke Transfer Scholarship "Notify Me" alert',
+    meta: 'Go to jkcf.org/our-scholarships/undergraduate-transfer-scholarship/ and click "Notify Me". Application opens August 19, 2026. Up to $55,000/yr. Your biggest national target.' },
+
+  { id: 't24', priority: 'high',
+    text: 'Set calendar reminder: DoD SMART Scholarship opens August 1, 2026',
+    meta: 'smartscholarship.org. Full tuition + $30k-$46k/yr stipend + guaranteed DoD job after graduation. Directly aligned with defense SWE goal. Opens Aug 1, closes first Friday in December.' },
+
+  { id: 't25', priority: 'high',
+    text: 'Create UNCF scholarship profile at opportunities.uncf.org',
+    meta: 'One profile, many scholarships. UNCF awards $62M annually to Black students at all colleges (not just HBCUs). Apply to every scholarship you match. Check portal monthly — new ones open regularly.' },
+
+  { id: 't26', priority: 'high',
+    text: 'Get on MCCC Foundation scholarship email list — scholarships@mccc.edu',
+    meta: 'The Foundation portal opens February 1 each year. Apply the first week — committees start selecting in April. Email scholarships@mccc.edu to join the notification list.' },
+
+  { id: 't27', priority: 'high',
+    text: 'Enroll in MCCC Honors Program',
+    meta: 'Honors coursework is a near-universal trait of Jack Kent Cooke Transfer Scholars (73% participated). It also strengthens your QuestBridge alum network profile and transfer applications to selective schools.' },
+
+  { id: 't28', priority: 'ongoing',
+    text: 'Join NSBE and SHPE chapters at MCCC (or as at-large members)',
+    meta: 'NSBE Region 2 covers NJ. As a Black (Haitian-Dominican) CS student you qualify for both. Dual membership is rare and differentiating. Both unlock scholarships and defense contractor recruiting pipelines.' },
+];
+
+const PROJECTS = [
+  {
+    id: 'p01',
+    name: 'Boss AI Public Repo',
+    tech: 'JavaScript',
+    timeline: 'This week (work already exists)',
+    description: 'Reusable boss-AI framework built for JinGames 10th-anniversary release. Needs a public GitHub repo, strong README, architecture write-up, and demo GIF.',
+    notes: 'Free win — the algorithm (weighted deck, 10 difficulty tiers, Ki economy, anti-repeat guard) is non-trivial. Any technical reviewer will recognize it.',
+    satisfies: ['Git/GitHub portfolio', 'Algorithm design', 'Event-driven systems', 'Modular design', 'JavaScript proficiency'],
+    github: '',
+  },
+  {
+    id: 'p02',
+    name: 'Flagship: REST Backend + Postgres + Docker + Azure',
+    tech: 'Java or Python, Postgres, Docker, Azure',
+    timeline: '4-8 weeks',
+    description: 'Containerized REST API with a defense/data flavor. Geospatial resource-allocation optimizer or data API. Deployed to Azure. Unit tests included.',
+    notes: 'This single project converts ~9 IDT posting requirements from yellow/red to green. Highest ROI build.',
+    satisfies: ['REST/gRPC APIs', 'SQL / Postgres', 'Cloud platform (Azure)', 'Containerization (Docker)', 'Linux deploy target', 'SDLC end-to-end', 'Unit testing', 'AI tooling documentation'],
+    github: '',
+  },
+  {
+    id: 'p03',
+    name: 'Fraud / Anomaly Detection',
+    tech: 'Python, Scikit-learn',
+    timeline: '6-10 weeks',
+    description: 'Anomaly/fraud detection model tied to the NJM claims domain. Honest validation: confusion matrix, precision/recall. Public repo with question → method → recommendation README.',
+    notes: 'Domain credibility from NJM is a differentiator. Pairs with PL-300 Power BI cert for visualization layer.',
+    satisfies: ['Python ML', 'Data analytics', 'Statistical analysis', 'Domain expertise (insurance/fraud)'],
+    github: '',
+  },
+  {
+    id: 'p04',
+    name: 'Analytics Dashboard',
+    tech: 'SQL, Python, Power BI',
+    timeline: '4-6 weeks',
+    description: 'End-to-end pipeline: SQL → Python → Power BI → written recommendation. The written recommendation is the differentiator — most portfolios show charts but no interpretation.',
+    notes: 'Pairs directly with PL-300 certification. Build alongside cert study.',
+    satisfies: ['SQL / Postgres', 'Data analytics', 'Power BI (PL-300)', 'Python', 'Data visualization'],
+    github: '',
+  },
+  {
+    id: 'p05',
+    name: 'Geospatial Resource Allocator',
+    tech: 'Python, ArcGIS/QGIS, PuLP or SciPy',
+    timeline: '6-10 weeks',
+    description: 'GIS + regression + optimization. Leverages existing Watershed GIS background. Defense flavor: resource allocation, logistics optimization, or base siting scenario.',
+    notes: 'Directly builds on Watershed Institute experience. Connects GIS background to SWE portfolio in a defense-relevant way.',
+    satisfies: ['GIS / spatial data', 'Python', 'Algorithm design', 'Defense-adjacent domain'],
+    github: '',
+  },
+  {
+    id: 'p06',
+    name: 'AI Tooling Project',
+    tech: 'Python, Claude API or OpenAI API',
+    timeline: '4-6 weeks (after flagship)',
+    description: 'Small RAG tool or LLM-assisted pipeline. Document prompts used, what the model got wrong, how output was validated and hardened. "Built with AI" README section is the key differentiator.',
+    notes: 'IDT explicitly calls out "demonstrated AI coding assistant use" as a stand-out item. This project makes that concrete.',
+    satisfies: ['AI coding assistant fluency', 'LLM validation', 'Prompt engineering', 'AI limitations awareness'],
+    github: '',
+  },
+];
+
+const CERTS = [
+  {
+    id: 'c01',
+    name: 'PL-300 — Microsoft Power BI Data Analyst',
+    issuer: 'Microsoft',
+    cost: '$165',
+    timeline: 'Now — 4 to 6 weeks study',
+    recommended: 'yes',
+    lane: 'Data Analytics',
+    notes: 'The bullseye cert for the data analytics lane. Pairs directly with the Analytics Dashboard portfolio project. Take this first among all certs.',
+  },
+  {
+    id: 'c02',
+    name: 'AZ-900 — Azure Fundamentals',
+    issuer: 'Microsoft',
+    cost: '$165',
+    timeline: '3-6 months — 1 to 2 weeks study',
+    recommended: 'yes',
+    lane: 'Cloud / Defense SWE',
+    notes: 'Cheapest cloud credential. 1-2 weeks of study. Take alongside or after the flagship Azure project so the cert validates real work.',
+  },
+  {
+    id: 'c03',
+    name: 'AWS ML Engineer Associate',
+    issuer: 'Amazon Web Services',
+    cost: '$150',
+    timeline: '12-18 months — after ML projects are built',
+    recommended: 'yes',
+    lane: 'Data Analytics / ML',
+    notes: 'Build the fraud detection project on AWS first. The cert should validate work already done, not be a cold-start attempt.',
+  },
+  {
+    id: 'c04',
+    name: 'CCNA — Cisco Certified Network Associate',
+    issuer: 'Cisco',
+    cost: '~$400 (exam + materials)',
+    timeline: 'Defer 12 months',
+    recommended: 'later',
+    lane: 'Networking / Systems',
+    notes: 'Relevant to defense SWE (TCP/IP, UDP in IDT posting) but wrong priority now. 3-5 months of study. Revisit after GitHub is live and flagship project is deployed.',
+  },
+  {
+    id: 'c05',
+    name: 'AZ-104 — Azure Administrator',
+    issuer: 'Microsoft',
+    cost: '$165',
+    timeline: 'Not recommended',
+    recommended: 'no',
+    lane: 'Sysadmin (wrong lane)',
+    notes: 'Cloud admin/ops cert — not software engineering. No code. No APIs. Wrong lane for SWE and defense targets.',
+  },
+  {
+    id: 'c06',
+    name: 'SC-900 — Security, Compliance & Identity Fundamentals',
+    issuer: 'Microsoft',
+    cost: '$165',
+    timeline: 'Not recommended',
+    recommended: 'no',
+    lane: 'Compliance (wrong lane)',
+    notes: 'Entry-level Microsoft compliance badge. Very low signal for SWE or defense. No hands-on component. Skip entirely.',
+  },
+  {
+    id: 'c07',
+    name: 'BTL1 — Certified Blue Team Level 1',
+    issuer: 'Security Blue Team',
+    cost: '~$500',
+    timeline: 'Not recommended',
+    recommended: 'no',
+    lane: 'SOC Analyst (different career track)',
+    notes: 'Defensive cybersecurity: SIEM, log analysis, incident response. Different career track from SWE. Only relevant if you pivot to a cyber/SOC analyst role.',
+  },
+  {
+    id: 'c08',
+    name: 'Anthropic AI Certification',
+    issuer: 'Unverified — confirm before enrolling',
+    cost: 'Unknown',
+    timeline: 'Verify first',
+    recommended: 'verify',
+    lane: 'AI (unconfirmed)',
+    notes: 'No widely-recognized official Anthropic cert confirmed. Third-party courses exist but lack employer signal weight. Find the exact program URL and check employer recognition before paying.',
+  },
+];
+
+const PROSPECTS = [
+  // Entries removed before the repo went public (third-party names and profiles).
+  // Private copy: Desktop\goal-tracker-private\prospects-legacy.js on the owner's machine.
+];
+
+const BUILT_IN_APPS = [
+  // Entry removed before the repo went public (application strategy notes).
+  // Private copy: Desktop\goal-tracker-private\built-in-apps-legacy.js on the owner's machine.
+];
+
+
+// ----------------------------------------------------------------
+// JOB LEADS DATA
+// ----------------------------------------------------------------
+const JOB_LISTINGS = [
+  // ---- DOD / FEDERAL CONTRACTORS ----
+  {
+    id: 'j01', cat: 'dod', priority: 'high',
+    company:  'Lockheed Martin',
+    role:     'Software Engineer Early Career',
+    location: 'Mount Laurel / Moorestown, NJ',
+    pay:      '$62,700 - $110,630',
+    deadline: 'Rolling — posted 2026-06-28 (Job ID: 733481BR)',
+    url:      'https://www.lockheedmartinjobs.com',
+    summary:  'Rotary and Mission Systems. Java, Python, JUnit. Agile team. Secret clearance sponsored for U.S. citizens. Confirm if in-progress CC enrollment qualifies before submitting.',
+    reqs:     ['Java', 'Python', 'JUnit', 'Agile', 'Secret clearance path', 'U.S. Citizenship'],
+    align:    'AI Fight Club (May 2026) runs competitive aerial combat AI — same design space as Boss AI. STEM education grants target underrepresented students.',
+  },
+  {
+    id: 'j02', cat: 'dod', priority: 'high',
+    company:  'ASRC Federal',
+    role:     'Associate Software Engineer',
+    location: 'Moorestown, NJ (121 Whittendale Dr)',
+    pay:      '$71,064 - $120,845',
+    deadline: 'Rolling — apply direct at asrcfederal.com/moorestown',
+    url:      'https://www.asrcfederal.com/moorestown/',
+    summary:  'Supporting U.S. Navy Ship Self-Defense System (SSDS). Java or C++, Agile, Linux/UNIX, OOP design patterns. 0-2 years experience. Alaska Native-owned corporation.',
+    reqs:     ['Java or C++', 'Agile', 'Linux/UNIX', 'OOP / Design Patterns', 'Eclipse or VSCode', 'Clearance eligible', 'U.S. Citizenship'],
+    align:    '78% of ASRC classroom grants serve 50%+ low-income students. Alaska Native-owned model lifts underserved communities — direct values match.',
+  },
+  {
+    id: 'j03', cat: 'dod', priority: 'medium',
+    company:  'BAE Systems',
+    role:     'Entry Level Software Engineer',
+    location: 'Totowa, NJ',
+    pay:      '$69,439 - $118,047',
+    deadline: 'Watch ClearanceJobs — prior listing (118690BR) filled. Set alert.',
+    url:      'https://www.clearancejobs.com/jobs/bae-systems-4/totowa-nj',
+    summary:  'Military electronic systems: Software Defined Radios, Avionics, Electronic Warfare. Java, C, C#. 0-3 years experience. Secret clearance required. Degree typically required.',
+    reqs:     ['Java / C / C#', 'Secret clearance path', 'U.S. Citizenship', 'STEM degree preferred'],
+    align:    'STEM education investment and employee volunteering with matching gifts.',
+  },
+
+  // ---- PIPELINE / ALERT SET ----
+  {
+    id: 'j04', cat: 'pipeline', priority: 'high',
+    company:  'Leidos',
+    role:     'Associate / Junior Software Engineer (alert set)',
+    location: 'NJ / Philadelphia / Remote',
+    pay:      '$65,000 - $115,000 (associate range)',
+    deadline: 'Set email alert at careers.leidos.com — rolling new postings',
+    url:      'https://careers.leidos.com/search/jobs',
+    summary:  'High volume of NJ-area DoD contract roles. Filter: Software Engineering + NJ/Philadelphia + Early Career. Clearance-eligible candidates prioritized.',
+    reqs:     ['Java or Python', 'Git', 'Backend development', 'Clearance eligible preferred'],
+    align:    '$10M AI cancer and disease detection partnership with University of Pittsburgh (April 2025). Operates NCI Frederick Cancer Research Lab 25+ years. Strongest health research match.',
+  },
+  {
+    id: 'j05', cat: 'pipeline', priority: 'high',
+    company:  'ManTech',
+    role:     'Associate / Junior Software Engineer (alert set)',
+    location: 'NJ / Philadelphia / Remote',
+    pay:      '$60,000 - $110,000 (associate range)',
+    deadline: 'Set email alert at careers.mantech.com — rolling new postings',
+    url:      'https://careers.mantech.com',
+    summary:  'Intelligence and cyber services for DoD. 81 entry-level positions listed on Glassdoor. Filter: Associate Software Engineer + NJ/PA + clearance eligible.',
+    reqs:     ['Java or Python', 'Git', 'Backend development', 'Clearance eligible'],
+    align:    'ManTech employees volunteer and donate to the American Diabetes Association — confirmed on mantech.com/community. Direct match with family health concerns.',
+  },
+  {
+    id: 'j06', cat: 'pipeline', priority: 'medium',
+    company:  'SAIC',
+    role:     'Associate / Junior Software Engineer (alert set)',
+    location: 'NJ / Philadelphia / Remote',
+    pay:      '$60,000 - $110,000 (associate range)',
+    deadline: 'Set email alert at jobs.saic.com — rolling new postings',
+    url:      'https://jobs.saic.com',
+    summary:  'IDC MarketScape 2025: worldwide leader in AI services for national civilian government. 29,000 employee volunteer hours in FY24. Filter: Associate SWE + NJ/PA.',
+    reqs:     ['Java or Python', 'Git', 'Backend or AI systems', 'Clearance eligible preferred'],
+    align:    'AI leadership + volunteers with Leukemia and Lymphoma Society and Feeding America. Verify LLS partnership at saic.com/corporate-responsibility before citing.',
+  },
+  {
+    id: 'j07', cat: 'pipeline', priority: 'medium',
+    company:  'CACI International',
+    role:     'Junior Software Engineer (alert set)',
+    location: 'NJ / Philadelphia / Remote',
+    pay:      '$60,000 - $110,000 (junior range)',
+    deadline: 'Set email alert at careers.caci.com — rolling new postings',
+    url:      'https://careers.caci.com',
+    summary:  'Defense AI and intelligence systems. Title sponsor of Northern Virginia Science Center. Filter: Junior Software Engineer + NJ/PA.',
+    reqs:     ['Java or Python', 'Git', 'Backend development', 'Clearance eligible preferred'],
+    align:    'STEM community investment — title sponsor of NV Science Center. Mission alignment with defense AI and intelligence systems.',
+  },
+
+  // ---- NON-DOD BACKEND ----
+  {
+    id: 'j08', cat: 'backend', priority: 'high',
+    company:  'Dev10 (Genesis10)',
+    role:     'Associate Software Developer',
+    location: 'Remote — national client placement (confirm relocation policy)',
+    pay:      '$50,000 - $60,000 + paid training + benefits',
+    deadline: 'August 2026 cohort — apply now. Call first to confirm remote-only placement.',
+    url:      'https://www.dev-10.com',
+    summary:  '3-4 months paid training in Java, Spring Boot, REST APIs, MySQL, React. No degree required — 6+ months programming experience qualifies. Placed on corporate client projects for up to 2 years.',
+    reqs:     ['6+ months programming experience', 'Java / Python / JavaScript', 'No degree required', 'Confirm relocation policy'],
+    align:    'Dev10 exists to give high-potential people without traditional credentials access to software careers. Their mission IS resource access for disadvantaged candidates.',
+  },
+  {
+    id: 'j09', cat: 'backend', priority: 'medium',
+    company:  'Conduent',
+    role:     'Junior Developer / Data Analyst',
+    location: 'Florham Park, NJ + Remote',
+    pay:      '$55,000 - $75,000 (estimated for junior roles)',
+    deadline: 'Rolling — monitor jobs.conduent.com',
+    url:      'https://jobs.conduent.com',
+    summary:  'Large government/healthcare BPO. SQL Server, Python, SSRS. Processes public benefits for 195M people via Maven platform. AI integration announced for government solutions.',
+    reqs:     ['SQL', 'Python or Java', 'Data reporting', 'Analytics tools'],
+    align:    'EcoVadis bronze (top 28% in industry). 12,885 volunteer hours in 2025 across 24 countries. Processes public health data at infrastructure scale.',
+  },
+
+  // ---- SQL / DATA ANALYTICS ----
+  {
+    id: 'j10', cat: 'analytics', priority: 'high',
+    company:  'NJM Insurance Group',
+    role:     'Internal Transfer — Data / IT Analyst',
+    location: 'Parsippany, NJ (current employer)',
+    pay:      '$55,000 - $80,000 (estimated)',
+    deadline: 'Anytime — check internal board and speak with manager/HR',
+    url:      'https://www.njm.com/about/careers',
+    summary:  'Check NJM internal board for Data Analyst, Reporting Analyst, or Business Analyst postings. Claims domain expertise (fraud detection, Six Sigma, multi-line policies) no external candidate can match.',
+    reqs:     ['SQL', 'Excel or Power BI', 'Claims domain knowledge (you have this)', 'Internal transfer process'],
+    align:    'Already your employer. Community-focused insurer. Fraud detection work bridges directly to analytics.',
+  },
+  {
+    id: 'j11', cat: 'analytics', priority: 'high',
+    company:  'Robert Half',
+    role:     'Data Analyst Entry Level',
+    location: 'Princeton, NJ (commutable from Ewing)',
+    pay:      '$55,000 - $75,000',
+    deadline: 'Rolling placements',
+    url:      'https://www.roberthalf.com/us/en/jobs/princeton-nj/data-analyst-entry-level',
+    summary:  'Staffing placements with Princeton-area employers in finance, pharma, and consulting. SQL + Excel + Python. Claims/insurance domain knowledge differentiates you from most entry-level candidates.',
+    reqs:     ['SQL', 'Excel', 'Python preferred', 'Data visualization basics'],
+    align:    'Finance and healthcare employer placements — NJM insurance background provides domain credibility most entry-level candidates lack.',
+  },
+];
+
+
+const GAPS = [
+  { id: 'g01', name: 'Professional GitHub (public portfolio)', severity: 'critical', idt: true,
+    howToClose: 'Create account now. Make Boss AI repo public first. No visible GitHub = no proof of SWE skills for any application.' },
+  { id: 'g02', name: 'Degree or Proven SWE Equivalent', severity: 'critical', idt: true,
+    howToClose: 'MCCC CS in progress. JinGames is production-scale but volunteer. Clearance-eligible status partially offsets. Flagship project + public GitHub is the strongest argument for "equivalent experience."' },
+  { id: 'g03', name: 'Linux File Systems', severity: 'high', idt: true,
+    howToClose: 'Install WSL2. Practice: ls, cd, pwd, chmod, grep, ps aux, systemctl, /etc /var /home navigation, file permissions (rwx). 2-day fix. Add to Technical Skills once done.' },
+  { id: 'g04', name: 'REST / gRPC APIs (deployed)', severity: 'high', idt: true,
+    howToClose: 'Build a simple REST API locally (Flask or Spring Boot). Test with Postman. Deploy as part of the flagship project for full proof.' },
+  { id: 'g05', name: 'SQL / Postgres (proven)', severity: 'high', idt: true,
+    howToClose: 'Write and run 5 query types: JOIN across 2 tables, GROUP BY + HAVING, correlated subquery, window function (ROW_NUMBER or RANK), compound WHERE. If you can explain what you wrote, you can claim it.' },
+  { id: 'g06', name: 'Cloud / Containerization (Docker + Azure/AWS)', severity: 'high', idt: false,
+    howToClose: 'Flagship project: Dockerize the REST backend, deploy to Azure. This converts the cloud, containerization, and Linux deploy gaps simultaneously.' },
+  { id: 'g07', name: 'Unit / Interface Testing', severity: 'medium', idt: false,
+    howToClose: 'Include unit tests in the flagship project. JUnit for Java, pytest for Python. One test suite covering core logic is enough to claim it honestly.' },
+  { id: 'g08', name: 'Networking Fundamentals (TCP/IP, UDP)', severity: 'medium', idt: true,
+    howToClose: 'Study at concept level: TCP vs UDP differences, 3-way handshake, port numbers, how HTTP runs over TCP, what DNS resolves. CCNA covers this but defer the full cert 12 months.' },
+  { id: 'g09', name: 'CORBA / DDS (defense middleware)', severity: 'low', idt: true,
+    howToClose: 'Defense-specific publish-subscribe middleware. Usually trained on the job at defense contractors. Do not prioritize — mention awareness of distributed messaging patterns if asked.' },
+];
+
+const SCHOLARSHIPS = [
+  // ---- TIER 1: APPLY IMMEDIATELY — NJ STATE + FEDERAL ----
+  {
+    id: 's01', tier: 'federal', priority: 'critical', stage: 'pre_mccc',
+    name: 'Federal Pell Grant',
+    type: 'grant',
+    amount: 'Up to $7,395/year (2025-26 rate)',
+    deadline: 'File FAFSA by April 15 for fall. NJ state deadline: typically April 15.',
+    applyWhen: 'NOW — file FAFSA at studentaid.gov. MCCC code: 002641.',
+    url: 'https://studentaid.gov/understand-aid/types/grants/pell',
+    eligibility: 'U.S. citizen, FAFSA-verified financial need, not yet earned a bachelor\'s degree.',
+    notes: 'At near-zero income, you likely qualify for the full amount. This is automatic via FAFSA — no separate application. Your single highest-impact move is filing FAFSA now.',
+  },
+  {
+    id: 's02', tier: 'nj_state', priority: 'critical', stage: 'pre_mccc',
+    name: 'NJ Community College Opportunity Grant (CCOG)',
+    type: 'grant',
+    amount: 'Full tuition + eligible fees (up to 18 credits/semester)',
+    deadline: 'Tied to FAFSA deadline. File as early as possible.',
+    applyWhen: 'NOW — automatic after FAFSA if you enroll in 6+ credits and meet income threshold.',
+    url: 'https://www.mccc.edu/free.shtml',
+    eligibility: 'NJ resident 12+ months. Household AGI $0-$100,000. No prior degree. Enroll 6+ credits. File FAFSA.',
+    notes: 'This is the single biggest local win available. At your household income level you almost certainly qualify. It covers what Pell doesn\'t. Stack CCOG + Pell and your MCCC cost is likely $0 or near-zero for tuition.',
+  },
+  {
+    id: 's03', tier: 'nj_state', priority: 'critical', stage: 'pre_mccc',
+    name: 'NJ Tuition Aid Grant (TAG)',
+    type: 'grant',
+    amount: 'Up to $3,120/year',
+    deadline: 'FAFSA by April 15 (fall semester). Set up NJFAMS account after FAFSA.',
+    applyWhen: 'NOW — file FAFSA then complete NJFAMS at hesaa.org.',
+    url: 'https://www.hesaa.org/Pages/NJGrantsHome.aspx',
+    eligibility: 'NJ resident. Full-time student (6+ credits). Meet NJ income guidelines. No prior associate\'s or higher degree.',
+    notes: 'Need-based NJ state grant. Stacks on top of Pell. Create your NJFAMS account at hesaa.org immediately after FAFSA — some TAG steps require separate action in the NJFAMS portal.',
+  },
+  {
+    id: 's04', tier: 'mccc', priority: 'critical', stage: 'pre_mccc',
+    name: 'MCCC Educational Opportunity Fund (EOF)',
+    type: 'grant',
+    amount: 'Up to $1,600/year + free tutoring, counseling, summer academy, college tours',
+    deadline: 'Apply before semester starts. Call or walk in.',
+    applyWhen: 'NOW — call 609-570-3423 or visit Library Building (LB), 2nd floor, West Windsor campus.',
+    url: 'https://www.mccc.edu/student_services_eof.shtml',
+    eligibility: 'NJ resident. Low-income (TAG-eligible). Fewer than 30 college credits. Must be educationally and economically disadvantaged. FAFSA required.',
+    notes: 'EOF is the most underutilized program at MCCC. Beyond the grant dollars it provides academic advisement, peer mentoring, supplemental instruction, and cultural/educational enrichment. You are a textbook EOF student. Contact EOF director Al-Lateef Farmer (farmera@mccc.edu) directly.',
+  },
+  {
+    id: 's05', tier: 'federal', priority: 'high', stage: 'pre_mccc',
+    name: 'Federal Supplemental Educational Opportunity Grant (SEOG)',
+    type: 'grant',
+    amount: 'Up to $1,000/year (MCCC allocates its own pool)',
+    deadline: 'Automatic via FAFSA — awarded to highest-need students first.',
+    applyWhen: 'Automatic if you file FAFSA early. File NOW.',
+    url: 'https://studentaid.gov/understand-aid/types/grants/seog',
+    eligibility: 'Pell-eligible. Exceptional financial need. Priority to students who file FAFSA earliest.',
+    notes: 'SEOG funds are finite per school and run out. First-come, first-served within Pell recipients. Another reason to file FAFSA immediately.',
+  },
+  {
+    id: 's06', tier: 'mccc', priority: 'high', stage: 'year1',
+    name: 'MCCC Foundation Scholarships',
+    type: 'scholarship',
+    amount: '$200-$6,500/year (nearly $1 million awarded annually across all awards)',
+    deadline: 'Portal opens Feb 1, 2027 for 2027-28. Selections begin April. Apply in Feb — do not wait until October.',
+    applyWhen: 'February 2027 — mark your calendar now. Apply first week the portal opens.',
+    url: 'https://www.mccc.edu/foundation_scholarships_available.shtml',
+    eligibility: 'MCCC student (new, continuing, or graduating). Most require FAFSA. Some do not require financial need.',
+    notes: 'One application covers dozens of individual scholarships. Many are donor-named and low-competition. Contact: scholarships@mccc.edu or 609-570-3239, Room 112, Administration Building (AD). Get on their email list now so you don\'t miss the Feb 1 opening.',
+  },
+  {
+    id: 's07', tier: 'mccc', priority: 'medium', stage: 'anytime',
+    name: 'Mercer Fund (Emergency Assistance)',
+    type: 'grant',
+    amount: 'Varies — emergency financial assistance',
+    deadline: 'Rolling — apply when need arises.',
+    applyWhen: 'Anytime an unexpected financial need hits.',
+    url: 'https://www.mccc.edu/admissions_financial.shtml',
+    eligibility: 'MCCC students facing unexpected financial hardship.',
+    notes: 'Not a traditional scholarship but critical safety net. Contact Financial Aid Office: finaid@mccc.edu.',
+  },
+
+  // ---- TIER 2: HIGH-VALUE NATIONAL — OPENS THIS SUMMER ----
+  {
+    id: 's08', tier: 'national', priority: 'critical', stage: 'year2',
+    name: 'Jack Kent Cooke Undergraduate Transfer Scholarship',
+    type: 'scholarship',
+    amount: 'Up to $55,000/year for 2-3 years (last-dollar, after all other aid)',
+    deadline: 'Application opens August 19, 2026. Closes December 9, 2026.',
+    applyWhen: 'August 19, 2026 — sign up for "Notify Me" at jkcf.org now.',
+    url: 'https://jkcf.org/our-scholarships/undergraduate-transfer-scholarship/',
+    eligibility: 'Community college student transferring to a 4-year college. High academic achievement (avg scholar GPA: 3.94). Financial need. 73% of scholars participated in honors or honors coursework. 82% held leadership roles.',
+    notes: 'One of the largest private scholarships in the U.S. for CC transfer students. Extremely competitive nationally. Your profile (QuestBridge, SAMS, governor\'s scholar, defense-track, clearance-eligible, low-income) is a strong candidate story. Enroll in MCCC Honors Program immediately — honors coursework is a near-universal trait of Cooke Transfer Scholars. This is your #1 national target.',
+  },
+  {
+    id: 's09', tier: 'national', priority: 'critical', stage: 'year1',
+    name: 'DoD SMART Scholarship-for-Service',
+    type: 'scholarship',
+    amount: 'Full tuition (any accredited U.S. school) + $30,000-$46,000/year stipend + summer DoD internship + guaranteed DoD civilian job after graduation',
+    deadline: 'Application opens August 1, 2026. Closes first Friday in December 2026.',
+    applyWhen: 'August 1, 2026 — set calendar reminder NOW. Email smart@smartscholarship.org with questions.',
+    url: 'https://www.smartscholarship.org/',
+    eligibility: 'U.S. citizen. 18+. Cumulative GPA 3.0+ (undergrad). Enrolled or accepted in a STEM degree program. Ability to obtain and maintain DoD security clearance.',
+    notes: 'Directly aligned with your defense SWE career goal. SMART funds bachelor\'s, master\'s, and doctoral students — you can apply as an undergraduate at MCCC pursuing CS. The service commitment is 1 year per year of funding at a DoD facility. Given your clearance eligibility this is among your top 3 national targets. Contact: smart@smartscholarship.org, 571-633-7940.',
+  },
+  {
+    id: 's10', tier: 'national', priority: 'high', stage: 'year1',
+    name: 'Phi Theta Kappa (PTK) — Join, Then Unlock $100M+ in Transfer Scholarships',
+    type: 'program',
+    amount: 'Unlocks university-partner transfer scholarships worth millions; PTK itself also has competitive need-based awards',
+    deadline: 'Join PTK at MCCC as soon as you have a 3.5 GPA and 12 college credits. Membership fee: ~$60 (one-time).',
+    applyWhen: 'After earning 12 credits at MCCC with a 3.5+ GPA.',
+    url: 'https://ptk.org/scholarships/',
+    eligibility: 'Enrolled at a PTK-affiliated community college. 12+ credit hours completed. GPA 3.5+.',
+    notes: 'PTK membership is a prerequisite for hundreds of transfer scholarships at four-year universities. Many universities offer exclusive, often guaranteed scholarships to PTK members. $60 to unlock potentially $100,000+ in transfer aid is the best ROI you can find. Ask MCCC about their PTK chapter (Alpha Mu Zeta or similar).',
+  },
+
+  // ---- TIER 3: BLACK IDENTITY / HERITAGE SCHOLARSHIPS ----
+  {
+    id: 's11', tier: 'identity_black', priority: 'high', stage: 'year1',
+    name: 'CBC Spouses Education Scholarship (Congressional Black Caucus)',
+    type: 'scholarship',
+    amount: 'Varies — multiple awards annually',
+    deadline: 'Application opens January 5. Closes March 27 annually. Next cycle: Jan-Mar 2027.',
+    applyWhen: 'January 2027.',
+    url: 'https://cbcfinc.org/programs/scholarships/',
+    eligibility: 'African American or Black student pursuing an undergraduate degree. Must be from the congressional district of a CBC member (NJ congressional districts with Black caucus members qualify). Academically talented, community service demonstrated.',
+    notes: 'CBCF awards 300+ scholarships annually. Your congressional district (NJ-4, NJ-12 area) almost certainly has CBC representation. Apply to ALL CBCF scholarships in one portal — education, performing arts, visual arts. Contact: scholarships@cbcfinc.org.',
+  },
+  {
+    id: 's12', tier: 'identity_black', priority: 'high', stage: 'pre_mccc',
+    name: 'UNCF Scholarships (United Negro College Fund)',
+    type: 'scholarship',
+    amount: 'Varies by program; UNCF awards $62M+ annually across 600+ schools',
+    deadline: 'Multiple rolling deadlines throughout the year. Apply ASAP.',
+    applyWhen: 'Apply now at opportunities.uncf.org — create a profile and apply to all matching scholarships.',
+    url: 'https://opportunities.uncf.org/',
+    eligibility: 'African American students. UNCF awards scholarships at any accredited college (not just HBCUs). Financial need typically required.',
+    notes: 'Create one profile, apply to every scholarship you qualify for. UNCF has specific STEM programs, general education awards, and corporate-sponsored scholarships. Some have GPA as low as 2.5. Check the portal monthly — new scholarships open regularly.',
+  },
+  {
+    id: 's13', tier: 'identity_black', priority: 'high', stage: 'year1',
+    name: 'NSBE Scholarships (National Society of Black Engineers)',
+    type: 'scholarship',
+    amount: '$1,000-$10,000 per award. Multiple awards available.',
+    deadline: 'Various deadlines. Most open fall/spring. Membership required.',
+    applyWhen: 'Join NSBE at MCCC first, then apply through nsbe.org/programs/scholarships.',
+    url: 'https://www.nsbe.org/programs/scholarships/',
+    eligibility: 'Black engineering/STEM student. NSBE membership required. Various GPA minimums (2.0-3.0 depending on award). U.S. citizen for most.',
+    notes: 'NSBE membership dues are modest and unlock scholarships, career fairs with defense contractors (Northrop Grumman, Lockheed, Raytheon actively recruit), and a network of Black STEM professionals. Start a chapter at MCCC or join as an at-large member. Region 2 covers New Jersey.',
+  },
+  {
+    id: 's14', tier: 'identity_black', priority: 'medium', stage: 'year1',
+    name: 'Thurgood Marshall College Fund (TMCF) Scholarships',
+    type: 'scholarship',
+    amount: 'Varies by program — multiple corporate-sponsored awards',
+    deadline: 'Apply through TMCF portal; deadlines vary by scholarship.',
+    applyWhen: 'Create profile at tmcf.org/scholarship-portal and apply to all matched scholarships.',
+    url: 'https://tmcf.org/our-programs/scholarships/',
+    eligibility: 'Black students. TMCF primarily serves HBCU students but some awards are open to students at any institution. Complete the general application to see what you match.',
+    notes: 'Complete the general profile — the system surfaces which scholarships you qualify for automatically. Some TMCF corporate partners (AT&T, Wells Fargo, Walmart) award scholarships to students at any school, not just HBCUs.',
+  },
+
+  // ---- TIER 4: HISPANIC / DOMINICAN HERITAGE ----
+  {
+    id: 's15', tier: 'identity_hispanic', priority: 'high', stage: 'year1',
+    name: 'Hispanic Scholarship Fund (HSF)',
+    type: 'scholarship',
+    amount: '$500-$5,000 per award',
+    deadline: 'Annual cycle. Check hsf.net — application typically opens Sept-Feb.',
+    applyWhen: 'September 2026 — create profile at hsf.net when the cycle opens.',
+    url: 'https://www.hsf.net/scholarship',
+    eligibility: 'Hispanic or Latino heritage (Dominican heritage qualifies). U.S. citizen, permanent resident, or DACA. GPA 3.0+. FAFSA completed or plan to complete.',
+    notes: 'HSF partners with dozens of companies (Google, Apple, ExxonMobil, Morgan Stanley) for additional scholarships. One application unlocks multiple sponsor-specific awards. With your Dominican heritage, QuestBridge background, and CS track you are a competitive HSF applicant.',
+  },
+  {
+    id: 's16', tier: 'identity_hispanic', priority: 'medium', stage: 'year1',
+    name: 'SHPE Scholarships (Society of Hispanic Professional Engineers)',
+    type: 'scholarship',
+    amount: 'Varies by award — primarily for engineering/STEM students',
+    deadline: 'Annual cycle; typically fall. Join SHPE first.',
+    applyWhen: 'Join SHPE at MCCC, then apply through shpe.org during the scholarship cycle.',
+    url: 'https://www.shpe.org/',
+    eligibility: 'Hispanic/Latino engineering or STEM student. SHPE membership. GPA varies by award.',
+    notes: 'SHPE like NSBE also has corporate sponsors (defense contractors, tech companies). Membership connects you to internship pipelines. SHPE + NSBE dual membership is uncommon and genuinely differentiating for a Haitian-Dominican CS student.',
+  },
+  {
+    id: 's17', tier: 'identity_hispanic', priority: 'medium', stage: 'year1',
+    name: 'CHCI Congressional Internship Program',
+    type: 'fellowship',
+    amount: 'Paid internship stipend + housing allowance — DC-based, typically spring/summer',
+    deadline: 'Annual. Check chci.org. Applications typically open October-December.',
+    applyWhen: 'October 2026 — for Spring 2027 cycle.',
+    url: 'https://www.chci.org/',
+    eligibility: 'Latino/Hispanic student. Must have completed at least one semester of college. GPA 2.75+. U.S. citizen or permanent resident.',
+    notes: 'Not a traditional scholarship but a paid DC legislative internship that opens government/GovTech doors. Aligns with your U.S. House constituent services experience. The GovTech lane you listed as an interest is directly connected to what CHCI alumni pursue.',
+  },
+
+  // ---- TIER 5: STEM / DEFENSE / TECH ----
+  {
+    id: 's18', tier: 'stem', priority: 'high', stage: 'year1',
+    name: 'Generation Google Scholarship: Black Community',
+    type: 'scholarship',
+    amount: '$10,000',
+    deadline: 'Annual. Check buildyourfuture.withgoogle.com — typically opens Dec-Feb.',
+    applyWhen: 'December 2026 — monitor Google\'s scholarship page.',
+    url: 'https://buildyourfuture.withgoogle.com/scholarships',
+    eligibility: 'Black/African American student. Pursuing undergraduate or graduate CS or related degree. GPA 3.2+. U.S. citizen or permanent resident.',
+    notes: 'Google awards this specifically to Black CS students. $10,000 single-year award, no service commitment. Also look for the Google Lime Scholarship (disability-focused) and the broader Generation Google Scholarship program.',
+  },
+  {
+    id: 's19', tier: 'stem', priority: 'medium', stage: 'year1',
+    name: 'AFCEA (Armed Forces Communications & Electronics Association) Scholarships',
+    type: 'scholarship',
+    amount: '$2,500-$5,000 per award',
+    deadline: 'Annual. Check afcea.org/scholarships — typically Nov-Feb application window.',
+    applyWhen: 'November 2026.',
+    url: 'https://www.afcea.org/scholarships',
+    eligibility: 'U.S. citizen. Pursuing STEM degree (CS, EE, IT, cybersecurity, or related). GPA 3.0+. Financial need considered. Some awards for junior-year students specifically.',
+    notes: 'AFCEA is directly aligned with your defense SWE career target. Its scholarship community is full of DoD civilian and military professionals. Winning an AFCEA scholarship puts your name in front of defense employers at AFCEA events.',
+  },
+  {
+    id: 's20', tier: 'stem', priority: 'medium', stage: 'year1',
+    name: 'Microsoft Scholarship Program',
+    type: 'scholarship',
+    amount: 'Varies — typically $5,000-$10,000 + potential internship pathway',
+    deadline: 'Annual. Check careers.microsoft.com/students — typically Feb-March.',
+    applyWhen: 'February 2027.',
+    url: 'https://careers.microsoft.com/students',
+    eligibility: 'CS or STEM student. Financial need. Underrepresented minority students prioritized. GPA 3.0+.',
+    notes: 'Microsoft Scholarship often pairs with internship consideration. With your Dominican and Black background + CS major, you are in the target demographic. Also look for Microsoft\'s TEALS program (teacher internship) and the Microsoft Research program for longer-term opportunities.',
+  },
+  {
+    id: 's21', tier: 'stem', priority: 'low', stage: 'post_transfer',
+    name: 'NJ HESAA Garden State Guarantee',
+    type: 'grant',
+    amount: 'Covers remaining tuition/fees at NJ public 4-year schools after other aid (years 3-4)',
+    deadline: 'Automatic after transfer — applies to NJ public universities.',
+    applyWhen: 'When you transfer to a NJ public 4-year school. Does not apply at MCCC.',
+    url: 'https://www.hesaa.org/Pages/gsg.aspx',
+    eligibility: 'NJ resident. Junior or senior year at a NJ public 4-year institution. Household AGI under $65,000. Filed FAFSA.',
+    notes: 'Not applicable now but critical for your transfer plan. If you transfer to Rutgers, NJIT, Rowan, or another NJ public 4-year, GSG + TAG + Pell could make junior/senior year tuition-free or near-free. Plan your transfer with this in mind.',
+  },
+];
+
+const INTERNSHIPS = [
+
+  // ---- FEDERAL GOVERNMENT / INTELLIGENCE / DEFENSE ----
+  {
+    id: 'i01', cat: 'federal_gov', stage: 'year1', priority: 'critical',
+    name: 'Federal Pathways Internship Program',
+    org: 'Any Federal Agency (DoD, DHS, NIST, NSA, etc.)',
+    pay: 'Paid — GS-3 to GS-5 pay scale depending on education level (~$14-$19/hr)',
+    duration: 'Part-time during school OR full-time summers. Up to 1 year renewable.',
+    deadline: 'Rolling — new postings open year-round. Search USAJobs.gov weekly.',
+    applyWhen: 'Now and throughout Year 1. New postings appear constantly.',
+    url: 'https://www.usajobs.gov/Search/Results?hp=student',
+    eligibility: 'U.S. citizen or permanent resident. Enrolled at least part-time in an accredited school (community colleges qualify). GPA not always required.',
+    notes: 'This is the gateway to a permanent federal career. After 640 hours, agencies can convert you to a permanent position without competition. Search USAJobs with "Pathways Intern" + "Computer Science" OR "IT" + New Jersey. DoD, DHS, and NIST all regularly post NJ-area and remote Pathways roles.',
+  },
+  {
+    id: 'i02', cat: 'federal_gov', stage: 'year1', priority: 'critical',
+    name: 'NSA Summer Internship — Computer Science / Engineering Track',
+    org: 'National Security Agency (Fort Meade, MD)',
+    pay: 'Paid — salary based on education level. Housing assistance + travel reimbursement if eligible.',
+    duration: '12 weeks (summer). Full-time.',
+    deadline: 'Applications open September 1. Apply as early as possible — positions fill fast.',
+    applyWhen: 'September 2026 — the same window as NSA Stokes. Apply to both simultaneously.',
+    url: 'https://www.nsa.gov/Careers/Student-Programs/',
+    eligibility: 'U.S. citizen. Enrolled in CS, engineering, math, or related degree. Ability to obtain TS/SCI clearance (NSA initiates the process — your clearance-eligible status is a major advantage).',
+    notes: 'NSA is the largest U.S. employer of mathematicians and one of the largest employers of CS professionals. This internship requires the same clearance process as a full-time job — starting it as a student gives you a clearance before graduation, making you dramatically more competitive for defense SWE roles. Most NJ-area defense contractors explicitly value NSA-cleared candidates.',
+  },
+  {
+    id: 'i03', cat: 'federal_gov', stage: 'year1', priority: 'critical',
+    name: 'NSA Stokes Educational Scholarship Program',
+    org: 'National Security Agency',
+    pay: 'Full tuition + mandatory fees up to $30,000/year + salary during summer employment + housing/travel reimbursement',
+    duration: 'Scholarship covers full degree. Summer employment at NSA every year. Permanent job upon graduation.',
+    deadline: 'Applications open September 1 annually.',
+    applyWhen: 'September 2026 — apply to this AND the NSA Summer Internship at the same time.',
+    url: 'https://www.nsa.gov/Careers/Student-Programs/',
+    eligibility: 'U.S. citizen. Enrolled in CS, computer/electrical engineering, cybersecurity, math, or language analysis. Ability to obtain and maintain security clearance. Strong academic record.',
+    notes: 'Stokes is a full scholarship + guaranteed job pipeline directly into NSA. The service commitment is 1.5x the length of funding (e.g., 2 years of funding = 3 years at NSA). Given your defense SWE target, clearance eligibility, and CS major at MCCC, this is among your top 3 programs nationally. Apply September 1 — do not wait.',
+  },
+  {
+    id: 'i04', cat: 'federal_gov', stage: 'year1', priority: 'high',
+    name: 'NSA Co-Op Program',
+    org: 'National Security Agency (Fort Meade, MD)',
+    pay: 'Paid — full-time NSA salary during work semesters.',
+    duration: 'Alternating semesters of full-time work (NSA) and full-time study. Minimum 52 weeks of co-op before graduation.',
+    deadline: 'Applications open September and February.',
+    applyWhen: 'September 2026 (first cycle) or February 2027 (second cycle).',
+    url: 'https://www.nsa.gov/Careers/Student-Programs/',
+    eligibility: 'U.S. citizen. Apply as a freshman (2nd semester) or sophomore. CS, engineering, math, or language track. Ability to obtain TS/SCI clearance.',
+    notes: 'Co-op is better than a single internship — you alternate working and studying, building a sustained relationship with NSA and accumulating clearance experience before graduation. Offered at Fort Meade, MD and Hawaii sites. If you miss the Stokes deadline, Co-Op is the next best NSA pipeline.',
+  },
+  {
+    id: 'i05', cat: 'federal_gov', stage: 'year1', priority: 'high',
+    name: 'NIST Summer Undergraduate Research Fellowship (SURF)',
+    org: 'National Institute of Standards & Technology (Gaithersburg, MD or Boulder, CO)',
+    pay: '$7,810 stipend for 11 weeks (~$710/week). In-person participants also receive lodging and travel allowance.',
+    duration: '11 weeks (summer). Some 9-week options for quarter-system schedules.',
+    deadline: 'Competitive — applications open in November/December for following summer. About 1 in 3 applicants accepted; ~150 spots total.',
+    applyWhen: 'November/December 2026 — for Summer 2027. Apply via USAJobs.gov.',
+    url: 'https://www.nist.gov/surf',
+    eligibility: 'U.S. citizen or permanent resident. Enrolled undergraduate at any accredited U.S. college or university (community colleges are explicitly eligible). Health insurance required. Strong academic record in STEM.',
+    notes: 'NIST\'s Information Technology Lab (ITL) conducts cybersecurity, AI/ML, and software research directly relevant to your CS track. NIST SURF students produce published research, which strengthens transfer applications and graduate school prospects. Gaithersburg, MD is about 2 hours from Ewing, NJ — commutable or housing-assisted.',
+  },
+  {
+    id: 'i06', cat: 'federal_gov', stage: 'year1', priority: 'high',
+    name: 'DoD STEM Summer Internship Program',
+    org: 'Various DoD labs and commands (TRMC, ARL, NAVWAR, AFRL, etc.)',
+    pay: 'Paid — varies by lab and education level.',
+    duration: '8-12 weeks (summer).',
+    deadline: 'Rolling — applications typically open October through February. Check intern.dodmil.us and ClearanceJobs.net.',
+    applyWhen: 'October 2026 — apply to multiple DoD labs simultaneously.',
+    url: 'https://www.usajobs.gov/Search/Results?hp=student&d=DD',
+    eligibility: 'U.S. citizen. Enrolled in STEM degree. Some positions require the ability to obtain a clearance (your status is an asset). Community college students are eligible for many positions.',
+    notes: 'DoD has dozens of labs: Army Research Lab (Adelphi, MD), NAVWAR (San Diego but has remote positions), Air Force Research Lab, TRMC (Dahlgren, VA). Look specifically for IT/CS/software positions. Your clearance-eligible status makes you more competitive than most student applicants. Also check ClearanceJobs.com and ClearedJobs.net for student/intern-level postings.',
+  },
+
+  // ---- STEM RESEARCH PROGRAMS ----
+  {
+    id: 'i07', cat: 'stem_research', stage: 'year1', priority: 'high',
+    name: 'NSF Research Experience for Undergraduates (REU)',
+    org: 'National Science Foundation — hosted at universities nationwide',
+    pay: '$6,000-$7,500 stipend (varies by site) + housing/meals/travel for most sites.',
+    duration: '8-10 weeks (summer). Full-time.',
+    deadline: 'Varies by site — most applications open October-February. Some CS-focused REUs fill by January.',
+    applyWhen: 'November 2026 — search the REU directory and apply to 5-10 sites that match your CS interests.',
+    url: 'https://www.nsf.gov/funding/initiatives/reu',
+    eligibility: 'U.S. citizen or permanent resident. Enrolled undergraduate (community college students are explicitly eligible). Financial need is often considered. Underrepresented students are actively sought.',
+    notes: 'REU programs place you in a university research lab for the summer — you work alongside PhD students and faculty on real publications. CS-focused REUs cover AI/ML, cybersecurity, software systems, and HCI. As a FGLI, Black, and Haitian-Dominican CC student in CS, you are in the demographic these programs actively recruit. Published or cited research from an REU is one of the strongest things you can put on a transfer or grad school application. Search the NSF REU directory for CS sites; filter by "computer science" and "New Jersey / Mid-Atlantic" first.',
+  },
+  {
+    id: 'i08', cat: 'stem_research', stage: 'year2', priority: 'medium',
+    name: 'NSF LSAMP (Louis Stokes Alliance for Minority Participation)',
+    org: 'National Science Foundation — administered through regional alliances',
+    pay: 'Stipend varies — typically $2,500-$5,000 for summer research participation. Some year-round stipends.',
+    duration: 'Varies — summer research or academic-year research support.',
+    deadline: 'Apply through your college\'s LSAMP coordinator. Ask MCCC academic affairs if MCCC participates.',
+    applyWhen: 'Contact MCCC\'s STEM department or academic affairs office to ask if they have an active LSAMP alliance. Do this Year 1.',
+    url: 'https://www.nsf.gov/funding/programs/louis-stokes-alliances-minority-participation',
+    eligibility: 'U.S. citizen or permanent resident. Underrepresented minority student in STEM (Black/African American, Hispanic/Latino, Native American, Pacific Islander). Enrolled in a STEM degree program.',
+    notes: 'LSAMP is a network of universities and community colleges that support underrepresented STEM students through research stipends, mentoring, and transfer pathways. If MCCC participates in the NJ LSAMP alliance (likely through a partner like Rutgers or NJIT), this is free money and research access. Ask specifically: does MCCC have an LSAMP agreement with a university partner?',
+  },
+
+  // ---- TECH COMPANY EARLY-CAREER PROGRAMS ----
+  {
+    id: 'i09', cat: 'tech_early', stage: 'year1', priority: 'high',
+    name: 'Google STEP Internship (Student Training in Engineering Program)',
+    org: 'Google',
+    pay: 'Paid — competitive tech-company internship salary (historically $30-$40/hr + housing stipend).',
+    duration: '12 weeks (summer). Full-time.',
+    deadline: 'Applications typically open September-November for following summer.',
+    applyWhen: 'September 2026 — monitor buildyourfuture.withgoogle.com/programs/step.',
+    url: 'https://buildyourfuture.withgoogle.com/programs/step',
+    eligibility: 'First or second-year undergraduate student. From an underrepresented group in CS (Black/African American students explicitly targeted). Pursuing a CS or related STEM degree. Strong academic record. No prior software engineering experience required.',
+    notes: 'STEP is Google\'s diversity-focused early internship pipeline specifically for freshmen and sophomores who wouldn\'t otherwise get a Google SWE internship. It is the direct path to a Google SWE intern offer as a junior/senior. As a Black (Haitian-Dominican) CS student in your first or second year at MCCC, you are the exact target demographic. Applications are highly competitive but the FGLI angle + QuestBridge + SAMS background make your story compelling.',
+  },
+  {
+    id: 'i10', cat: 'tech_early', stage: 'year1', priority: 'high',
+    name: 'Break Through Tech — AI Program + Sprinternship',
+    org: 'Break Through Tech (Cornell Tech / MIT partnership)',
+    pay: 'AI Program: free. Sprinternship: paid micro-internship during academic breaks.',
+    duration: 'AI Program: 9 weeks (summer). Sprinternship: 1-3 weeks during winter/spring break.',
+    deadline: 'Submit interest form at breakthroughtech.org — applications open when cohorts fill. Rolling.',
+    applyWhen: 'Submit interest form NOW. AI Program for Summer 2027 will open Fall 2026.',
+    url: 'https://www.breakthroughtech.org/programs/',
+    eligibility: 'Undergraduate student at any U.S. college or university. Open to all majors (CS and related preferred). Free. Specifically designed for students from underrepresented groups in tech.',
+    notes: 'AI Program gives you a Cornell certificate in machine learning + a portfolio of industry ML projects + mentorship from tech companies. Sprinternship is a short paid project at a company during a break — it gets a real company name on your resume before you have a traditional internship. Community college students are eligible. Both programs connect directly to 300+ industry partners who recruit from the program.',
+  },
+  {
+    id: 'i11', cat: 'tech_early', stage: 'year1', priority: 'medium',
+    name: 'Microsoft Explore Internship',
+    org: 'Microsoft',
+    pay: 'Paid — competitive tech internship salary (~$32-$38/hr) + housing stipend.',
+    duration: '12 weeks (summer). Full-time.',
+    deadline: 'Applications typically open August-October for following summer.',
+    applyWhen: 'August 2026 — monitor careers.microsoft.com.',
+    url: 'https://careers.microsoft.com/v2/global/en/earlyincareer.html',
+    eligibility: 'First or second-year undergraduate. Pursuing CS or related STEM degree. Underrepresented students encouraged to apply. No prior SWE internship required.',
+    notes: 'Microsoft Explore is the freshman/sophomore version of a Microsoft SWE internship. You rotate through PM, SWE, and UX roles over 12 weeks. Similar positioning to Google STEP — if you get this and STEP you pick one. As a Black Dominican/Haitian CS student with QuestBridge background, you are in the explicit target demographic for Microsoft\'s diversity recruiting pipeline.',
+  },
+  {
+    id: 'i12', cat: 'tech_early', stage: 'year1', priority: 'medium',
+    name: 'JPMorgan Code for Good Hackathon',
+    org: 'JPMorgan Chase',
+    pay: 'Hackathon stipend. Winning solutions considered for internship pipeline.',
+    duration: '24-hour hackathon event (typically held in spring).',
+    deadline: 'Applications open annually — monitor careers.jpmorgan.com.',
+    applyWhen: 'Watch for Code for Good applications in late 2026 / early 2027.',
+    url: 'https://careers.jpmorgan.com/us/en/students/programs',
+    eligibility: 'Student enrolled in a bachelor\'s degree program. CS or STEM preferred. No prior financial industry experience required.',
+    notes: 'Code for Good pairs teams of students with nonprofits to build tech solutions in 24 hours. JPMorgan uses it as a talent pipeline — strong hackathon performance leads directly to internship offers. The SWE and data science internships at JPMorgan pay around $30-$38/hr and offer strong exposure to fintech and enterprise systems.',
+  },
+
+  // ---- CIVIC / GOV-TECH ----
+  {
+    id: 'i13', cat: 'civic_tech', stage: 'year2', priority: 'high',
+    name: 'Civic Digital Fellowship (Coding it Forward)',
+    org: 'Coding it Forward — placed within federal agencies',
+    pay: '$20-$25/hr. Full-time remote or in-person depending on agency.',
+    duration: '10 weeks (summer). Full-time.',
+    deadline: 'Applications open in winter for following summer. Monitor codingitforward.com.',
+    applyWhen: 'Year 2 at MCCC or after transfer — requires upperclassman or recent grad status. Not eligible as a CC freshman/sophomore.',
+    url: 'https://www.codingitforward.com/fellowship',
+    eligibility: 'Upperclassman OR recent graduate (graduation date on or after May 2025). NOT open to freshmen, sophomores, or current CC students. U.S. citizen or permanent resident. CS, data, design, or product track.',
+    notes: 'This program is worth noting as a target for AFTER you transfer to a 4-year school. Your U.S. House constituent services background + CS skills make you an ideal Civic Digital Fellow. Aligns directly with your GovTech interest area. Note the ineligibility now — come back to this in Year 2 or post-transfer.',
+  },
+  {
+    id: 'i14', cat: 'civic_tech', stage: 'post_transfer', priority: 'medium',
+    name: 'U.S. Digital Service (USDS) Student Volunteer / Pathways',
+    org: 'U.S. Digital Service (Executive Office of the President)',
+    pay: 'Paid via Pathways. Varies.',
+    duration: 'Varies — project-based and semester-long options.',
+    deadline: 'Rolling — check USAJOBS and usds.gov/apply.',
+    applyWhen: 'After transferring to a 4-year school with more CS coursework on your record.',
+    url: 'https://www.usds.gov/apply',
+    eligibility: 'U.S. citizen. Some roles require prior professional experience. CS, design, or product background preferred.',
+    notes: 'USDS is the team that fixes broken government tech — healthcare.gov, VA.gov, disaster relief systems. Your constituent services background + CS + clearance-eligible status is a genuinely differentiated profile for USDS. Build toward this post-transfer.',
+  },
+
+  // ---- DEFENSE CONTRACTORS (NJ / MID-ATLANTIC) ----
+  {
+    id: 'i15', cat: 'defense_contractor', stage: 'year1', priority: 'high',
+    name: 'Lockheed Martin Internship Program',
+    org: 'Lockheed Martin (Cherry Hill, NJ / King of Prussia, PA / Moorestown, NJ)',
+    pay: 'Paid — typically $20-$30/hr for CS/software interns.',
+    duration: '10-12 weeks (summer) or co-op rotations.',
+    deadline: 'Applications typically open August-January. Apply early — positions require clearance eligibility.',
+    applyWhen: 'August 2026 — apply to software/IT intern positions at lockheedmartinjobs.com.',
+    url: 'https://www.lockheedmartinjobs.com/college-students',
+    eligibility: 'U.S. citizen (required for all defense roles). Enrolled in CS, engineering, or STEM. Ability to obtain a security clearance. No prior clearance required — they initiate the process.',
+    notes: 'Lockheed has significant NJ presence (Moorestown is a major facility for naval systems). Your clearance-eligible U.S. citizen status is your #1 competitive edge over most CS interns who cannot get clearances. NSBE membership puts your resume in front of Lockheed recruiters at career fairs — they actively recruit from NSBE chapters.',
+  },
+  {
+    id: 'i16', cat: 'defense_contractor', stage: 'year1', priority: 'high',
+    name: 'Northrop Grumman Intern / Co-Op Program',
+    org: 'Northrop Grumman (Linthicum, MD / various)',
+    pay: 'Paid — typically $20-$32/hr for software interns.',
+    duration: '10-12 weeks (summer) or co-op rotations.',
+    deadline: 'Applications open August-December.',
+    applyWhen: 'August 2026 — search northropgrumman.com/careers for IT/software intern roles.',
+    url: 'https://www.northropgrumman.com/careers/students-and-recent-grads/',
+    eligibility: 'U.S. citizen. CS, engineering, or STEM enrollment. Ability to obtain security clearance. Linthicum, MD headquarters is about 2 hours from Ewing, NJ.',
+    notes: 'Northrop Grumman actively partners with NSBE and SHPE for recruiting. If you join NSBE at MCCC, your resume goes directly to Northrop recruiters at the annual NSBE convention. They sponsor NSBE scholarships precisely to build this pipeline. The combination of your NSBE membership + clearance eligibility + Java experience makes this genuinely achievable.',
+  },
+  {
+    id: 'i17', cat: 'defense_contractor', stage: 'year1', priority: 'medium',
+    name: 'Leidos / SAIC / GDIT / CACI Student Programs',
+    org: 'Leidos, SAIC, General Dynamics IT (GDIT), or CACI — all have NJ/DC-area offices',
+    pay: 'Paid — varies. Typically $18-$28/hr for student roles.',
+    duration: '10-12 weeks or part-time co-op.',
+    deadline: 'Rolling — new positions appear year-round. Check each company\'s career page and ClearanceJobs.com.',
+    applyWhen: 'Year 1 — start applying fall 2026 and continue through spring 2027.',
+    url: 'https://www.clearancejobs.com/',
+    eligibility: 'U.S. citizen. Enrolled in CS, IT, or STEM. Clearance eligibility is key — all four companies prioritize clearable candidates.',
+    notes: 'These mid-tier defense IT firms are often more accessible than Lockheed/Northrop for early-career students with no prior defense experience. SAIC and GDIT both have offices near Washington DC and in NJ. CACI is headquartered in the DC area. ClearanceJobs.com is the primary job board for cleared and clearance-eligible roles — set up a profile highlighting your U.S. citizen status.',
+  },
+];
+
+// ================================================================
+// END DATA SECTION
+// ================================================================
+
+
+// ----------------------------------------------------------------
+// HELPERS
+// ----------------------------------------------------------------
+function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 6); }
+
+function el(tag, cls, html) {
+  const e = document.createElement(tag);
+  if (cls) e.className = cls;
+  if (html !== undefined) e.innerHTML = html;
+  return e;
+}
+
+const STATUS_LABELS = {
+  // network
+  not_contacted: 'Not contacted', sent: 'Request sent', connected: 'Connected',
+  no_response: 'No response', skip: 'Skip',
+  // certs
+  not_started: 'Not started', studying: 'Studying', scheduled: 'Scheduled',
+  completed: 'Completed', skipped: 'Skipped',
+  // projects
+  in_progress: 'In progress', deployed: 'Deployed',
+  // apps
+  applied: 'Applied', phone_screen: 'Phone screen', technical: 'Technical round',
+  final: 'Final round', offer: 'Offer received', rejected: 'Rejected', withdrawn: 'Withdrawn',
+};
+
+function appBadgeClass(status) {
+  const map = {
+    applied: 'badge-blue', phone_screen: 'badge-blue', technical: 'badge-amber',
+    final: 'badge-amber', offer: 'badge-green', rejected: 'badge-red', withdrawn: 'badge-neutral',
+  };
+  return map[status] || 'badge-neutral';
+}
+
+function severityBadge(sev) {
+  const map = { critical: 'badge-red', high: 'badge-amber', medium: 'badge-blue', low: 'badge-neutral' };
+  return map[sev] || 'badge-neutral';
+}
+
+function projBadge(status) {
+  const map = { not_started: 'badge-neutral', in_progress: 'badge-amber', deployed: 'badge-green' };
+  return map[status] || 'badge-neutral';
+}
+
+function certBadge(rec) {
+  if (rec === 'yes')    return 'badge-green';
+  if (rec === 'later')  return 'badge-amber';
+  if (rec === 'verify') return 'badge-amber';
+  return 'badge-neutral';
+}
+
+function certLabel(rec) {
+  if (rec === 'yes')    return 'Recommended';
+  if (rec === 'later')  return 'Defer';
+  if (rec === 'verify') return 'Verify first';
+  return 'Not recommended';
+}
+
+
+// ----------------------------------------------------------------
+// THEME
+// ----------------------------------------------------------------
+function applyTheme(t) {
+  document.documentElement.setAttribute('data-theme', t === 'dark' ? 'dark' : '');
+  document.getElementById('icon-moon').style.display = t === 'dark' ? 'none' : '';
+  document.getElementById('icon-sun').style.display  = t === 'dark' ? ''     : 'none';
+}
+
+document.getElementById('theme-toggle').addEventListener('click', () => {
+  st.theme = st.theme === 'dark' ? 'light' : 'dark';
+  applyTheme(st.theme);
+  save();
+});
+
+
+// ----------------------------------------------------------------
+// TABS
+// ----------------------------------------------------------------
+function switchTab(id) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === id));
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.toggle('active', p.id === 'tab-' + id));
+  st.activeTab = id;
+  save();
+  render(id);
+}
+
+document.querySelectorAll('.tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => switchTab(btn.dataset.tab));
+});
+
+
+// ----------------------------------------------------------------
+// RENDER TASKS
+// ----------------------------------------------------------------
+function renderTasks() {
+  const panel = document.getElementById('tab-tasks');
+
+  const allTasks = [
+    ...TASKS.map(t => ({ ...t, builtin: true })),
+    ...st.custom.map(t => ({ ...t, builtin: false })),
+  ];
+
+  const groups = [
+    { key: 'urgent', label: 'Urgent' },
+    { key: 'high',   label: 'High' },
+    { key: 'ongoing',label: 'Ongoing' },
+  ];
+
+  const doneCount  = allTasks.filter(t => t.builtin ? st.checks[t.id] : t.done).length;
+  const totalCount = allTasks.length;
+  document.getElementById('progress-summary').textContent = doneCount + ' / ' + totalCount + ' tasks done';
+
+  let html = '';
+  groups.forEach(g => {
+    const items = allTasks.filter(t => t.priority === g.key);
+    if (!items.length) return;
+    const doneCnt = items.filter(t => t.builtin ? st.checks[t.id] : t.done).length;
+    html += '<div class="priority-group">';
+    html += '<div class="priority-label ' + g.key + '">' + g.label + ' <span style="font-weight:400;opacity:.7">' + doneCnt + '/' + items.length + '</span></div>';
+    html += '<div class="task-list">';
+    items.forEach(t => {
+      const done = t.builtin ? !!st.checks[t.id] : !!t.done;
+      html += '<div class="task-item' + (done ? ' done' : '') + '" data-id="' + t.id + '">';
+      html += '<input type="checkbox" class="task-cb" data-id="' + t.id + '" data-builtin="' + t.builtin + '"' + (done ? ' checked' : '') + '>';
+      html += '<div class="task-body">';
+      html += '<div class="task-text">' + escHtml(t.text) + '</div>';
+      if (t.meta) html += '<div class="task-meta">' + escHtml(t.meta) + '</div>';
+      html += '</div>';
+      if (!t.builtin) {
+        html += '<div class="task-actions"><button class="task-del" data-del="' + t.id + '">Remove</button></div>';
+      }
+      html += '</div>';
+    });
+    html += '</div></div>';
+  });
+
+  html += '<div class="add-task-row"><button id="add-task-btn" class="btn btn-secondary btn-sm">+ Add task</button></div>';
+  panel.innerHTML = html;
+
+  panel.querySelectorAll('.task-cb').forEach(cb => {
+    cb.addEventListener('change', () => {
+      const id = cb.dataset.id;
+      const builtin = cb.dataset.builtin === 'true';
+      if (builtin) {
+        if (cb.checked) st.checks[id] = true; else delete st.checks[id];
+      } else {
+        const task = st.custom.find(t => t.id === id);
+        if (task) task.done = cb.checked;
+      }
+      save();
+      renderTasks();
+    });
+  });
+
+  panel.querySelectorAll('.task-del').forEach(btn => {
+    btn.addEventListener('click', () => {
+      st.custom = st.custom.filter(t => t.id !== btn.dataset.del);
+      save(); renderTasks();
+    });
+  });
+
+  document.getElementById('add-task-btn').addEventListener('click', () => {
+    openModal('task-modal');
+  });
+}
+
+
+// ----------------------------------------------------------------
+// RENDER PROJECTS
+// ----------------------------------------------------------------
+function renderProjects() {
+  const panel = document.getElementById('tab-projects');
+  let html = '<div class="section-header"><span class="section-title">Portfolio Projects</span></div>';
+  html += '<div class="card-grid">';
+
+  PROJECTS.forEach(p => {
+    const status = st.projStatus[p.id] || 'not_started';
+    html += '<div class="card">';
+    html += '<div class="card-top"><span class="card-name">' + escHtml(p.name) + '</span>';
+    html += '<span class="badge ' + projBadge(status) + '">' + (STATUS_LABELS[status] || status) + '</span></div>';
+    html += '<div class="card-tech">' + escHtml(p.tech) + ' &nbsp;·&nbsp; ' + escHtml(p.timeline) + '</div>';
+    html += '<div class="card-desc">' + escHtml(p.description) + '</div>';
+    if (p.notes) html += '<div class="card-meta">' + escHtml(p.notes) + '</div>';
+    html += '<div class="card-tags">' + p.satisfies.map(s => '<span class="tag">' + escHtml(s) + '</span>').join('') + '</div>';
+    html += '<div class="card-footer">';
+    if (p.github) html += '<a href="' + escHtml(p.github) + '" target="_blank" style="font-size:11px">View repo</a>';
+    else html += '<span style="font-size:11px;color:var(--text-3)">No repo yet</span>';
+    html += '<select class="status-select" data-proj="' + p.id + '">';
+    ['not_started','in_progress','deployed'].forEach(s => {
+      html += '<option value="' + s + '"' + (status === s ? ' selected' : '') + '>' + (STATUS_LABELS[s] || s) + '</option>';
+    });
+    html += '</select>';
+    html += '</div></div>';
+  });
+
+  html += '</div>';
+  panel.innerHTML = html;
+
+  panel.querySelectorAll('.status-select[data-proj]').forEach(sel => {
+    sel.addEventListener('change', () => {
+      st.projStatus[sel.dataset.proj] = sel.value;
+      save();
+    });
+  });
+}
+
+
+// ----------------------------------------------------------------
+// RENDER CERTS
+// ----------------------------------------------------------------
+function renderCerts() {
+  const panel = document.getElementById('tab-certs');
+  let html = '<div class="section-header"><span class="section-title">Certification Roadmap</span></div>';
+
+  const recommended = CERTS.filter(c => c.recommended === 'yes');
+  const later       = CERTS.filter(c => c.recommended === 'later');
+  const verify      = CERTS.filter(c => c.recommended === 'verify');
+  const no          = CERTS.filter(c => c.recommended === 'no');
+
+  function renderGroup(title, items) {
+    if (!items.length) return '';
+    let h = '<div style="margin-bottom:20px"><div class="section-header"><span class="section-title" style="font-size:13px">' + title + '</span></div>';
+    h += '<div class="card-grid">';
+    items.forEach(c => {
+      const status = st.certStatus[c.id] || 'not_started';
+      const cardCls = c.recommended === 'yes' ? 'recommended' : c.recommended === 'verify' ? 'verify' : 'not-recommended';
+      h += '<div class="card cert-card ' + cardCls + '">';
+      h += '<div class="cert-header"><span class="cert-name">' + escHtml(c.name) + '</span>';
+      h += '<span class="badge ' + certBadge(c.recommended) + '">' + certLabel(c.recommended) + '</span></div>';
+      h += '<div class="cert-issuer">' + escHtml(c.issuer) + '</div>';
+      h += '<div class="cert-row">';
+      h += '<span class="cert-detail"><strong>Cost:</strong> ' + escHtml(c.cost) + '</span>';
+      h += '<span class="cert-detail"><strong>Lane:</strong> ' + escHtml(c.lane) + '</span>';
+      h += '</div>';
+      h += '<div class="cert-detail" style="margin-top:2px"><strong>Timeline:</strong> ' + escHtml(c.timeline) + '</div>';
+      h += '<div class="card-desc" style="margin-top:6px">' + escHtml(c.notes) + '</div>';
+      h += '<div class="card-footer" style="margin-top:8px"><span></span>';
+      h += '<select class="status-select" data-cert="' + c.id + '">';
+      ['not_started','studying','scheduled','completed','skipped'].forEach(s => {
+        h += '<option value="' + s + '"' + (status === s ? ' selected' : '') + '>' + (STATUS_LABELS[s] || s) + '</option>';
+      });
+      h += '</select></div>';
+      h += '</div>';
+    });
+    h += '</div></div>';
+    return h;
+  }
+
+  html += renderGroup('Recommended — Take These', recommended);
+  html += renderGroup('Defer — Revisit in 12 Months', later);
+  html += renderGroup('Verify Before Enrolling', verify);
+  html += renderGroup('Not Recommended for Your Lane', no);
+
+  panel.innerHTML = html;
+
+  panel.querySelectorAll('.status-select[data-cert]').forEach(sel => {
+    sel.addEventListener('change', () => {
+      st.certStatus[sel.dataset.cert] = sel.value;
+      save();
+    });
+  });
+}
+
+
+// ----------------------------------------------------------------
+// RENDER NETWORK
+// ----------------------------------------------------------------
+function renderNetwork() {
+  const panel  = document.getElementById('tab-network');
+  const filter = st.netFilter || 'all';
+  const cats   = ['all','QuestBridge','RSI','SAMS','MOSTEC'];
+
+  const connected    = PROSPECTS.filter(p => st.netStatus[p.id] === 'connected').length;
+  const sent         = PROSPECTS.filter(p => st.netStatus[p.id] === 'sent').length;
+
+  let html = '<div class="section-header"><span class="section-title">LinkedIn Prospects <span class="section-count">' + connected + ' connected &nbsp;· &nbsp;' + sent + ' pending</span></span></div>';
+
+  html += '<div class="network-toolbar">';
+  cats.forEach(c => {
+    html += '<button class="filter-btn' + (filter === c ? ' active' : '') + '" data-filter="' + c + '">' + (c === 'all' ? 'All (' + PROSPECTS.length + ')' : c) + '</button>';
+  });
+  html += '</div>';
+
+  const visible = filter === 'all' ? PROSPECTS : PROSPECTS.filter(p => p.cat === filter);
+
+  html += '<table class="network-table"><thead><tr><th>Name</th><th>Category</th><th>Field Match</th><th>Status</th></tr></thead><tbody>';
+  visible.forEach(p => {
+    const status = st.netStatus[p.id] || 'not_contacted';
+    html += '<tr>';
+    html += '<td><div class="network-name"><a href="' + escHtml(p.url) + '" target="_blank">' + escHtml(p.name) + '</a></div>';
+    html += '<div class="network-headline">' + escHtml(p.headline) + '</div></td>';
+    html += '<td><span class="badge badge-neutral">' + escHtml(p.cat) + '</span></td>';
+    html += '<td style="font-size:11px;color:var(--text-2)">' + escHtml(p.match) + '</td>';
+    html += '<td><select class="network-status-select" data-prospect="' + p.id + '">';
+    ['not_contacted','sent','connected','no_response','skip'].forEach(s => {
+      html += '<option value="' + s + '"' + (status === s ? ' selected' : '') + '>' + (STATUS_LABELS[s] || s) + '</option>';
+    });
+    html += '</select></td>';
+    html += '</tr>';
+  });
+  html += '</tbody></table>';
+
+  panel.innerHTML = html;
+
+  panel.querySelectorAll('.filter-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      st.netFilter = btn.dataset.filter;
+      save(); renderNetwork();
+    });
+  });
+
+  panel.querySelectorAll('.network-status-select').forEach(sel => {
+    sel.addEventListener('change', () => {
+      st.netStatus[sel.dataset.prospect] = sel.value;
+      save();
+    });
+  });
+}
+
+
+// ----------------------------------------------------------------
+// RENDER APPLICATIONS
+// ----------------------------------------------------------------
+function renderApps() {
+  const panel = document.getElementById('tab-apply');
+  const allApps = [
+    ...BUILT_IN_APPS.map(a => ({ ...a, builtin: true, status: st.appStatus[a.id] || a.defaultStatus })),
+    ...st.apps.map(a => ({ ...a, builtin: false })),
+  ];
+
+  let html = '<div class="section-header"><span class="section-title">Application Log</span>';
+  html += '<button id="add-app-btn" class="btn btn-secondary btn-sm">+ Log application</button></div>';
+
+  if (!allApps.length) {
+    html += '<div class="empty">No applications logged yet.</div>';
+  } else {
+    html += '<table class="app-table"><thead><tr><th>Company / Role</th><th>Date</th><th>Status</th><th>Salary</th><th>Location</th><th>Notes</th><th></th></tr></thead><tbody>';
+    allApps.forEach(a => {
+      html += '<tr>';
+      html += '<td><div class="app-company">' + escHtml(a.company) + '</div><div class="app-role">' + escHtml(a.role) + '</div></td>';
+      html += '<td style="white-space:nowrap;font-size:11px;color:var(--text-2)">' + escHtml(a.date || '') + '</td>';
+      html += '<td>';
+      if (a.builtin) {
+        html += '<select class="status-select" data-builtin-app="' + a.id + '">';
+        ['applied','phone_screen','technical','final','offer','rejected','withdrawn'].forEach(s => {
+          html += '<option value="' + s + '"' + (a.status === s ? ' selected' : '') + '>' + (STATUS_LABELS[s] || s) + '</option>';
+        });
+        html += '</select>';
+      } else {
+        html += '<span class="badge ' + appBadgeClass(a.status) + '">' + (STATUS_LABELS[a.status] || a.status) + '</span>';
+      }
+      html += '</td>';
+      html += '<td style="font-size:11px;color:var(--text-2);white-space:nowrap">' + escHtml(a.salary || '') + '</td>';
+      html += '<td style="font-size:11px;color:var(--text-2)">' + escHtml(a.location || '') + '</td>';
+      html += '<td><div class="app-notes">' + escHtml(a.notes || '') + '</div></td>';
+      html += '<td>' + (!a.builtin ? '<button class="app-del" data-del="' + a.id + '">x</button>' : '') + '</td>';
+      html += '</tr>';
+    });
+    html += '</tbody></table>';
+  }
+
+  panel.innerHTML = html;
+
+  document.getElementById('add-app-btn').addEventListener('click', () => openModal('app-modal'));
+
+  panel.querySelectorAll('.status-select[data-builtin-app]').forEach(sel => {
+    sel.addEventListener('change', () => {
+      st.appStatus[sel.dataset.builtinApp] = sel.value;
+      save();
+    });
+  });
+
+  panel.querySelectorAll('.app-del').forEach(btn => {
+    btn.addEventListener('click', () => {
+      st.apps = st.apps.filter(a => a.id !== btn.dataset.del);
+      save(); renderApps();
+    });
+  });
+}
+
+
+// ----------------------------------------------------------------
+// RENDER GAPS
+// ----------------------------------------------------------------
+function renderGaps() {
+  const panel = document.getElementById('tab-gaps');
+  const order = ['critical','high','medium','low'];
+  const sorted = [...GAPS].sort((a, b) => order.indexOf(a.severity) - order.indexOf(b.severity));
+
+  let html = '<div class="section-header"><span class="section-title">Skill Gap Tracker</span><span class="section-count" style="font-size:12px;color:var(--text-3)">IDT badge = required for target posting</span></div>';
+  html += '<div class="card-grid">';
+
+  sorted.forEach(g => {
+    html += '<div class="card gap-card ' + g.severity + '">';
+    html += '<div><span class="gap-name">' + escHtml(g.name) + '</span>';
+    if (g.idt) html += '<span class="badge badge-purple gap-idt">IDT req.</span>';
+    html += '</div>';
+    html += '<div><span class="badge ' + severityBadge(g.severity) + '">' + g.severity.charAt(0).toUpperCase() + g.severity.slice(1) + '</span></div>';
+    html += '<div class="gap-close">' + escHtml(g.howToClose) + '</div>';
+    html += '</div>';
+  });
+
+  html += '</div>';
+  panel.innerHTML = html;
+}
+
+
+// ----------------------------------------------------------------
+// MODALS
+// ----------------------------------------------------------------
+function openModal(id) { document.getElementById(id).classList.remove('hidden'); }
+function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
+
+document.querySelectorAll('.modal-close').forEach(btn => {
+  btn.addEventListener('click', () => closeModal(btn.dataset.modal));
+});
+document.querySelectorAll('.modal-overlay').forEach(overlay => {
+  overlay.addEventListener('click', e => { if (e.target === overlay) closeModal(overlay.id); });
+});
+
+document.getElementById('save-task-btn').addEventListener('click', () => {
+  const text = document.getElementById('new-task-text').value.trim();
+  if (!text) return;
+  st.custom.push({
+    id: uid(),
+    text,
+    priority: document.getElementById('new-task-priority').value,
+    meta: document.getElementById('new-task-meta').value.trim(),
+    done: false,
+  });
+  save();
+  closeModal('task-modal');
+  document.getElementById('new-task-text').value = '';
+  document.getElementById('new-task-meta').value = '';
+  renderTasks();
+});
+
+document.getElementById('save-app-btn').addEventListener('click', () => {
+  const company = document.getElementById('app-company').value.trim();
+  const role    = document.getElementById('app-role').value.trim();
+  if (!company || !role) return;
+  st.apps.push({
+    id:       uid(),
+    company,
+    role,
+    date:     document.getElementById('app-date').value,
+    status:   document.getElementById('app-status').value,
+    salary:   document.getElementById('app-salary').value.trim(),
+    location: document.getElementById('app-location').value.trim(),
+    notes:    document.getElementById('app-notes').value.trim(),
+  });
+  save();
+  closeModal('app-modal');
+  ['app-company','app-role','app-salary','app-location','app-notes'].forEach(id => {
+    document.getElementById(id).value = '';
+  });
+  renderApps();
+});
+
+document.getElementById('save-job-btn').addEventListener('click', function() {
+  var company = document.getElementById('job-company').value.trim();
+  var role    = document.getElementById('job-role').value.trim();
+  if (!company || !role) return;
+  var reqs = document.getElementById('job-reqs').value.trim();
+  st.customJobs.push({
+    id:       uid(),
+    company:  company,
+    role:     role,
+    cat:      document.getElementById('job-cat').value,
+    priority: document.getElementById('job-priority').value,
+    location: document.getElementById('job-location').value.trim(),
+    pay:      document.getElementById('job-pay').value.trim(),
+    deadline: document.getElementById('job-deadline').value.trim(),
+    url:      document.getElementById('job-url').value.trim(),
+    summary:  document.getElementById('job-summary').value.trim(),
+    reqs:     reqs ? reqs.split(',').map(function(r) { return r.trim(); }).filter(Boolean) : [],
+    align:    document.getElementById('job-align').value.trim(),
+    defaultStatus: 'not_started',
+  });
+  save();
+  closeModal('job-modal');
+  ['job-company','job-role','job-location','job-pay','job-deadline','job-url','job-summary','job-reqs','job-align'].forEach(function(id) {
+    document.getElementById(id).value = '';
+  });
+  renderJobs();
+});
+
+
+// ----------------------------------------------------------------
+// ESCAPE HTML
+// ----------------------------------------------------------------
+function escHtml(str) {
+  if (!str) return '';
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+
+
+// ----------------------------------------------------------------
+// RENDER SCHOLARSHIPS
+// ----------------------------------------------------------------
+function renderScholarships() {
+  const panel = document.getElementById('tab-scholarships');
+  const tierFilter  = st.scholFilter || 'all';
+  const stageFilter = st.scholStage  || 'all';
+
+  const tiers = [
+    { key: 'federal',           label: 'Federal Aid' },
+    { key: 'nj_state',         label: 'NJ State Programs' },
+    { key: 'mccc',             label: 'MCCC / Mercer Foundation' },
+    { key: 'national',         label: 'High-Value National' },
+    { key: 'identity_black',   label: 'Black & African American' },
+    { key: 'identity_hispanic',label: 'Hispanic & Latino' },
+    { key: 'stem',             label: 'STEM / Defense / Tech' },
+  ];
+
+  const stages = [
+    { key: 'pre_mccc',      label: 'Before MCCC',       desc: 'Do right now — before your first semester starts' },
+    { key: 'year1',         label: 'Year 1 at MCCC',    desc: 'Fall 2026 through Spring 2027' },
+    { key: 'year2',         label: 'Year 2 / Pre-Transfer', desc: 'Fall 2027 through Spring 2028 — strongest apps come with a full CC record' },
+    { key: 'post_transfer', label: 'After Transfer',    desc: 'Kicks in once you are at a 4-year school' },
+    { key: 'anytime',       label: 'Rolling / Anytime', desc: 'No fixed window — apply when you need it' },
+  ];
+
+  const SCHOL_STATUS = ['not_started','in_progress','submitted','awarded','declined','ineligible'];
+  const SCHOL_STATUS_LABELS = {
+    not_started: 'Not started', in_progress: 'In progress',
+    submitted: 'Submitted', awarded: 'Awarded',
+    declined: 'Not selected', ineligible: 'Ineligible',
+  };
+
+  const stageBadgeColor = {
+    pre_mccc: 'var(--red)', year1: 'var(--amber)', year2: 'var(--blue)',
+    post_transfer: 'var(--purple)', anytime: 'var(--green)',
+  };
+  const stageBadgeLabel = {
+    pre_mccc: 'Before MCCC', year1: 'Year 1', year2: 'Year 2 / Pre-Transfer',
+    post_transfer: 'After Transfer', anytime: 'Anytime',
+  };
+
+  const tierCats = ['all','federal','nj_state','mccc','national','identity_black','identity_hispanic','stem'];
+  const tierCatLabels = {
+    all:'All', federal:'Federal', nj_state:'NJ State', mccc:'MCCC',
+    national:'National', identity_black:'Black Heritage', identity_hispanic:'Latino Heritage', stem:'STEM/Defense',
+  };
+
+  const priorityBadge = { critical:'badge-red', high:'badge-amber', medium:'badge-blue', low:'badge-neutral' };
+  const typeBadge = { grant:'badge-green', scholarship:'badge-blue', fellowship:'badge-purple', program:'badge-orange' };
+
+  let html = '<div class="section-header"><span class="section-title">Scholarships, Grants & Fellowships</span>';
+  html += '<span style="font-size:11px;color:var(--text-3)">Based on your FGLI, Black (Haitian-Dominican), CS, MCCC profile</span></div>';
+
+  // --- STAGE filter (primary) ---
+  html += '<div style="margin-bottom:8px;font-size:11px;font-weight:600;color:var(--text-3);text-transform:uppercase;letter-spacing:.04em">When to apply</div>';
+  html += '<div class="network-toolbar" style="margin-bottom:6px">';
+  const stageAllCount = SCHOLARSHIPS.length;
+  html += '<button class="filter-btn' + (stageFilter === 'all' ? ' active' : '') + '" data-schol-stage="all">All (' + stageAllCount + ')</button>';
+  stages.forEach(sg => {
+    const count = SCHOLARSHIPS.filter(s => s.stage === sg.key).length;
+    html += '<button class="filter-btn' + (stageFilter === sg.key ? ' active' : '') + '" data-schol-stage="' + sg.key + '" title="' + escHtml(sg.desc) + '">' + sg.label + ' (' + count + ')</button>';
+  });
+  html += '</div>';
+
+  // Stage description hint
+  if (stageFilter !== 'all') {
+    const sg = stages.find(s => s.key === stageFilter);
+    if (sg) html += '<div style="font-size:11px;color:var(--text-3);margin-bottom:12px;font-style:italic">' + escHtml(sg.desc) + '</div>';
+  }
+
+  // --- TIER filter (secondary) ---
+  html += '<div style="margin-bottom:8px;font-size:11px;font-weight:600;color:var(--text-3);text-transform:uppercase;letter-spacing:.04em">Filter by type</div>';
+  html += '<div class="network-toolbar" style="margin-bottom:20px">';
+  tierCats.forEach(c => {
+    const base = stageFilter === 'all' ? SCHOLARSHIPS : SCHOLARSHIPS.filter(s => s.stage === stageFilter);
+    const count = c === 'all' ? base.length : base.filter(s => s.tier === c).length;
+    html += '<button class="filter-btn' + (tierFilter === c ? ' active' : '') + '" data-schol-filter="' + c + '">' + tierCatLabels[c] + ' (' + count + ')</button>';
+  });
+  html += '</div>';
+
+  // Apply both filters
+  let visible = SCHOLARSHIPS;
+  if (stageFilter !== 'all') visible = visible.filter(s => s.stage === stageFilter);
+  if (tierFilter  !== 'all') visible = visible.filter(s => s.tier  === tierFilter);
+
+  if (!visible.length) {
+    html += '<div style="color:var(--text-3);font-size:13px;padding:24px 0">No scholarships match this combination. Try clearing one of the filters.</div>';
+    panel.innerHTML = html;
+    panel.querySelectorAll('[data-schol-stage]').forEach(btn => btn.addEventListener('click', () => { st.scholStage = btn.dataset.scholStage; save(); renderScholarships(); }));
+    panel.querySelectorAll('[data-schol-filter]').forEach(btn => btn.addEventListener('click', () => { st.scholFilter = btn.dataset.scholFilter; save(); renderScholarships(); }));
+    return;
+  }
+
+  const groupOrder = ['federal','nj_state','mccc','national','identity_black','identity_hispanic','stem'];
+  groupOrder.forEach(tierKey => {
+    const items = visible.filter(s => s.tier === tierKey);
+    if (!items.length) return;
+    const tier = tiers.find(t => t.key === tierKey);
+    html += '<div style="margin-bottom:28px">';
+    html += '<div class="priority-label ongoing" style="margin-bottom:10px;font-size:11px">' + tier.label + '</div>';
+    html += '<div class="card-grid">';
+
+    items.forEach(s => {
+      const status   = st.scholStatus[s.id] || 'not_started';
+      const stageCol = stageBadgeColor[s.stage] || 'var(--blue)';
+      const stageTag = stageBadgeLabel[s.stage] || s.stage;
+      html += '<div class="card" style="border-left:3px solid var(--' + (s.priority === 'critical' ? 'red' : s.priority === 'high' ? 'amber' : 'blue') + ')">';
+      html += '<div class="card-top"><span class="card-name">' + escHtml(s.name) + '</span>';
+      html += '<span class="badge ' + (priorityBadge[s.priority] || 'badge-neutral') + '">' + s.priority + '</span></div>';
+      html += '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px">';
+      html += '<span class="badge ' + (typeBadge[s.type] || 'badge-neutral') + '">' + s.type + '</span>';
+      html += '<span style="display:inline-block;padding:1px 7px;border-radius:4px;font-size:11px;font-weight:600;background:' + stageCol + '1a;color:' + stageCol + ';border:1px solid ' + stageCol + '66">' + escHtml(stageTag) + '</span>';
+      html += '<span class="badge badge-green" style="font-size:11px">' + escHtml(s.amount) + '</span>';
+      html += '</div>';
+      html += '<div class="cert-detail" style="margin-bottom:4px"><strong>Apply when:</strong> ' + escHtml(s.applyWhen) + '</div>';
+      html += '<div class="cert-detail" style="margin-bottom:4px"><strong>Deadline:</strong> ' + escHtml(s.deadline) + '</div>';
+      html += '<div class="cert-detail" style="margin-bottom:4px"><strong>Eligibility:</strong> ' + escHtml(s.eligibility) + '</div>';
+      html += '<div class="card-desc" style="margin-top:6px;border-top:1px solid var(--border-subtle);padding-top:6px">' + escHtml(s.notes) + '</div>';
+      html += '<div class="card-footer" style="margin-top:8px">';
+      html += '<a href="' + escHtml(s.url) + '" target="_blank" style="font-size:11px">Official page</a>';
+      html += '<select class="status-select" data-schol="' + s.id + '">';
+      SCHOL_STATUS.forEach(st2 => {
+        html += '<option value="' + st2 + '"' + (status === st2 ? ' selected' : '') + '>' + SCHOL_STATUS_LABELS[st2] + '</option>';
+      });
+      html += '</select></div></div>';
+    });
+
+    html += '</div></div>';
+  });
+
+  panel.innerHTML = html;
+
+  panel.querySelectorAll('[data-schol-stage]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      st.scholStage  = btn.dataset.scholStage;
+      st.scholFilter = 'all';
+      save(); renderScholarships();
+    });
+  });
+
+  panel.querySelectorAll('[data-schol-filter]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      st.scholFilter = btn.dataset.scholFilter;
+      save(); renderScholarships();
+    });
+  });
+
+  panel.querySelectorAll('.status-select[data-schol]').forEach(sel => {
+    sel.addEventListener('change', () => {
+      st.scholStatus[sel.dataset.schol] = sel.value;
+      save();
+    });
+  });
+}
+
+
+// ----------------------------------------------------------------
+// INTERNSHIPS TAB
+// ----------------------------------------------------------------
+function renderInternships() {
+  const panel = document.getElementById('tab-internships');
+  const filterCat   = st.internFilter || 'all';
+  const filterStage = st.internStage  || 'all';
+
+  const CAT_LABELS = {
+    federal_gov:        'Federal / Intelligence / Defense',
+    stem_research:      'STEM Research Programs',
+    tech_early:         'Early-Career Tech Programs',
+    civic_tech:         'Civic & Gov-Tech',
+    defense_contractor: 'Defense Contractors (NJ / Mid-Atlantic)',
+  };
+
+  const STAGE_META = [
+    { key: 'year1',         label: 'Year 1 at MCCC',        desc: 'Apply fall 2026 – spring 2027' },
+    { key: 'year2',         label: 'Year 2 / Pre-Transfer',  desc: 'Apply fall 2027 – spring 2028' },
+    { key: 'post_transfer', label: 'After Transfer',         desc: 'Once enrolled at a 4-year school' },
+    { key: 'anytime',       label: 'Rolling / Anytime',      desc: 'No fixed window' },
+  ];
+
+  const STAGE_LABEL = { year1: 'Year 1', year2: 'Year 2', post_transfer: 'After Transfer', anytime: 'Anytime' };
+
+  const stageBadgeColor = {
+    year1: 'var(--amber)', year2: 'var(--blue)',
+    post_transfer: 'var(--purple)', anytime: 'var(--green)',
+  };
+
+  const CAT_ORDER = ['federal_gov','stem_research','tech_early','civic_tech','defense_contractor'];
+
+  const INTERN_STATUS = ['not_started','in_progress','applied','accepted','declined','ineligible'];
+  const INTERN_STATUS_LABELS = {
+    not_started: 'Not started', in_progress: 'In progress',
+    applied: 'Applied', accepted: 'Accepted', declined: 'Not selected', ineligible: 'Ineligible',
+  };
+
+  const priorityBorder = { critical: 'var(--red)', high: 'var(--amber)', medium: 'var(--blue)', low: 'var(--border)' };
+  const priorityBadge  = { critical: 'badge-red',  high: 'badge-amber',  medium: 'badge-blue',  low: 'badge-neutral' };
+
+  // --- Stage filter row ---
+  let html = '<div class="section-header"><span class="section-title">Internships &amp; Programs</span>'
+    + '<span style="font-size:11px;color:var(--text-3)">17 opportunities across federal, research, tech, and defense tracks</span></div>';
+
+  html += '<div style="margin-bottom:8px;font-size:11px;font-weight:600;color:var(--text-3);text-transform:uppercase;letter-spacing:.04em">When to apply</div>';
+  html += '<div class="network-toolbar" style="margin-bottom:6px">';
+  html += '<button class="filter-btn' + (filterStage === 'all' ? ' active' : '') + '" data-intern-stage="all">All (' + INTERNSHIPS.length + ')</button>';
+  STAGE_META.forEach(sg => {
+    const count = INTERNSHIPS.filter(p => p.stage === sg.key).length;
+    html += '<button class="filter-btn' + (filterStage === sg.key ? ' active' : '') + '" data-intern-stage="' + sg.key + '" title="' + escHtml(sg.desc) + '">' + sg.label + ' (' + count + ')</button>';
+  });
+  html += '</div>';
+
+  if (filterStage !== 'all') {
+    const sg = STAGE_META.find(s => s.key === filterStage);
+    if (sg) html += '<div style="font-size:11px;color:var(--text-3);margin-bottom:12px;font-style:italic">' + escHtml(sg.desc) + '</div>';
+  }
+
+  // --- Category filter row ---
+  html += '<div style="margin-bottom:8px;font-size:11px;font-weight:600;color:var(--text-3);text-transform:uppercase;letter-spacing:.04em">Filter by category</div>';
+  html += '<div class="network-toolbar" style="margin-bottom:20px">';
+  const stageBase = filterStage === 'all' ? INTERNSHIPS : INTERNSHIPS.filter(p => p.stage === filterStage);
+  html += '<button class="filter-btn' + (filterCat === 'all' ? ' active' : '') + '" data-intern-cat="all">All (' + stageBase.length + ')</button>';
+  CAT_ORDER.forEach(cat => {
+    const count = stageBase.filter(p => p.cat === cat).length;
+    html += '<button class="filter-btn' + (filterCat === cat ? ' active' : '') + '" data-intern-cat="' + cat + '">' + escHtml(CAT_LABELS[cat]) + ' (' + count + ')</button>';
+  });
+  html += '</div>';
+
+  // Apply both filters
+  let visible = INTERNSHIPS;
+  if (filterStage !== 'all') visible = visible.filter(p => p.stage === filterStage);
+  if (filterCat   !== 'all') visible = visible.filter(p => p.cat   === filterCat);
+
+  if (!visible.length) {
+    html += '<div style="color:var(--text-3);font-size:13px;padding:24px 0">No programs match this combination. Try clearing one of the filters.</div>';
+    panel.innerHTML = html;
+    panel.querySelectorAll('[data-intern-stage]').forEach(btn => btn.addEventListener('click', () => { st.internStage = btn.dataset.internStage; save(); renderInternships(); }));
+    panel.querySelectorAll('[data-intern-cat]').forEach(btn => btn.addEventListener('click', () => { st.internFilter = btn.dataset.internCat; save(); renderInternships(); }));
+    return;
+  }
+
+  // Group by category
+  CAT_ORDER.forEach(cat => {
+    const items = visible.filter(p => p.cat === cat);
+    if (!items.length) return;
+    items.sort((a, b) => (['critical','high','medium','low'].indexOf(a.priority) - ['critical','high','medium','low'].indexOf(b.priority)));
+
+    html += '<div style="margin-bottom:28px">';
+    html += '<div class="priority-label ongoing" style="margin-bottom:10px;font-size:11px">' + escHtml(CAT_LABELS[cat]) + '</div>';
+    html += '<div class="card-grid">';
+
+    items.forEach(p => {
+      const status   = st.internStatus[p.id] || 'not_started';
+      const stageCol = stageBadgeColor[p.stage] || 'var(--text-3)';
+      const stageTag = STAGE_LABEL[p.stage] || p.stage;
+
+      html += '<div class="card" style="border-left:3px solid ' + (priorityBorder[p.priority] || 'var(--border)') + '">';
+
+      // Title row
+      html += '<div class="card-top"><span class="card-name">' + escHtml(p.name) + '</span>';
+      html += '<span class="badge ' + (priorityBadge[p.priority] || 'badge-neutral') + '">' + p.priority + '</span></div>';
+
+      // Stage + pay badges
+      html += '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px">';
+      html += '<span style="display:inline-block;padding:1px 7px;border-radius:4px;font-size:11px;font-weight:600;background:' + stageCol + '1a;color:' + stageCol + ';border:1px solid ' + stageCol + '66">' + escHtml(stageTag) + '</span>';
+      html += '<span class="badge badge-neutral" style="font-size:11px">' + escHtml(p.org.split('(')[0].trim()) + '</span>';
+      html += '</div>';
+
+      // Detail rows
+      html += '<div class="cert-detail" style="margin-bottom:3px"><strong>Pay:</strong> ' + escHtml(p.pay) + '</div>';
+      html += '<div class="cert-detail" style="margin-bottom:3px"><strong>Duration:</strong> ' + escHtml(p.duration) + '</div>';
+      html += '<div class="cert-detail" style="margin-bottom:3px"><strong>Apply when:</strong> ' + escHtml(p.applyWhen) + '</div>';
+      html += '<div class="cert-detail" style="margin-bottom:3px"><strong>Deadline:</strong> ' + escHtml(p.deadline) + '</div>';
+      html += '<div class="cert-detail" style="margin-bottom:3px"><strong>Eligibility:</strong> ' + escHtml(p.eligibility) + '</div>';
+
+      // Notes
+      html += '<div class="card-desc" style="margin-top:6px;border-top:1px solid var(--border-subtle);padding-top:6px">' + escHtml(p.notes) + '</div>';
+
+      // Footer
+      html += '<div class="card-footer" style="margin-top:8px">';
+      html += '<a href="' + escHtml(p.url) + '" target="_blank" rel="noopener" style="font-size:11px">Program page</a>';
+      html += '<select class="status-select" data-intern="' + p.id + '">';
+      INTERN_STATUS.forEach(s2 => {
+        html += '<option value="' + s2 + '"' + (status === s2 ? ' selected' : '') + '>' + INTERN_STATUS_LABELS[s2] + '</option>';
+      });
+      html += '</select></div></div>';
+    });
+
+    html += '</div></div>';
+  });
+
+  panel.innerHTML = html;
+
+  panel.querySelectorAll('[data-intern-stage]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      st.internStage  = btn.dataset.internStage;
+      st.internFilter = 'all';
+      save(); renderInternships();
+    });
+  });
+
+  panel.querySelectorAll('[data-intern-cat]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      st.internFilter = btn.dataset.internCat;
+      save(); renderInternships();
+    });
+  });
+
+  panel.querySelectorAll('.status-select[data-intern]').forEach(sel => {
+    sel.addEventListener('change', () => {
+      st.internStatus[sel.dataset.intern] = sel.value;
+      save();
+    });
+  });
+}
+
+// ----------------------------------------------------------------
+// RENDER JOB LEADS
+// ----------------------------------------------------------------
+function renderJobs() {
+  const panel = document.getElementById('tab-jobs');
+  const filter = st.jobFilter || 'all';
+
+  const JOB_STATUS = ['not_started','researching','cover_letter','applied','interviewing','offer','rejected','withdrawn'];
+  const JOB_STATUS_LABELS = {
+    not_started: 'Not started', researching: 'Researching',
+    cover_letter: 'Cover letter ready', applied: 'Applied',
+    interviewing: 'Interviewing', offer: 'Offer received',
+    rejected: 'Rejected', withdrawn: 'Withdrawn',
+  };
+
+  const CAT_LABELS = {
+    dod:      'DoD / Federal Contractors',
+    pipeline: 'Monitor / Alert Set',
+    backend:  'Non-DoD Backend',
+    analytics:'SQL / Data Analytics',
+  };
+  const CAT_ORDER = ['dod','pipeline','backend','analytics'];
+
+  const priorityBorder = { critical: 'var(--red)', high: 'var(--amber)', medium: 'var(--blue)', low: 'var(--border)' };
+  const priorityBadge  = { critical: 'badge-red',  high: 'badge-amber',  medium: 'badge-blue',  low: 'badge-neutral' };
+
+  const jobStatusBadge = {
+    not_started: 'badge-neutral', researching: 'badge-blue',
+    cover_letter: 'badge-purple', applied: 'badge-blue',
+    interviewing: 'badge-amber',  offer: 'badge-green',
+    rejected: 'badge-red',        withdrawn: 'badge-neutral',
+  };
+
+  const allListings = [
+    ...JOB_LISTINGS.map(j => ({ ...j, isBuiltin: true })),
+    ...st.customJobs.map(j => ({ ...j, isBuiltin: false })),
+  ];
+
+  const appliedCount = allListings.filter(j => (st.jobStatus[j.id] || j.defaultStatus || 'not_started') === 'applied').length;
+  const activeCount  = allListings.filter(j => ['researching','cover_letter','interviewing'].indexOf(st.jobStatus[j.id] || j.defaultStatus || 'not_started') !== -1).length;
+
+  let html = '<div class="section-header"><span class="section-title">Job Leads</span>';
+  html += '<span style="font-size:11px;color:var(--text-3)">' + appliedCount + ' applied &nbsp;&middot;&nbsp; ' + activeCount + ' in progress &nbsp;&middot;&nbsp; ' + allListings.length + ' total</span></div>';
+
+  html += '<div style="margin-bottom:12px">';
+  html += '<button id="add-job-btn" class="btn btn-secondary btn-sm">+ Add listing</button>';
+  html += '</div>';
+
+  html += '<div style="margin-bottom:8px;font-size:11px;font-weight:600;color:var(--text-3);text-transform:uppercase;letter-spacing:.04em">Filter by category</div>';
+  html += '<div class="network-toolbar" style="margin-bottom:20px">';
+  html += '<button class="filter-btn' + (filter === 'all' ? ' active' : '') + '" data-job-filter="all">All (' + allListings.length + ')</button>';
+  CAT_ORDER.forEach(function(cat) {
+    var count = allListings.filter(function(j) { return j.cat === cat; }).length;
+    if (!count) return;
+    html += '<button class="filter-btn' + (filter === cat ? ' active' : '') + '" data-job-filter="' + cat + '">' + escHtml(CAT_LABELS[cat]) + ' (' + count + ')</button>';
+  });
+  html += '</div>';
+
+  var visible = filter === 'all' ? allListings : allListings.filter(function(j) { return j.cat === filter; });
+
+  if (!visible.length) {
+    html += '<div class="empty">No listings in this category.</div>';
+    panel.innerHTML = html;
+    panel.querySelectorAll('[data-job-filter]').forEach(function(btn) {
+      btn.addEventListener('click', function() { st.jobFilter = btn.dataset.jobFilter; save(); renderJobs(); });
+    });
+    document.getElementById('add-job-btn').addEventListener('click', function() { openModal('job-modal'); });
+    return;
+  }
+
+  CAT_ORDER.forEach(function(cat) {
+    var items = visible.filter(function(j) { return j.cat === cat; });
+    if (!items.length) return;
+
+    html += '<div style="margin-bottom:28px">';
+    html += '<div class="priority-label ongoing" style="margin-bottom:10px;font-size:11px">' + escHtml(CAT_LABELS[cat]) + '</div>';
+    html += '<div class="card-grid">';
+
+    items.forEach(function(j) {
+      var status = st.jobStatus[j.id] || j.defaultStatus || 'not_started';
+
+      html += '<div class="card" style="border-left:3px solid ' + (priorityBorder[j.priority] || 'var(--border)') + '">';
+
+      html += '<div class="card-top">';
+      html += '<div><div class="card-name">' + escHtml(j.company) + '</div>';
+      html += '<div class="card-tech">' + escHtml(j.role) + '</div></div>';
+      html += '<span class="badge ' + (priorityBadge[j.priority] || 'badge-neutral') + '">' + escHtml(j.priority) + '</span>';
+      html += '</div>';
+
+      html += '<div style="margin-bottom:8px">';
+      html += '<span class="badge ' + (jobStatusBadge[status] || 'badge-neutral') + '">' + escHtml(JOB_STATUS_LABELS[status] || status) + '</span>';
+      html += '</div>';
+
+      html += '<div class="cert-detail" style="margin-bottom:3px"><strong>Location:</strong> ' + escHtml(j.location) + '</div>';
+      html += '<div class="cert-detail" style="margin-bottom:3px"><strong>Pay:</strong> ' + escHtml(j.pay) + '</div>';
+      html += '<div class="cert-detail" style="margin-bottom:8px"><strong>Deadline:</strong> ' + escHtml(j.deadline) + '</div>';
+
+      html += '<div class="card-desc" style="margin-bottom:8px">' + escHtml(j.summary) + '</div>';
+
+      if (j.reqs && j.reqs.length) {
+        html += '<div class="card-tags" style="margin-bottom:8px">';
+        j.reqs.forEach(function(r) { html += '<span class="tag">' + escHtml(r) + '</span>'; });
+        html += '</div>';
+      }
+
+      if (j.align) {
+        html += '<div style="font-size:11px;font-style:italic;color:var(--text-2);border-top:1px solid var(--border-subtle);padding-top:6px;margin-bottom:8px">';
+        html += '<strong>Values:</strong> ' + escHtml(j.align);
+        html += '</div>';
+      }
+
+      html += '<div class="card-footer" style="margin-top:4px;flex-wrap:wrap;gap:6px">';
+      if (j.url) {
+        html += '<a href="' + escHtml(j.url) + '" target="_blank" rel="noopener" style="font-size:11px">Apply / Info</a>';
+      } else {
+        html += '<span></span>';
+      }
+      html += '<div style="display:flex;gap:6px;align-items:center">';
+      html += '<select class="status-select" data-job="' + j.id + '">';
+      JOB_STATUS.forEach(function(s) {
+        html += '<option value="' + s + '"' + (status === s ? ' selected' : '') + '>' + escHtml(JOB_STATUS_LABELS[s]) + '</option>';
+      });
+      html += '</select>';
+      if (!j.isBuiltin) {
+        html += '<button class="app-del" data-job-del="' + j.id + '">x</button>';
+      }
+      html += '</div></div>';
+
+      html += '</div>';
+    });
+
+    html += '</div></div>';
+  });
+
+  panel.innerHTML = html;
+
+  panel.querySelectorAll('[data-job-filter]').forEach(function(btn) {
+    btn.addEventListener('click', function() { st.jobFilter = btn.dataset.jobFilter; save(); renderJobs(); });
+  });
+
+  document.getElementById('add-job-btn').addEventListener('click', function() { openModal('job-modal'); });
+
+  panel.querySelectorAll('.status-select[data-job]').forEach(function(sel) {
+    sel.addEventListener('change', function() {
+      st.jobStatus[sel.dataset.job] = sel.value;
+      save();
+    });
+  });
+
+  panel.querySelectorAll('[data-job-del]').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      st.customJobs = st.customJobs.filter(function(j) { return j.id !== btn.dataset.jobDel; });
+      save(); renderJobs();
+    });
+  });
+}
+
+
+// ----------------------------------------------------------------
+// RENDER DISPATCHER + INIT
+// ----------------------------------------------------------------
+function render(tab) {
+  const t = tab || st.activeTab;
+  if (t === 'tasks')        renderTasks();
+  if (t === 'projects')     renderProjects();
+  if (t === 'certs')        renderCerts();
+  if (t === 'network')      renderNetwork();
+  if (t === 'apply')        renderApps();
+  if (t === 'gaps')         renderGaps();
+  if (t === 'scholarships') renderScholarships();
+  if (t === 'internships')  renderInternships();
+  if (t === 'jobs')         renderJobs();
+}
+
+(function init() {
+  applyTheme(st.theme);
+  switchTab(st.activeTab || 'tasks');
+})();

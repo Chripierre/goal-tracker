@@ -1,0 +1,821 @@
+I want to take this project from a simple goal tracker into a polished, production-quality personal operating system for my career growth as a software engineer.
+
+
+
+Do not treat this as just another web application. Treat it as software that I will rely on every single day for years. Make thoughtful architectural decisions and prioritize long-term maintainability, scalability, and user experience over simply implementing features.
+
+
+
+## Overall Vision
+
+
+
+Build a full-scale responsive web application that feels like a professional SaaS product.
+
+
+
+The application should:
+
+
+
+* Work beautifully on desktop, laptop, tablet, and mobile.
+
+* Be accessible anywhere through a single URL.
+
+* Be hosted through GitHub with an automated deployment pipeline.
+
+* Feel fast, polished, modern, and highly interactive.
+
+* Use a clean professional design with subtle animations, excellent typography, and intuitive navigation.
+
+* Support dark mode by default.
+
+* Be structured so additional modules can easily be added in the future.
+
+
+
+I want this to become my personal programmer dashboard and life operating system.
+
+
+
+---
+
+
+
+## Design Goals
+
+
+
+Do not make this look like a beginner portfolio project.
+
+
+
+Aim for something comparable to:
+
+
+
+* Linear
+
+* Vercel Dashboard
+
+* GitHub
+
+* Raycast
+
+* Stripe Dashboard
+
+* Notion
+
+
+
+Use modern UI principles:
+
+
+
+* responsive layouts
+
+* reusable components
+
+* tasteful animations
+
+* loading skeletons
+
+* smooth transitions
+
+* polished cards
+
+* clean spacing
+
+* excellent accessibility
+
+* consistent design language
+
+
+
+Every screen should feel intentional.
+
+
+
+---
+
+
+
+## Dashboard
+
+
+
+Create a homepage/dashboard that gives me an immediate overview of my progress.
+
+
+
+Include:
+
+
+
+* Daily progress
+
+* Weekly progress
+
+* Monthly progress
+
+* Current streak
+
+* Current goals
+
+* Today's assignments
+
+* Upcoming challenges
+
+* Recent GitHub activity
+
+* LeetCode statistics
+
+* Motivation panel
+
+* Quick navigation
+
+* Progress graphs
+
+* Productivity metrics
+
+
+
+Everything should update dynamically.
+
+
+
+---
+
+
+
+## Daily Assignment System
+
+
+
+Build a system that generates daily assignments.
+
+
+
+When I complete one, I should be able to press a button that marks it complete.
+
+
+
+Completing assignments should:
+
+
+
+* increase my streak
+
+* update statistics
+
+* contribute to weekly goals
+
+* contribute to monthly goals
+
+* unlock achievements
+
+* generate historical records
+
+
+
+Missed days should reset the streak appropriately while preserving historical data.
+
+
+
+---
+
+
+
+## Reminder System
+
+
+
+I want an automated reminder system.
+
+
+
+Research and implement the best approach.
+
+
+
+Potential integrations include:
+
+
+
+* SMS
+
+* Google Calendar
+
+* Google Tasks
+
+* Push notifications
+
+* Email
+
+* Browser notifications
+
+
+
+Examples:
+
+
+
+* Time to solve today's LeetCode.
+
+* Finish today's assignment.
+
+* Push today's GitHub commit.
+
+* Work on this week's project.
+
+* Monthly challenge deadline approaching.
+
+* Resume your streak.
+
+
+
+Design the reminder system so new reminder types can easily be added.
+
+
+
+---
+
+
+
+## GitHub Integration
+
+
+
+Deep GitHub integration.
+
+
+
+The application should be capable of:
+
+
+
+* reading repository information
+
+* creating repositories automatically
+
+* monitoring commits
+
+* monitoring pull requests
+
+* displaying contribution graphs
+
+* showing commit history
+
+* displaying repository statistics
+
+* linking repositories to challenges
+
+
+
+Weekly and monthly challenges should automatically create a new repository using GitHub's API.
+
+
+
+Example:
+
+
+
+Week-23-Algorithms
+
+
+
+Month-July-Portfolio
+
+
+
+or similar naming conventions.
+
+
+
+---
+
+
+
+## Weekly & Monthly Challenge System
+
+
+
+Every week generate a project challenge.
+
+
+
+Every month generate a larger project.
+
+
+
+Each challenge should contain:
+
+
+
+* requirements
+
+* milestones
+
+* due dates
+
+* rubric
+
+* expected deliverables
+
+* GitHub repository
+
+* testing requirements
+
+
+
+When complete:
+
+
+
+* run automated tests
+
+* score the project
+
+* calculate completion percentage
+
+* archive the results
+
+* update my dashboard
+
+
+
+I want historical challenge tracking.
+
+
+
+---
+
+
+
+## LeetCode Integration
+
+
+
+Integrate LeetCode.
+
+
+
+Include:
+
+
+
+* solved problems
+
+* difficulty distribution
+
+* streak
+
+* progress
+
+* daily question
+
+* topic analysis
+
+* weak areas
+
+* improvement trends
+
+
+
+Additionally build an extensive LeetCode Resource Center.
+
+
+
+This should become a study guide.
+
+
+
+Include explanations for:
+
+
+
+* Arrays
+
+* Strings
+
+* Hash Maps
+
+* Sliding Window
+
+* Binary Search
+
+* Trees
+
+* BST
+
+* Graphs
+
+* DFS
+
+* BFS
+
+* Dynamic Programming
+
+* Memoization
+
+* Backtracking
+
+* Greedy
+
+* Union Find
+
+* Tries
+
+* Heaps
+
+* Prefix Sum
+
+* Bit Manipulation
+
+* Topological Sort
+
+* Monotonic Stack
+
+* Queues
+
+* Recursion
+
+* Linked Lists
+
+* Sorting
+
+* Divide and Conquer
+
+* Math
+
+* Geometry
+
+
+
+For every topic include:
+
+
+
+* intuition
+
+* common patterns
+
+* visual explanations where appropriate
+
+* common interview questions
+
+* common mistakes
+
+* template solutions
+
+* complexity analysis
+
+* recommended progression
+
+* related LeetCode problems
+
+
+
+Think of this as my personal interview handbook.
+
+
+
+---
+
+
+
+## Interview Practice
+
+
+
+Create a mini-game inspired by Wordle.
+
+
+
+Instead of guessing words, I answer interview questions.
+
+
+
+Possible categories:
+
+
+
+* Java
+
+* Python
+
+* C++
+
+* JavaScript
+
+* TypeScript
+
+* React
+
+* System Design
+
+* Databases
+
+* Networking
+
+* Linux
+
+* Git
+
+* Object-Oriented Programming
+
+* Behavioral Questions
+
+* Algorithms
+
+* Data Structures
+
+
+
+Include:
+
+
+
+* score
+
+* streak
+
+* timer
+
+* hints
+
+* explanations
+
+* leaderboard (local)
+
+* daily challenge
+
+
+
+Make it genuinely enjoyable.
+
+
+
+---
+
+
+
+## TODO System
+
+
+
+Create a fully featured TODO system.
+
+
+
+Support:
+
+
+
+* priorities
+
+* deadlines
+
+* recurring tasks
+
+* tags
+
+* categories
+
+* filtering
+
+* searching
+
+* drag-and-drop
+
+* reminders
+
+* progress tracking
+
+
+
+---
+
+
+
+## Analytics
+
+
+
+Provide extensive analytics.
+
+
+
+Examples:
+
+
+
+* coding hours
+
+* GitHub commits
+
+* LeetCode solved
+
+* projects completed
+
+* assignments completed
+
+* streak history
+
+* productivity graphs
+
+* heatmaps
+
+* challenge completion rate
+
+* consistency metrics
+
+
+
+---
+
+
+
+## Achievements
+
+
+
+Create an achievement system.
+
+
+
+Examples:
+
+
+
+* 30-day streak
+
+* 100 LeetCode problems
+
+* First project completed
+
+* 100 GitHub commits
+
+* Perfect week
+
+* Perfect month
+
+* Interview Master
+
+* Dynamic Programming Expert
+
+
+
+---
+
+
+
+## Technical Expectations
+
+
+
+Think carefully before writing code.
+
+
+
+Favor clean architecture over speed.
+
+
+
+Use best practices.
+
+
+
+Avoid unnecessary duplication.
+
+
+
+Write modular, maintainable, well-documented code.
+
+
+
+Organize the project into logical folders.
+
+
+
+Use reusable components.
+
+
+
+Implement proper error handling.
+
+
+
+Use TypeScript where appropriate.
+
+
+
+Include automated testing where practical.
+
+
+
+Set up CI/CD with GitHub Actions.
+
+
+
+---
+
+
+
+## Documentation
+
+
+
+Rewrite the README completely.
+
+
+
+The README should be written like an open-source project from an experienced engineer.
+
+
+
+Avoid:
+
+
+
+* emojis
+
+* buzzwords
+
+* AI-generated sounding language
+
+* unnecessary marketing language
+
+
+
+Include:
+
+
+
+* Overview
+
+* Features
+
+* Architecture
+
+* Technologies Used
+
+* Installation
+
+* Development
+
+* Deployment
+
+* Environment Variables
+
+* Project Structure
+
+* Screenshots (placeholders if needed)
+
+* Roadmap
+
+* Contributing
+
+* License
+
+
+
+Write it professionally, clearly, and concisely.
+
+
+
+---
+
+
+
+## Development Process
+
+
+
+Do not rush into coding everything.
+
+
+
+First:
+
+
+
+1. Analyze the existing codebase.
+
+2. Identify weaknesses.
+
+3. Propose architecture improvements.
+
+4. Design the complete application.
+
+5. Explain major technical decisions.
+
+6. Create an implementation roadmap.
+
+7. Break the work into logical phases.
+
+8. Then begin implementing one phase at a time.
+
+
+
+At every stage, favor quality over speed. If you believe a different implementation would produce a significantly better long-term result, explain why and choose the superior approach rather than blindly following my requested implementation.

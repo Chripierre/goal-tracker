@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Christian Pierre — Goal Tracker</title>
+  <link rel="stylesheet" href="tracker.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="header-left">
+    <span class="header-name">Christian Pierre</span>
+    <span class="header-sep">—</span>
+    <span class="header-title">Goal &amp; Career Tracker</span>
+  </div>
+  <div class="header-right">
+    <span id="progress-summary" class="progress-pill"></span>
+    <button id="theme-toggle" class="btn-icon" title="Toggle dark mode">
+      <svg id="icon-moon" width="15" height="15" viewBox="0 0 16 16" fill="currentColor"><path d="M9.598 1.591a.749.749 0 0 1 .785-.175 7.001 7.001 0 1 1-8.967 8.967.75.75 0 0 1 .961-.96 5.5 5.5 0 0 0 7.046-7.046.75.75 0 0 1 .175-.786zm1.616 1.945a7 7 0 0 1-7.678 7.678 5.499 5.499 0 1 0 7.678-7.678z"/></svg>
+      <svg id="icon-sun"  width="15" height="15" viewBox="0 0 16 16" fill="currentColor" style="display:none"><path d="M8 12a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm0-1.5a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5zM8 0a.75.75 0 0 1 .75.75v1.5a.75.75 0 0 1-1.5 0V.75A.75.75 0 0 1 8 0zm0 13a.75.75 0 0 1 .75.75v1.5a.75.75 0 0 1-1.5 0v-1.5A.75.75 0 0 1 8 13zM2.343 2.343a.75.75 0 0 1 1.061 0l1.06 1.061a.75.75 0 0 1-1.06 1.06L2.343 3.404a.75.75 0 0 1 0-1.06zm9.193 9.193a.75.75 0 0 1 1.06 0l1.061 1.06a.75.75 0 0 1-1.06 1.061l-1.061-1.06a.75.75 0 0 1 0-1.061zM0 8a.75.75 0 0 1 .75-.75h1.5a.75.75 0 0 1 0 1.5H.75A.75.75 0 0 1 0 8zm13 0a.75.75 0 0 1 .75-.75h1.5a.75.75 0 0 1 0 1.5h-1.5A.75.75 0 0 1 13 8zM2.343 13.657a.75.75 0 0 1 0-1.06l1.06-1.061a.75.75 0 0 1 1.061 1.06l-1.06 1.061a.75.75 0 0 1-1.061 0zm9.193-9.193a.75.75 0 0 1 0-1.06l1.06-1.061a.75.75 0 0 1 1.061 1.06l-1.06 1.061a.75.75 0 0 1-1.061 0z"/></svg>
+    </button>
+  </div>
+</header>
+
+<nav class="tab-nav">
+  <button class="tab-btn" data-tab="tasks">Tasks</button>
+  <button class="tab-btn" data-tab="projects">Projects</button>
+  <button class="tab-btn" data-tab="certs">Certifications</button>
+  <button class="tab-btn" data-tab="network">Network</button>
+  <button class="tab-btn" data-tab="apply">Applications</button>
+  <button class="tab-btn" data-tab="gaps">Skill Gaps</button>
+  <button class="tab-btn" data-tab="scholarships">Scholarships</button>
+  <button class="tab-btn" data-tab="internships">Internships</button>
+  <button class="tab-btn" data-tab="jobs">Job Leads</button>
+</nav>
+
+<main class="main-content">
+  <section id="tab-tasks"        class="tab-panel"></section>
+  <section id="tab-projects"     class="tab-panel"></section>
+  <section id="tab-certs"        class="tab-panel"></section>
+  <section id="tab-network"      class="tab-panel"></section>
+  <section id="tab-apply"        class="tab-panel"></section>
+  <section id="tab-gaps"         class="tab-panel"></section>
+  <section id="tab-scholarships" class="tab-panel"></section>
+  <section id="tab-internships"  class="tab-panel"></section>
+  <section id="tab-jobs"         class="tab-panel"></section>
+</main>
+
+<!-- Add Task Modal -->
+<div id="task-modal" class="modal-overlay hidden">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title">Add Task</span>
+      <button class="btn-icon modal-close" data-modal="task-modal">
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor"><path d="M3.72 3.72a.75.75 0 0 1 1.06 0L8 6.94l3.22-3.22a.749.749 0 0 1 1.275.326.749.749 0 0 1-.215.734L9.06 8l3.22 3.22a.749.749 0 0 1-.326 1.275.749.749 0 0 1-.734-.215L8 9.06l-3.22 3.22a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042L6.94 8 3.72 4.78a.75.75 0 0 1 0-1.06z"/></svg>
+      </button>
+    </div>
+    <div class="modal-body">
+      <label class="form-label">Task description</label>
+      <input type="text" id="new-task-text" class="form-input" placeholder="What needs to be done?">
+      <label class="form-label">Priority</label>
+      <select id="new-task-priority" class="form-select">
+        <option value="urgent">Urgent</option>
+        <option value="high">High</option>
+        <option value="ongoing" selected>Ongoing</option>
+      </select>
+      <label class="form-label">Notes (optional)</label>
+      <input type="text" id="new-task-meta" class="form-input" placeholder="Context, deadline, links...">
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary modal-close" data-modal="task-modal">Cancel</button>
+      <button id="save-task-btn" class="btn btn-primary">Add Task</button>
+    </div>
+  </div>
+</div>
+
+<!-- Add Application Modal -->
+<div id="app-modal" class="modal-overlay hidden">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title">Log Application</span>
+      <button class="btn-icon modal-close" data-modal="app-modal">
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor"><path d="M3.72 3.72a.75.75 0 0 1 1.06 0L8 6.94l3.22-3.22a.749.749 0 0 1 1.275.326.749.749 0 0 1-.215.734L9.06 8l3.22 3.22a.749.749 0 0 1-.326 1.275.749.749 0 0 1-.734-.215L8 9.06l-3.22 3.22a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042L6.94 8 3.72 4.78a.75.75 0 0 1 0-1.06z"/></svg>
+      </button>
+    </div>
+    <div class="modal-body">
+      <label class="form-label">Company</label>
+      <input type="text" id="app-company" class="form-input" placeholder="Company name">
+      <label class="form-label">Role</label>
+      <input type="text" id="app-role" class="form-input" placeholder="Job title">
+      <label class="form-label">Date applied</label>
+      <input type="date" id="app-date" class="form-input">
+      <label class="form-label">Status</label>
+      <select id="app-status" class="form-select">
+        <option value="applied">Applied</option>
+        <option value="phone_screen">Phone Screen</option>
+        <option value="technical">Technical Round</option>
+        <option value="final">Final Round</option>
+        <option value="offer">Offer</option>
+        <option value="rejected">Rejected</option>
+        <option value="withdrawn">Withdrawn</option>
+      </select>
+      <label class="form-label">Salary range</label>
+      <input type="text" id="app-salary" class="form-input" placeholder="e.g. $72k - $114k">
+      <label class="form-label">Location</label>
+      <input type="text" id="app-location" class="form-input" placeholder="City, State or Remote">
+      <label class="form-label">Notes</label>
+      <input type="text" id="app-notes" class="form-input" placeholder="Odds, contacts, gaps, next steps...">
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary modal-close" data-modal="app-modal">Cancel</button>
+      <button id="save-app-btn" class="btn btn-primary">Log Application</button>
+    </div>
+  </div>
+</div>
+
+<!-- Add Job Listing Modal -->
+<div id="job-modal" class="modal-overlay hidden">
+  <div class="modal" style="max-width:480px">
+    <div class="modal-header">
+      <span class="modal-title">Add Job Listing</span>
+      <button class="btn-icon modal-close" data-modal="job-modal">
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor"><path d="M3.72 3.72a.75.75 0 0 1 1.06 0L8 6.94l3.22-3.22a.749.749 0 0 1 1.275.326.749.749 0 0 1-.215.734L9.06 8l3.22 3.22a.749.749 0 0 1-.326 1.275.749.749 0 0 1-.734-.215L8 9.06l-3.22 3.22a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042L6.94 8 3.72 4.78a.75.75 0 0 1 0-1.06z"/></svg>
+      </button>
+    </div>
+    <div class="modal-body">
+      <label class="form-label">Company</label>
+      <input type="text" id="job-company" class="form-input" placeholder="Company name">
+      <label class="form-label">Role / Title</label>
+      <input type="text" id="job-role" class="form-input" placeholder="Job title">
+      <label class="form-label">Category</label>
+      <select id="job-cat" class="form-select">
+        <option value="dod">DoD / Federal Contractor</option>
+        <option value="pipeline">Monitor / Alert Set</option>
+        <option value="backend">Non-DoD Backend</option>
+        <option value="analytics">SQL / Data Analytics</option>
+      </select>
+      <label class="form-label">Priority</label>
+      <select id="job-priority" class="form-select">
+        <option value="high">High</option>
+        <option value="medium">Medium</option>
+        <option value="low">Low</option>
+        <option value="critical">Critical</option>
+      </select>
+      <label class="form-label">Location</label>
+      <input type="text" id="job-location" class="form-input" placeholder="City, State or Remote">
+      <label class="form-label">Pay range</label>
+      <input type="text" id="job-pay" class="form-input" placeholder="e.g. $65,000 - $95,000">
+      <label class="form-label">Deadline / Apply by</label>
+      <input type="text" id="job-deadline" class="form-input" placeholder="e.g. Rolling, or 2026-08-01">
+      <label class="form-label">Apply URL</label>
+      <input type="text" id="job-url" class="form-input" placeholder="https://...">
+      <label class="form-label">Summary</label>
+      <input type="text" id="job-summary" class="form-input" placeholder="Brief description of the role">
+      <label class="form-label">Requirements (comma-separated)</label>
+      <input type="text" id="job-reqs" class="form-input" placeholder="Java, SQL, Git, Clearance eligible">
+      <label class="form-label">Values alignment note (optional)</label>
+      <input type="text" id="job-align" class="form-input" placeholder="Why this company fits your interests">
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary modal-close" data-modal="job-modal">Cancel</button>
+      <button id="save-job-btn" class="btn btn-primary">Add Listing</button>
+    </div>
+  </div>
+</div>
+
+<script src="tracker.js"></script>
+</body>
+</html>
