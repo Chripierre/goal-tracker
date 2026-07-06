@@ -9,7 +9,7 @@ Order within later phases may flex; finish-verify-document before advancing.
 - [x] Settle stack + architecture (ARCHITECTURE.md)
 - [x] Phased roadmap (this file), continuity README, WORKLOG
 
-## Phase 1 — Foundation — IN PROGRESS
+## Phase 1 — Foundation — DONE 2026-07-06
 
 Goal: deployed, navigable, dark, responsive app shell with real storage core and CI.
 
@@ -23,11 +23,12 @@ Goal: deployed, navigable, dark, responsive app shell with real storage core and
 - [x] ESLint flat + Prettier configured; typecheck/lint/test/build all green locally
 - [x] `.github/workflows/ci.yml`: check job (typecheck+lint+test+build) + Pages deploy on main
 - [x] Interim root `README.md` (honest, professional; full rewrite is Phase 13)
-- [ ] Push; site live at https://chripierre.github.io/goal-tracker/ (pushed; awaiting
-      owner to flip the repo public after the privacy scrub — see WORKLOG)
-- [ ] Browser smoke test of the live site (first item next session)
+- [x] Push; site live at https://chripierre.github.io/goal-tracker/ (repo public,
+      Pages source set to GitHub Actions by owner, CI check + deploy green)
+- [x] Browser smoke test of the live site: loads clean (no console errors), dashboard
+      renders, SPA nav works, deep-link 404 redirect works, mobile layout verified
 
-## Phase 2 — Core loop: assignments, streak, dashboard v1
+## Phase 2 — Core loop: assignments, streak, dashboard v1 — NEXT
 
 - [ ] Daily assignment generator (seeded from ported legacy TASKS + rotation rules)
 - [ ] Complete-assignment flow appends events; streak/weekly/monthly derive live

@@ -53,14 +53,25 @@ Residue caveat: force-pushed-away commits can remain fetchable on GitHub by raw 
 until garbage-collected. For zero residue: delete the GitHub repo, recreate it empty
 (same name, private), have the agent re-push, then flip public.
 
+DEPLOYED AND VERIFIED (session end): owner made repo public and set Pages source
+to GitHub Actions; CI fully green; https://chripierre.github.io/goal-tracker/ live.
+Browser smoke test via gstack /browse passed: zero console errors on load, dashboard
+renders (greeting, 4 stat cards, module grid), sidebar SPA nav works, deep link
+/leetcode 404-redirects correctly into the router, mobile 375px layout correct.
+Note: deep links log ONE expected console 404 (the initial response before the
+spa-github-pages redirect) — by design, not a bug. Browse gotcha: @e refs went
+stale between calls; scoped CSS selectors (nav[aria-label="Primary"] a[href=...])
+are the reliable fallback.
+
+PHASE 1 COMPLETE.
+
 NEXT:
-1. Owner: flip the repo public (Settings -> General -> Danger zone -> Change
-   visibility), optionally deleting + recreating the repo first per the residue
-   caveat above. Tell the agent when done.
-2. Agent: trigger the deploy (empty commit or Actions re-run), confirm the site is
-   live, browser smoke test (shell, drawer, all routes, 404 deep-link redirect).
-3. Owner judgment call, flagged but not scrubbed: remaining legacy content is
-   self-authored career analysis (GAPS narratives, job-lead notes) — public by
-   choice; gets the same scrub treatment on request.
-4. Then Phase 2 (ROADMAP): assignment engine + completion flow + dashboard v1;
-   seed tasks port from legacy TASKS array.
+1. Phase 2 (ROADMAP): daily assignment engine (generator + rotation over seed
+   tasks ported from legacy TASKS array), completion flow appending events,
+   dashboard v1 (streak flame, today panel, recent activity feed), history view,
+   achievements groundwork. Engines are pure functions in src/lib/ with tests.
+2. Owner judgment call, still open: remaining legacy content is self-authored
+   career analysis (GAPS narratives, job-lead notes) — public by choice; gets the
+   same scrub treatment on request.
+3. Housekeeping: gstack upgrade 1.58.3.0 -> 1.58.5.0 available; gstack one-time
+   onboarding prompts (telemetry/proactive/lake) deferred during smoke test.
