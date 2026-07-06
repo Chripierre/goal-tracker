@@ -30,7 +30,15 @@ Gotchas learned:
   render-time `prevPath` adjustment pattern instead (AppShell.tsx).
 - PowerShell 5.1 has no `&&`; `ssh-keygen -N ""` must run under Git Bash, not PS.
 - No gh CLI on this machine — CI status is invisible for private repos; consider
-  installing gh (would also simplify future repo automation).
+  installing gh (would also simplify future repo automation). Public-repo runs ARE
+  visible via unauthenticated REST (runs + per-step jobs), but job LOGS need admin.
+- Two-stage `npm install` on Windows wrote a lock missing `@emnapi/*` (wasm fallback
+  deps of Tailwind oxide) -> `npm ci` failed on CI (EUSAGE "Missing ... from lock
+  file"). Fix: delete package-lock.json + node_modules, single fresh `npm install`,
+  verify with a local `npm ci` before pushing.
+- `configure-pages` `enablement: true` cannot create the Pages site with the default
+  workflow token (needs admin) -> one-time manual toggle required: repo Settings ->
+  Pages -> Source: GitHub Actions. CI check job green on CI as of this session.
 
 HOSTING DECISION (owner): repo goes PUBLIC after a privacy scrub (GitHub Pages on
 Free requires public). Scrub performed this session:
