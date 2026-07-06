@@ -1,10 +1,11 @@
 import { BATCH_A } from './batchA'
+import { BATCH_B } from './batchB'
 import { PLANNED_TOPICS, type TopicGuide } from './types'
 
 export { PLANNED_TOPICS } from './types'
 export type { GuideProblem, TopicGuide } from './types'
 
-export const TOPIC_GUIDES: readonly TopicGuide[] = [...BATCH_A]
+export const TOPIC_GUIDES: readonly TopicGuide[] = [...BATCH_A, ...BATCH_B]
 
 const bySlug = new Map(TOPIC_GUIDES.map((g) => [g.slug, g]))
 
