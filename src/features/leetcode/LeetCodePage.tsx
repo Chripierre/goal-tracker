@@ -10,6 +10,7 @@ import { fetchLcStats, type LcSource, type LcStats } from '@/lib/leetcode/client
 import { lcActiveDays, weakestArea, weeklyCounts } from '@/lib/leetcode/stats'
 import { useAppStore } from '@/lib/storage/store'
 import { currentStreak } from '@/lib/streak/streak'
+import { Handbook } from './Handbook'
 
 function DifficultyCard({
   label,
@@ -157,30 +158,35 @@ function LcData({ username }: { username: string }) {
 export function LeetCodePage() {
   const username = useAppStore((s) => s.settings.lcUsername)
 
-  if (!username) {
-    return (
-      <>
-        <PageHeader title="LeetCode" description="Solve stats, streak, trends, and focus areas." />
-        <Card className="flex flex-col items-center gap-3 px-6 py-16 text-center">
-          <p className="font-medium">No LeetCode username configured</p>
-          <p className="max-w-md text-sm text-text-2">
-            Add your LeetCode username in Settings and your stats appear here.
-          </p>
-          <Link
-            to="/settings"
-            className="rounded-md bg-accent px-3 py-1.5 text-sm font-medium text-white outline-none transition-colors hover:bg-accent-hover focus-visible:ring-2 focus-visible:ring-accent"
-          >
-            Open Settings
-          </Link>
-        </Card>
-      </>
-    )
-  }
-
   return (
     <>
-      <PageHeader title="LeetCode" description={`Stats for ${username}`} />
-      <LcData key={username} username={username} />
+      {username ? (
+        <>
+          <PageHeader title="LeetCode" description={`Stats for ${username}`} />
+          <LcData key={username} username={username} />
+        </>
+      ) : (
+        <>
+          <PageHeader
+            title="LeetCode"
+            description="Solve stats, streak, trends, focus areas — and the study handbook."
+          />
+          <Card className="flex flex-col items-center gap-3 px-6 py-10 text-center">
+            <p className="font-medium">No LeetCode username configured</p>
+            <p className="max-w-md text-sm text-text-2">
+              Add your LeetCode username in Settings for live stats. The Resource Center
+              below works either way.
+            </p>
+            <Link
+              to="/settings"
+              className="rounded-md bg-accent px-3 py-1.5 text-sm font-medium text-white outline-none transition-colors hover:bg-accent-hover focus-visible:ring-2 focus-visible:ring-accent"
+            >
+              Open Settings
+            </Link>
+          </Card>
+        </>
+      )}
+      <Handbook />
     </>
   )
 }

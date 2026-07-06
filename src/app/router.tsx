@@ -5,6 +5,7 @@ import { AnalyticsPage } from '@/features/analytics/AnalyticsPage'
 import { AssignmentsPage } from '@/features/assignments/AssignmentsPage'
 import { ChallengesPage } from '@/features/challenges/ChallengesPage'
 import { LeetCodePage } from '@/features/leetcode/LeetCodePage'
+import { TopicPage } from '@/features/leetcode/TopicPage'
 import { TodosPage } from '@/features/todos/TodosPage'
 import { GithubPage } from '@/features/github/GithubPage'
 import { InterviewPage } from '@/features/interview/InterviewPage'
@@ -26,6 +27,7 @@ export const router = createBrowserRouter(
         { path: 'challenges', element: <ChallengesPage /> },
         { path: 'github', element: <GithubPage /> },
         { path: 'leetcode', element: <LeetCodePage /> },
+        { path: 'leetcode/:slug', element: <TopicPage /> },
         { path: 'interview', element: <InterviewPage /> },
         { path: 'analytics', element: <AnalyticsPage /> },
         { path: 'achievements', element: <AchievementsPage /> },

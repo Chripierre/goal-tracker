@@ -98,7 +98,7 @@ export function AppShell() {
         <Brand />
         <NavList />
         <p className="border-t border-border-subtle px-6 py-4 text-xs text-text-3">
-          Phase 10 — Achievements
+          Phase 7 — Resource Center
         </p>
       </aside>
 
