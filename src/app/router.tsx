@@ -1,6 +1,7 @@
 import { createBrowserRouter } from 'react-router'
 import { AppShell } from './AppShell'
 import { NAV_ITEMS } from './nav'
+import { AnalyticsPage } from '@/features/analytics/AnalyticsPage'
 import { AssignmentsPage } from '@/features/assignments/AssignmentsPage'
 import { ChallengesPage } from '@/features/challenges/ChallengesPage'
 import { LeetCodePage } from '@/features/leetcode/LeetCodePage'
@@ -25,6 +26,7 @@ export const router = createBrowserRouter(
         { path: 'challenges', element: <ChallengesPage /> },
         { path: 'github', element: <GithubPage /> },
         { path: 'leetcode', element: <LeetCodePage /> },
+        { path: 'analytics', element: <AnalyticsPage /> },
         { path: 'settings', element: <SettingsPage /> },
         ...NAV_ITEMS.filter(
           (item) =>
@@ -35,6 +37,7 @@ export const router = createBrowserRouter(
               '/challenges',
               '/github',
               '/leetcode',
+              '/analytics',
               '/settings',
             ].includes(item.to),
         ).map((item) => ({

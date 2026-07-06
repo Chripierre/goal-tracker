@@ -5,6 +5,24 @@ where to pick up.
 
 ---
 
+## Session 7 — 2026-07-06 (Phase 9 out of order — owner's token-budget call)
+
+Owner chose Phase 9 before 7/8 (code-heavy beats content-heavy at ~50% budget).
+Shipped analytics: productiveDayCounts (assignments by refId day + todos + challenge
+events), activeDayPct, perfectDayCount, challengeSummary, longestStreak — all pure,
+tested (77 total). Page: 4 summary cards, 17-week activity heatmap (reuses GitHub
+level scale), 8-week weekly bars (reuses lc weeklyCounts — it is calendar-generic),
+consistency card incl. GitHub commits 30d from the cached events API. Verified in
+browser with seeded multi-day data; cleared after. Deliberately omitted: coding
+hours (no time signal exists — do not fabricate).
+
+NEXT: Phase 8 interview game if budget allows (engine + ~40-question starter bank,
+categories per prompt; leaderboard local). Then Phase 7 Resource Center in content
+batches on a fresh budget. PENDING OWNER: LeetCode username (one line, activates
+the daily pipeline); PAT for 4b; Google OAuth for 11.
+
+---
+
 ## Session 6 — 2026-07-06 (Phase 6, owner remote, ~50% usage budget)
 
 Shipped LeetCode stats lean. KEY FINDING: the legacy app's data source

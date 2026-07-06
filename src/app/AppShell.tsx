@@ -66,7 +66,7 @@ export function AppShell() {
         <Brand />
         <NavList />
         <p className="border-t border-border-subtle px-6 py-4 text-xs text-text-3">
-          Phase 6 — LeetCode
+          Phase 9 — Analytics
         </p>
       </aside>
 

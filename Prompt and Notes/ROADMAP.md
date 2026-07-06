@@ -130,16 +130,24 @@ deferral applies to the Phase 11 Google Calendar OAuth setup.
 - [ ] Batch B: Linked Lists, Stacks/Queues/Monotonic, Trees, BST, Heaps, Tries, Recursion, Sorting
 - [ ] Batch C: Graphs, DFS/BFS, Topological Sort, Union Find, DP, Memoization, Backtracking, Greedy, Bit Manipulation, Divide & Conquer, Math, Geometry
 
-## Phase 8 — Interview practice game
+## Phase 8 — Interview practice game — NEXT (owner budget permitting)
 
 - [ ] Wordle-inspired daily interview question game; categories per prompt
 - [ ] Score, streak, timer, hints, explanations, local leaderboard
 - [ ] Question bank content (batched, per category)
 
-## Phase 9 — Analytics
+## Phase 9 — Analytics — DONE 2026-07-06 (built before 7/8 — code-heavy, token-cheap)
 
-- [ ] Coding hours, commits, solved, completions, streak history
-- [ ] Productivity graphs, activity heatmap, consistency metrics, challenge completion rate
+- [x] Summary cards: assignments all-time + perfect days, best/current streak
+      (longestStreak added to streak lib, tested), challenges completed with avg
+      score/milestones, todos done
+- [x] Activity heatmap (17 weeks, own event/todo/challenge data; reuses the GitHub
+      heatmap level scale) + weekly completions bars (8 weeks, reuses lc weeklyCounts)
+- [x] Consistency: 30-day active %, perfect days, GitHub commits last 30d (live from
+      cached events API when username set)
+- [x] Not built, honestly: coding hours (nothing tracks time yet — revisit if a time
+      signal ever exists); LC solved lives on the LeetCode page
+- [x] Browser-verified against seeded multi-day data (Session 7)
 
 ## Phase 10 — Achievements (full)
 

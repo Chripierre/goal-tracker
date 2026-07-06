@@ -18,3 +18,17 @@ export function currentStreak(activeDays: ReadonlySet<string>, today: Date): num
 export function activeDaysFrom(timestamps: readonly number[]): Set<string> {
   return new Set(timestamps.map((ts) => localDayKey(new Date(ts))))
 }
+
+/** Longest run of consecutive active days anywhere in history. */
+export function longestStreak(activeDays: ReadonlySet<string>): number {
+  const sorted = [...activeDays].sort()
+  let best = 0
+  let run = 0
+  let prev: string | null = null
+  for (const day of sorted) {
+    run = prev !== null && localDayKey(addDays(new Date(`${prev}T00:00:00`), 1)) === day ? run + 1 : 1
+    if (run > best) best = run
+    prev = day
+  }
+  return best
+}
