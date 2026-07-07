@@ -3,9 +3,13 @@ import { Link } from 'react-router'
 import {
   Activity,
   Award,
+  BookOpen,
   CheckCircle2,
   ChevronRight,
+  ExternalLink,
   Flame,
+  Lightbulb,
+  Quote,
   type LucideIcon,
 } from 'lucide-react'
 import { NAV_ITEMS } from '@/app/nav'
@@ -16,6 +20,7 @@ import { AssignmentRow } from '@/features/assignments/AssignmentRow'
 import { ACHIEVEMENTS_BY_ID } from '@/lib/achievements/achievements'
 import { generateAssignments } from '@/lib/assignments/generate'
 import { assignmentDays, completionsSinceDay } from '@/lib/assignments/stats'
+import { dailyBriefing } from '@/lib/briefing/briefing'
 import { formatRelative, localDayKey, startOfMonth, startOfWeek } from '@/lib/dates'
 import { completedAssignmentIds, effectiveAssignmentCompletions } from '@/lib/events/completion'
 import { fetchEvents } from '@/lib/github/client'
@@ -129,10 +134,50 @@ export function DashboardPage() {
     month: 'long',
     day: 'numeric',
   })
+  const briefing = dailyBriefing(todayKey)
 
   return (
     <>
       <PageHeader title={`${greeting(now)}, ${displayName}`} description={dateLine} />
+
+      <Card className="mb-4 grid gap-5 p-5 md:grid-cols-3">
+        <div>
+          <p className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-text-3">
+            <Quote className="size-3.5" aria-hidden />
+            Today's fuel
+          </p>
+          <p className="mt-2 text-sm italic leading-relaxed text-text-2">
+            "{briefing.quote.text}"
+          </p>
+          <p className="mt-1.5 text-xs text-text-3">— {briefing.quote.author}</p>
+        </div>
+        <div>
+          <p className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-text-3">
+            <BookOpen className="size-3.5" aria-hidden />
+            Explore today
+          </p>
+          <p className="mt-2 text-sm font-medium">{briefing.explore.topic}</p>
+          <p className="mt-1 text-xs leading-relaxed text-text-2">{briefing.explore.why}</p>
+          {briefing.explore.source && (
+            <a
+              href={briefing.explore.source}
+              target="_blank"
+              rel="noreferrer"
+              className="mt-1.5 inline-flex items-center gap-1 text-xs text-accent outline-none transition-colors hover:text-accent-hover focus-visible:ring-2 focus-visible:ring-accent"
+            >
+              source
+              <ExternalLink className="size-3" aria-hidden />
+            </a>
+          )}
+        </div>
+        <div>
+          <p className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-text-3">
+            <Lightbulb className="size-3.5" aria-hidden />
+            Tip of the day
+          </p>
+          <p className="mt-2 text-sm leading-relaxed text-text-2">{briefing.tip}</p>
+        </div>
+      </Card>
 
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <StatCard

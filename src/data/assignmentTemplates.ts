@@ -27,6 +27,15 @@ const STUDY_POOL = [
   'Study: testing fundamentals (20 min)',
   'Study: OOP & design patterns (20 min)',
   'Study: system design basics (20 min)',
+  // Refreshed 2026-07-07 from 2026 skills research (see WORKLOG Session 13)
+  'Study: prompt engineering & LLM APIs (20 min)',
+  'Study: retrieval-augmented generation basics (20 min)',
+  'Study: Docker & containers (20 min)',
+  'Study: Kubernetes fundamentals (20 min)',
+  'Study: microservices vs monoliths (20 min)',
+  'Study: OWASP top 10 & secure coding (20 min)',
+  'Study: observability — logs, metrics, traces (20 min)',
+  'Study: WebAssembly fundamentals (20 min)',
 ] as const
 
 const CAREER_POOL = [
@@ -36,6 +45,10 @@ const CAREER_POOL = [
   'Read one engineering blog post and note one takeaway',
   'Update your skill-gap list with this week’s progress',
   'Research one target company and note why you fit',
+  'Write a 3-sentence LinkedIn post about something you built or learned',
+  'Try one AI-assisted workflow and note the before/after',
+  'Read one open-source repo’s contributing guide for a future PR',
+  'Practice your 60-second elevator pitch out loud',
 ] as const
 
 export const ASSIGNMENT_TEMPLATES: readonly AssignmentTemplate[] = [
