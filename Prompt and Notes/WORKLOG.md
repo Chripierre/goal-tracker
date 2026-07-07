@@ -5,6 +5,31 @@ where to pick up.
 
 ---
 
+## Session 14 — 2026-07-07 (security hardening amendment)
+
+Owner asked for an admin login fearing repo visitors could steal his/friends'
+OAuth. Reframed honestly: static site, no server, per-browser data — a client-side
+login is bypassable theater, and there is nothing server-side to protect. Shipped
+real controls instead (see ROADMAP amendment): SECURITY.md threat model, app lock
+(token AES-256-GCM at rest + session unlock), build-time CSP meta, Dependabot,
+secret scan (clean).
+
+Implementation notes for future sessions:
+- token.ts no longer uses zustand persist — manual storage envelope
+  {mode:'plain'|'enc'} in the same gt_gh_token key, with transparent migration
+  from the old persist shape. Token components unchanged (still read s.token).
+- CSP lives in vite.config (cspPlugin, apply:'build'); dev is CSP-free on purpose
+  (HMR). ANY new external resource (script/api/img/font host) MUST be added to the
+  CSP list or prod silently breaks — test with npm run preview + browse console.
+- The index.html spa-redirect is now public/spa-redirect.js (script-src 'self').
+- font-src needs data: (fontsource inlines small woff2 files).
+- 111 tests green. Saving a new token intentionally drops the lock (explicit copy).
+
+NEXT: Phase 13 polish (README rewrite, lazy loading, a11y, LICENSE, dead-code
+prune). Blocked-on-owner: Google console walkthrough, LC username, PAT (4b).
+
+---
+
 ## Session 13 — 2026-07-07 (briefing + pool refresh + Google Calendar code-side)
 
 Three owner asks in one session:

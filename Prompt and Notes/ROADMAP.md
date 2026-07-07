@@ -243,6 +243,25 @@ Owner request: apply the bounty-board "cowork research" pattern to recurring con
 - [x] Browser-verified: tabs, checklist persistence, namespaced status persistence
       (scholarship:s01 = submitted), scholarships render all 21 with tiers (Session 11)
 
+## Amendment — Security hardening — DONE 2026-07-07 (owner request)
+
+Owner asked for an "admin login" for a future friend-group expansion. Honest answer
+shipped instead (client-side logins on public static sites are theater — documented):
+- [x] SECURITY.md: full threat model — no backend, per-browser data isolation,
+      what a repo visitor can/cannot get, why the Google Client ID is public by
+      design, and the REAL path if shared features ever arrive (BaaS + row-level
+      security as its own phase)
+- [x] App lock (the honest "login"): GitHub token encrypted at rest with
+      PBKDF2(310k)+AES-256-GCM (lib/crypto, tested); unlock-per-session UI in
+      Settings; wrong-passphrase = GCM auth failure; forgotten passphrase =
+      just paste a fresh token. Legacy plaintext slot migrates transparently.
+- [x] Content-Security-Policy meta injected at BUILD only (dev HMR unaffected):
+      script/connect/img/frame allowlists to exactly our APIs; inline spa-redirect
+      script externalized to keep script-src 'self'; font-src needed data: for
+      fontsource-inlined fonts (caught by testing the prod build under CSP)
+- [x] Dependabot (npm + actions, weekly); tracked-file secret scan clean
+- [x] Prod-build QA under CSP: zero violations; lock/unlock cycle verified
+
 ## Phase 13 — Polish & release — NEXT (last unblocked phase)
 
 - [ ] A11y audit, keyboard pass, skeletons/transitions sweep

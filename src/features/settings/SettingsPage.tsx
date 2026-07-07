@@ -39,12 +39,38 @@ export function SettingsPage() {
   const mergeGcalEventMap = useAppStore((s) => s.mergeGcalEventMap)
   const token = useGithubToken((s) => s.token)
   const setToken = useGithubToken((s) => s.setToken)
+  const tokenLocked = useGithubToken((s) => s.locked)
+  const hasPassphrase = useGithubToken((s) => s.hasPassphrase)
+  const enableLock = useGithubToken((s) => s.enableLock)
+  const unlock = useGithubToken((s) => s.unlock)
+  const removeLock = useGithubToken((s) => s.removeLock)
 
   const [displayName, setDisplayName] = useState(settings.displayName)
   const [ghUsername, setGhUsername] = useState(settings.ghUsername)
   const [lcUsername, setLcUsername] = useState(settings.lcUsername)
   const [tokenInput, setTokenInput] = useState(token)
   const [tokenStatus, setTokenStatus] = useState('')
+  const [lockPass, setLockPass] = useState('')
+  const [lockStatus, setLockStatus] = useState('')
+
+  function handleLockAction(action: 'enable' | 'unlock' | 'remove') {
+    const pass = lockPass
+    if (!pass) return
+    const run =
+      action === 'enable' ? enableLock(pass) : action === 'unlock' ? unlock(pass) : removeLock(pass)
+    run
+      .then(() => {
+        setLockPass('')
+        setLockStatus(
+          action === 'enable'
+            ? 'App lock enabled — the token is now encrypted at rest.'
+            : action === 'unlock'
+              ? 'Unlocked for this session.'
+              : 'App lock removed — the token is stored unencrypted again.',
+        )
+      })
+      .catch(() => setLockStatus('Wrong passphrase.'))
+  }
   const [dataStatus, setDataStatus] = useState('')
   const [gcalClientIdInput, setGcalClientIdInput] = useState(gcal.clientId)
   const [gcalStatus, setGcalStatus] = useState('')
@@ -209,6 +235,54 @@ export function SettingsPage() {
               )}
             </div>
             {tokenStatus && <p className="text-xs text-text-2">{tokenStatus}</p>}
+
+            <div className="mt-2 border-t border-border-subtle pt-3">
+              <p className="text-xs font-semibold uppercase tracking-wide text-text-3">
+                App lock
+              </p>
+              <p className="mt-1 text-xs text-text-3">
+                Encrypts the stored GitHub token with a passphrase (AES-256-GCM). While
+                locked, GitHub features run tokenless until you unlock for the session.
+                Saving a new token removes the lock — re-enable it after. Forgot the
+                passphrase? Just clear the token and paste a fresh one.
+              </p>
+              {tokenLocked ? (
+                <div className="mt-2 flex flex-wrap items-center gap-2">
+                  <TextInput
+                    type="password"
+                    value={lockPass}
+                    onChange={(e) => setLockPass(e.target.value)}
+                    placeholder="Passphrase"
+                    aria-label="Unlock passphrase"
+                  />
+                  <Button onClick={() => handleLockAction('unlock')} disabled={!lockPass}>
+                    Unlock
+                  </Button>
+                </div>
+              ) : token ? (
+                <div className="mt-2 flex flex-wrap items-center gap-2">
+                  <TextInput
+                    type="password"
+                    value={lockPass}
+                    onChange={(e) => setLockPass(e.target.value)}
+                    placeholder="Passphrase"
+                    aria-label="App lock passphrase"
+                  />
+                  {hasPassphrase ? (
+                    <Button variant="ghost" onClick={() => handleLockAction('remove')} disabled={!lockPass}>
+                      Remove lock
+                    </Button>
+                  ) : (
+                    <Button onClick={() => handleLockAction('enable')} disabled={!lockPass}>
+                      Enable app lock
+                    </Button>
+                  )}
+                </div>
+              ) : (
+                <p className="mt-2 text-xs text-text-3">Save a token first to enable the lock.</p>
+              )}
+              {lockStatus && <p className="mt-1 text-xs text-text-2">{lockStatus}</p>}
+            </div>
           </div>
         </Section>
 
