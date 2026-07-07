@@ -5,6 +5,43 @@ where to pick up.
 
 ---
 
+## Session 13 — 2026-07-07 (briefing + pool refresh + Google Calendar code-side)
+
+Three owner asks in one session:
+1. Research-refreshed assignment pools (study +8 modern topics, career +4) from a
+   2026-skills WebSearch — same "cowork" pattern as the bounty pool.
+2. Dashboard Daily Briefing panel: quote pool (15, verified attributions —
+   Nietzsche/Malcolm X per owner + Douglass/Angelou/Ali/Mandela/stoics), 18 tips,
+   12 researched explore-topics with sources. lib/briefing deterministic per day
+   (co-prime strides de-sync the three pools). This fulfills the original brief's
+   "Motivation panel".
+3. Google Calendar sync CODE-SIDE (schema v7 gcal {clientId, eventMap}): GIS token
+   client loaded on demand, syncTodosToCalendar creates/patches 30-min events at
+   settings.reminderTime with popup alerts, 404-recreate handling, eventMap merge
+   after sync. Settings section: reminder time input, Client ID, Connect-and-sync.
+   UNTESTED E2E (needs owner's Client ID) — pure parts tested (event body, time
+   math, v7 migration). 105 tests green.
+
+RECURRING CONTENT REFRESH RUNBOOK (the owner's "Claude cowork" recurring task):
+- What: refresh rotating content pools with fresh research.
+- Targets: src/data/assignmentTemplates.ts (STUDY_POOL/CAREER_POOL),
+  src/data/briefing.ts (EXPLORE_TOPICS, TIPS, QUOTES), src/data/challengeBounties.ts
+  (NEW_BOUNTIES).
+- How: 1-2 WebSearches (current-year skills/project-idea roundups) -> append entries
+  (keep source URLs) -> integrity tests already guard shapes -> verify -> ship.
+- Cadence: monthly, or whenever the owner says "refresh the pools". Determinism
+  means new entries slot into rotations automatically.
+- Automation option: /schedule (Claude cloud agents on cron) can run this without
+  the owner present — offer when usage budget allows.
+
+NEXT: owner does the Google console walkthrough (delivered in chat + summarized:
+create project -> enable Calendar API -> OAuth consent (External, self as test
+user) -> Web OAuth Client ID with origins https://chripierre.github.io AND
+http://localhost:5173 -> paste ID in Settings -> Connect). Then E2E-test sync.
+Then Phase 13 polish. Blocked-on-owner otherwise: LC username, PAT (4b).
+
+---
+
 ## Session 12 — 2026-07-07 (Phase 5b — bounty board amendment)
 
 Owner amendment mid-flight: challenges -> weekly bounty board with three tiers

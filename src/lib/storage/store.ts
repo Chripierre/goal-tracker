@@ -59,6 +59,8 @@ interface AppStore extends AppState {
   deleteContact: (id: string) => void
   /** Merges a mapped cp_tracker_v1 import into career state and todos. */
   applyLegacyImport: (mapped: LegacyImport) => void
+  setGcalClientId: (clientId: string) => void
+  mergeGcalEventMap: (map: Record<string, string>) => void
 }
 
 function mkEvent(type: ActivityEventType, refId?: string, label?: string): ActivityEvent {
@@ -145,6 +147,10 @@ export const useAppStore = create<AppStore>()(
         }),
       updateSettings: (patch) =>
         set((s) => ({ settings: { ...s.settings, ...patch } })),
+      setGcalClientId: (clientId) =>
+        set((s) => ({ gcal: { ...s.gcal, clientId } })),
+      mergeGcalEventMap: (map) =>
+        set((s) => ({ gcal: { ...s.gcal, eventMap: { ...s.gcal.eventMap, ...map } } })),
       setCareerCheck: (id, done) =>
         set((s) => ({ career: { ...s.career, checks: { ...s.career.checks, [id]: done } } })),
       setCareerStatus: (key, status) =>
@@ -299,6 +305,7 @@ export const useAppStore = create<AppStore>()(
         challenges: s.challenges,
         gameResults: s.gameResults,
         career: s.career,
+        gcal: s.gcal,
       }),
       migrate: (persisted, version) => migrateState(persisted, version),
     },

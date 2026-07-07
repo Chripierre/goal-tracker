@@ -73,4 +73,11 @@ describe('migrateState', () => {
     expect(partial.career.checks).toEqual({ t01: true })
     expect(partial.career.contacts).toEqual([])
   })
+
+  it('migrates v6 state (no gcal field) to v7 with defaults, preserving partials', () => {
+    expect(migrateState({ schemaVersion: 6 }, 6).gcal).toEqual({ clientId: '', eventMap: {} })
+    const partial = migrateState({ gcal: { clientId: 'abc.apps.googleusercontent.com' } }, 7)
+    expect(partial.gcal.clientId).toBe('abc.apps.googleusercontent.com')
+    expect(partial.gcal.eventMap).toEqual({})
+  })
 })

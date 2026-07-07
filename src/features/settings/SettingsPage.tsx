@@ -5,6 +5,7 @@ import { Card } from '@/components/ui/Card'
 import { TextInput } from '@/components/ui/TextInput'
 import { localDayKey } from '@/lib/dates'
 import { mapLegacyState } from '@/lib/career/legacy'
+import { requestCalendarToken, syncTodosToCalendar } from '@/lib/gcal/gcal'
 import { fetchAuthenticatedUser } from '@/lib/github/client'
 import { useGithubToken } from '@/lib/github/token'
 import { useAppStore } from '@/lib/storage/store'
@@ -33,6 +34,9 @@ export function SettingsPage() {
   const importState = useAppStore((s) => s.importState)
   const resetState = useAppStore((s) => s.resetState)
   const applyLegacyImport = useAppStore((s) => s.applyLegacyImport)
+  const gcal = useAppStore((s) => s.gcal)
+  const setGcalClientId = useAppStore((s) => s.setGcalClientId)
+  const mergeGcalEventMap = useAppStore((s) => s.mergeGcalEventMap)
   const token = useGithubToken((s) => s.token)
   const setToken = useGithubToken((s) => s.setToken)
 
@@ -42,8 +46,40 @@ export function SettingsPage() {
   const [tokenInput, setTokenInput] = useState(token)
   const [tokenStatus, setTokenStatus] = useState('')
   const [dataStatus, setDataStatus] = useState('')
+  const [gcalClientIdInput, setGcalClientIdInput] = useState(gcal.clientId)
+  const [gcalStatus, setGcalStatus] = useState('')
   const fileRef = useRef<HTMLInputElement>(null)
   const legacyRef = useRef<HTMLInputElement>(null)
+
+  function syncCalendar() {
+    const clientId = gcalClientIdInput.trim()
+    if (!clientId) return
+    setGcalClientId(clientId)
+    const { todos, settings: st, gcal: g } = useAppStore.getState()
+    const dated = todos.filter((t) => !t.completedAt && t.dueDay)
+    if (dated.length === 0) {
+      setGcalStatus('No open todos with due dates to sync — add some first.')
+      return
+    }
+    setGcalStatus('Waiting for Google authorization…')
+    requestCalendarToken(clientId)
+      .then((token) => {
+        setGcalStatus(`Syncing ${dated.length} todo${dated.length === 1 ? '' : 's'}…`)
+        return syncTodosToCalendar(token, todos, g.eventMap, st.reminderTime)
+      })
+      .then((result) => {
+        const createdCount = Object.keys(result.created).length
+        if (createdCount > 0) mergeGcalEventMap(result.created)
+        setGcalStatus(
+          `Done: ${createdCount} created, ${result.updated} updated${
+            result.failed ? `, ${result.failed} failed` : ''
+          }. Alerts fire at ${st.reminderTime} via the Google Calendar app.`,
+        )
+      })
+      .catch((e: unknown) =>
+        setGcalStatus(e instanceof Error ? `Sync failed: ${e.message}` : 'Sync failed.'),
+      )
+  }
 
   function importLegacy(file: File) {
     file
@@ -186,6 +222,44 @@ export function SettingsPage() {
               className="min-w-56"
             />
             <Button onClick={() => updateSettings({ lcUsername: lcUsername.trim() })}>Save</Button>
+          </div>
+        </Section>
+
+        <Section
+          title="Google Calendar"
+          description="Pushes every open, dated todo into your Google Calendar as a 30-minute event at your reminder time, with a popup alert — notifications then come from the Calendar app on your phone. Needs a one-time OAuth Client ID from Google Cloud Console (it is public app identity, not a secret). Re-running the sync updates existing events instead of duplicating."
+        >
+          <div className="flex max-w-xl flex-col gap-2">
+            <div className="flex flex-wrap items-center gap-2">
+              <TextInput
+                value={settings.reminderTime}
+                onChange={(e) => updateSettings({ reminderTime: e.target.value })}
+                type="time"
+                aria-label="Reminder time"
+              />
+              <span className="text-xs text-text-3">daily alert time for synced todos</span>
+            </div>
+            <TextInput
+              value={gcalClientIdInput}
+              onChange={(e) => {
+                setGcalClientIdInput(e.target.value)
+                setGcalStatus('')
+              }}
+              placeholder="OAuth Client ID (…apps.googleusercontent.com)"
+              aria-label="Google OAuth Client ID"
+            />
+            <div className="flex items-center gap-2">
+              <Button onClick={syncCalendar} disabled={!gcalClientIdInput.trim()}>
+                Connect and sync todos
+              </Button>
+              {Object.keys(gcal.eventMap).length > 0 && (
+                <span className="text-xs text-text-3">
+                  {Object.keys(gcal.eventMap).length} todo
+                  {Object.keys(gcal.eventMap).length === 1 ? '' : 's'} linked to Calendar
+                </span>
+              )}
+            </div>
+            {gcalStatus && <p className="text-xs text-text-2">{gcalStatus}</p>}
           </div>
         </Section>
 

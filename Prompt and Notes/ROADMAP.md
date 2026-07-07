@@ -131,6 +131,18 @@ replicated key-value store.
       (templateFor/dueDayFor/repoNameFor/monthChallengeId) now unused by UI — prune
       in Phase 13.
 
+## Amendment — Daily briefing + researched pool refresh — DONE 2026-07-07
+
+Owner request: apply the bounty-board "cowork research" pattern to recurring content.
+- [x] Assignment pools refreshed from 2026 skills research: study pool +8 (LLM APIs,
+      RAG, Docker, K8s, microservices, OWASP, observability, WASM), career pool +4
+- [x] Dashboard Daily Briefing panel (deterministic per day, like assignments):
+      perseverance quote pool (Nietzsche, Malcolm X, Douglass, Angelou, Ali, Mandela,
+      Aurelius, Epictetus, Baldwin, Seneca, Confucius — verified attributions only),
+      explore-topic-of-the-day (researched, with source links), tip-of-the-day
+- [x] Recurring refresh RUNBOOK recorded in WORKLOG Session 13 (rerun cadence:
+      monthly or on owner request; /schedule cloud agents are the automation option)
+
 ## Phase 6 — LeetCode stats — DONE 2026-07-06
 
 - [x] Daily Actions pipeline (leetcode-data.yml + scripts/fetch-leetcode.mjs): queries
@@ -205,9 +217,12 @@ replicated key-value store.
 ## Phase 11 — Reminders
 
 - [ ] ReminderChannel interface; browser notifications channel
-- [ ] Google Calendar API sync channel for todos (client-side OAuth via Google Identity
-      Services; owner GCP setup required) — todos auto-create/update calendar events
-      with reminders; this is the owner's preferred notification path
+- [x] Google Calendar API sync channel for todos — CODE-SIDE DONE 2026-07-07:
+      GIS token flow (lib/gcal), timed 30-min events at settings.reminderTime with
+      popup alerts, eventMap prevents duplicates (schema v7), Settings section with
+      Client ID + Connect-and-sync. AWAITING OWNER: Google Cloud console setup
+      (walkthrough delivered Session 13); E2E untested until his Client ID exists.
+      v2 later: auto-sync on todo changes, delete events for removed todos.
 - [ ] ICS export channel
 - [ ] Optional Actions email channel (needs Phase 4 sync)
 

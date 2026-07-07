@@ -1,4 +1,4 @@
-export const SCHEMA_VERSION = 6
+export const SCHEMA_VERSION = 7
 export const STORAGE_KEY = 'gt_v1'
 
 export interface Settings {
@@ -122,6 +122,20 @@ export function defaultCareerState(): CareerState {
   return { checks: {}, statuses: {}, applications: [], contacts: [] }
 }
 
+/**
+ * Google Calendar sync state. The OAuth CLIENT ID is public by design (it
+ * identifies the app, not the user); access tokens are never persisted.
+ * eventMap: todo id -> calendar event id, so re-syncs update instead of duplicate.
+ */
+export interface GcalState {
+  clientId: string
+  eventMap: Record<string, string>
+}
+
+export function defaultGcalState(): GcalState {
+  return { clientId: '', eventMap: {} }
+}
+
 export interface AppState {
   schemaVersion: typeof SCHEMA_VERSION
   settings: Settings
@@ -132,6 +146,7 @@ export interface AppState {
   challenges: ChallengeRecord[]
   gameResults: GameResult[]
   career: CareerState
+  gcal: GcalState
 }
 
 export function defaultAppState(): AppState {
@@ -150,5 +165,6 @@ export function defaultAppState(): AppState {
     challenges: [],
     gameResults: [],
     career: defaultCareerState(),
+    gcal: defaultGcalState(),
   }
 }

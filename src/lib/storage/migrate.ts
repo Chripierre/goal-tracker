@@ -1,4 +1,10 @@
-import { SCHEMA_VERSION, defaultAppState, defaultCareerState, type AppState } from './schema'
+import {
+  SCHEMA_VERSION,
+  defaultAppState,
+  defaultCareerState,
+  defaultGcalState,
+  type AppState,
+} from './schema'
 
 /**
  * Additive, never destructive: unknown input falls back to defaults, known
@@ -23,5 +29,9 @@ export function migrateState(persisted: unknown, _fromVersion: number): AppState
       p.career && typeof p.career === 'object'
         ? { ...defaultCareerState(), ...p.career }
         : defaultCareerState(),
+    gcal:
+      p.gcal && typeof p.gcal === 'object'
+        ? { ...defaultGcalState(), ...p.gcal }
+        : defaultGcalState(),
   }
 }
