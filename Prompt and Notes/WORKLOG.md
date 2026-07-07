@@ -31,6 +31,11 @@ RECURRING CONTENT REFRESH RUNBOOK (the owner's "Claude cowork" recurring task):
   (keep source URLs) -> integrity tests already guard shapes -> verify -> ship.
 - Cadence: monthly, or whenever the owner says "refresh the pools". Determinism
   means new entries slot into rotations automatically.
+- MODEL POLICY (owner directive 2026-07-07): run these cyclical refreshes on a
+  CHEAP model — Haiku. It is low-complexity append work guarded by tests. In an
+  interactive session, spawn it as a subagent with model: haiku (or the owner
+  switches via /model haiku first); if scheduled via /schedule cloud agents,
+  configure the routine to use Haiku. Do NOT burn Fable/Opus tokens on it.
 - Automation option: /schedule (Claude cloud agents on cron) can run this without
   the owner present — offer when usage budget allows.
 
