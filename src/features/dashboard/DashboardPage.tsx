@@ -60,6 +60,7 @@ function StatCard({ label, value, hint, icon: Icon, iconClass = 'text-text-3' }:
 }
 
 interface FeedItem {
+  id: string
   ts: number
   label: string
   kind: 'completion' | 'unlock'
@@ -109,11 +110,13 @@ export function DashboardPage() {
   }, [events])
 
   const completionItems: FeedItem[] = effectiveAssignmentCompletions(events).map((e) => ({
+    id: e.id,
     ts: e.ts,
     label: e.label ?? 'Assignment completed',
     kind: 'completion' as const,
   }))
   const unlockItems: FeedItem[] = achievements.map((u) => ({
+    id: `unlock-${u.id}`,
     ts: u.unlockedAt,
     label: `Unlocked: ${ACHIEVEMENTS_BY_ID.get(u.id)?.title ?? u.id}`,
     kind: 'unlock' as const,
@@ -121,6 +124,7 @@ export function DashboardPage() {
   const challengeItems: FeedItem[] = events
     .filter((e) => e.type === 'challenge_completed')
     .map((e) => ({
+      id: e.id,
       ts: e.ts,
       label: e.label ?? 'Challenge completed',
       kind: 'completion' as const,
@@ -232,7 +236,7 @@ export function DashboardPage() {
           ) : (
             <div className="p-2">
               {feed.map((item) => (
-                <div key={`${item.kind}-${item.ts}-${item.label}`} className="flex items-center gap-2.5 rounded-md px-2 py-2">
+                <div key={item.id} className="flex items-center gap-2.5 rounded-md px-2 py-2">
                   {item.kind === 'unlock' ? (
                     <Award className="size-4 shrink-0 text-warning" aria-hidden />
                   ) : (
