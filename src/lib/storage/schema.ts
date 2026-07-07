@@ -60,7 +60,8 @@ export interface Todo {
   completedAt?: number
 }
 
-export type ChallengeKind = 'week' | 'month'
+/** week/month are legacy period challenges; low/mid/high are bounty tiers. */
+export type ChallengeKind = 'week' | 'month' | 'low' | 'mid' | 'high'
 
 /** A started weekly/monthly challenge; id is the period key (2026-W28 / 2026-07). */
 export interface ChallengeRecord {

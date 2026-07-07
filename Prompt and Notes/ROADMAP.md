@@ -108,6 +108,29 @@ deferral applies to the Phase 11 Google Calendar OAuth setup.
       completion % archived, challenge_completed event lands in dashboard feed
 - [x] History view with score badges; browser-verified full lifecycle (Session 5)
 
+## Phase 5b — Bounty board amendment — DONE 2026-07-07 (owner request)
+
+Owner amendment: challenges became a BOUNTY BOARD. Fresh postings every Monday
+(deterministic per ISO week), three tiers: low (~1 week), mid (~1 month), high
+(multi-month or team-up). Pool = 21 bounties: the 12 legacy templates retiered by
+mapping (zero retyping) + 9 new researched from 2026 project-idea roundups (each
+carries a source URL): GitHub contribution insights, AI commit summarizer,
+RAG doc Q&A, AI PR reviewer, mini search engine, explainable resume screener,
+collaborative markdown editor (CRDT, team-up), pair-programming rooms (team-up),
+replicated key-value store.
+
+- [x] lib/challenges/board.ts: TIER_META (due windows 7/30/90d), weeklyBoard
+      (2 low + 2 mid + 1 high, excludes ever-claimed slugs, graceful exhaustion),
+      bountyDueDay, bountyRepoName (`bounty-<slug>`) — tested
+- [x] ChallengeKind widened with low|mid|high (legacy week/month records still render)
+- [x] Page rewrite: Claimed section (full milestone/repo/rubric/archive flow, Team-up
+      badges), tiered board with claim buttons + idea-source links, history with tier
+      badges. Achievements (Shipped/Flawless/Serial shipper) unchanged — bounties are
+      ChallengeRecords.
+- [x] Browser-verified claim flow (Session 12). Old challenges.ts period functions
+      (templateFor/dueDayFor/repoNameFor/monthChallengeId) now unused by UI — prune
+      in Phase 13.
+
 ## Phase 6 — LeetCode stats — DONE 2026-07-06
 
 - [x] Daily Actions pipeline (leetcode-data.yml + scripts/fetch-leetcode.mjs): queries

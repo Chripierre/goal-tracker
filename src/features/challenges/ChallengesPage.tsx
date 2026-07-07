@@ -1,27 +1,41 @@
 import { useState } from 'react'
-import { Check, ExternalLink, Trophy } from 'lucide-react'
+import { Check, ExternalLink, Users } from 'lucide-react'
 import { PageHeader } from '@/components/PageHeader'
 import { Badge, type BadgeVariant } from '@/components/ui/Badge'
 import { Button } from '@/components/ui/Button'
 import { Card } from '@/components/ui/Card'
 import { ProgressBar } from '@/components/ui/ProgressBar'
 import { TextInput } from '@/components/ui/TextInput'
+import { milestonePct, newRepoUrl, rubricScore } from '@/lib/challenges/challenges'
 import {
-  dueDayFor,
-  milestonePct,
-  monthChallengeId,
-  newRepoUrl,
-  repoNameFor,
-  rubricScore,
-  templateBySlug,
-  templateFor,
-  weekChallengeId,
-} from '@/lib/challenges/challenges'
+  TIERS,
+  TIER_META,
+  bountyBySlug,
+  bountyDueDay,
+  bountyRepoName,
+  weeklyBoard,
+} from '@/lib/challenges/board'
 import { createRepo } from '@/lib/github/client'
 import { useGithubToken } from '@/lib/github/token'
 import { useAppStore } from '@/lib/storage/store'
-import type { ChallengeTemplate } from '@/data/challengeTemplates'
-import type { ChallengeKind, ChallengeRecord } from '@/lib/storage/schema'
+import type { Bounty } from '@/data/challengeBounties'
+import type { ChallengeRecord } from '@/lib/storage/schema'
+
+const KIND_LABEL: Record<string, string> = {
+  week: 'Weekly',
+  month: 'Monthly',
+  low: 'Low tier',
+  mid: 'Mid tier',
+  high: 'High tier',
+}
+
+const KIND_VARIANT: Record<string, BadgeVariant> = {
+  week: 'accent',
+  month: 'accent',
+  low: 'success',
+  mid: 'warning',
+  high: 'danger',
+}
 
 function scoreVariant(score: number): BadgeVariant {
   if (score >= 75) return 'success'
@@ -62,40 +76,29 @@ function CheckRow({
   )
 }
 
-function ChallengeCard({
-  kind,
-  periodId,
-  template,
-  dueDay,
-  record,
-}: {
-  kind: ChallengeKind
-  periodId: string
-  template: ChallengeTemplate
-  dueDay: string
-  record?: ChallengeRecord
-}) {
-  const startChallenge = useAppStore((s) => s.startChallenge)
+function ActiveBountyCard({ record }: { record: ChallengeRecord }) {
   const toggleItem = useAppStore((s) => s.toggleChallengeItem)
   const setRepo = useAppStore((s) => s.setChallengeRepo)
   const completeChallenge = useAppStore((s) => s.completeChallenge)
   const token = useGithubToken((s) => s.token)
-
   const [repoInput, setRepoInput] = useState('')
   const [repoStatus, setRepoStatus] = useState('')
 
-  const repoName = repoNameFor(kind, new Date(`${dueDay}T00:00:00`), template.slug)
-  const dueText = new Date(`${dueDay}T00:00:00`).toLocaleDateString(undefined, {
-    weekday: 'short',
+  const bounty = bountyBySlug(record.templateSlug)
+  if (!bounty) return null
+  const repoName = bountyRepoName(bounty.slug)
+  const pct = milestonePct(record, bounty)
+  const score = rubricScore(record, bounty)
+  const dueText = new Date(`${record.dueDay}T00:00:00`).toLocaleDateString(undefined, {
     month: 'short',
     day: 'numeric',
   })
 
   function handleCreateRepo() {
     setRepoStatus('Creating repository…')
-    createRepo(repoName, template.summary, token)
+    createRepo(repoName, bounty?.summary ?? '', token)
       .then((r) => {
-        setRepo(periodId, r.html_url)
+        setRepo(record.id, r.html_url)
         setRepoStatus('')
       })
       .catch((e: unknown) =>
@@ -104,102 +107,37 @@ function ChallengeCard({
   }
 
   function handleComplete() {
-    if (!record) return
-    const score = rubricScore(record, template)
-    const pct = milestonePct(record, template)
+    if (!bounty) return
     if (
       !window.confirm(
-        `Archive "${template.title}" with a rubric score of ${score}% and ${pct}% of milestones done?`,
+        `Archive "${bounty.title}" with a rubric score of ${score}% and ${pct}% of milestones done?`,
       )
     )
       return
-    completeChallenge(periodId, {
+    completeChallenge(record.id, {
       score,
       completionPct: pct,
-      label: `${template.title} (${periodId})`,
+      label: `${bounty.title} (${TIER_META[bounty.tier].label})`,
     })
   }
 
-  const header = (
-    <div className="flex items-center justify-between px-5 pt-4">
-      <div className="flex items-center gap-2">
-        <Badge variant="accent">{kind === 'week' ? 'Weekly' : 'Monthly'}</Badge>
-        <span className="font-mono text-xs text-text-3">{periodId}</span>
-      </div>
-      <span className="text-xs text-text-3">Due {dueText}</span>
-    </div>
-  )
-
-  if (!record) {
-    return (
-      <Card className="pb-5">
-        {header}
-        <div className="px-5 pt-3">
-          <h2 className="font-medium">{template.title}</h2>
-          <p className="mt-1 text-sm text-text-2">{template.summary}</p>
-          <p className="mt-4 text-xs font-semibold uppercase tracking-wide text-text-3">
-            Requirements
-          </p>
-          <ul className="mt-1 list-inside list-disc space-y-0.5 text-sm text-text-2">
-            {template.requirements.map((r) => (
-              <li key={r}>{r}</li>
-            ))}
-          </ul>
-          <p className="mt-3 text-xs font-semibold uppercase tracking-wide text-text-3">
-            Deliverables
-          </p>
-          <p className="mt-1 text-sm text-text-2">{template.deliverables.join(' · ')}</p>
-          <p className="mt-3 text-xs text-text-3">Testing: {template.testing}</p>
-          <Button
-            className="mt-4"
-            onClick={() => startChallenge({ id: periodId, kind, templateSlug: template.slug, dueDay })}
-          >
-            Start this challenge
-          </Button>
-        </div>
-      </Card>
-    )
-  }
-
-  if (record.status === 'completed') {
-    return (
-      <Card className="pb-5">
-        {header}
-        <div className="flex flex-col items-center gap-2 px-5 pt-6 text-center">
-          <Trophy className="size-8 text-warning" aria-hidden />
-          <h2 className="font-medium">{template.title} — completed</h2>
-          <div className="flex items-center gap-2">
-            <Badge variant={scoreVariant(record.score ?? 0)}>Score {record.score}%</Badge>
-            <Badge>{record.completionPct}% milestones</Badge>
-          </div>
-          {record.repoUrl && (
-            <a
-              href={record.repoUrl}
-              target="_blank"
-              rel="noreferrer"
-              className="flex items-center gap-1 text-sm text-accent outline-none transition-colors hover:text-accent-hover focus-visible:ring-2 focus-visible:ring-accent"
-            >
-              Repository
-              <ExternalLink className="size-3.5" aria-hidden />
-            </a>
-          )}
-          <p className="text-xs text-text-3">
-            The next {kind === 'week' ? 'weekly challenge arrives Monday' : 'monthly challenge arrives on the 1st'}.
-          </p>
-        </div>
-      </Card>
-    )
-  }
-
-  const pct = milestonePct(record, template)
-  const score = rubricScore(record, template)
-
   return (
     <Card className="pb-5">
-      {header}
+      <div className="flex flex-wrap items-center gap-2 px-5 pt-4">
+        <Badge variant={KIND_VARIANT[record.kind]}>{KIND_LABEL[record.kind]}</Badge>
+        {bounty.collab && (
+          <Badge variant="accent">
+            <span className="flex items-center gap-1">
+              <Users className="size-3" aria-hidden />
+              Team-up
+            </span>
+          </Badge>
+        )}
+        <span className="ml-auto text-xs text-text-3">Target {dueText}</span>
+      </div>
       <div className="px-5 pt-3">
-        <h2 className="font-medium">{template.title}</h2>
-        <p className="mt-1 text-sm text-text-2">{template.summary}</p>
+        <h3 className="font-medium">{bounty.title}</h3>
+        <p className="mt-1 text-sm text-text-2">{bounty.summary}</p>
 
         <div className="mt-4 flex items-center gap-3">
           <p className="text-xs font-semibold uppercase tracking-wide text-text-3">Milestones</p>
@@ -207,12 +145,12 @@ function ChallengeCard({
           <span className="font-mono text-xs tabular-nums text-text-3">{pct}%</span>
         </div>
         <div className="mt-1">
-          {template.milestones.map((m) => (
+          {bounty.milestones.map((m) => (
             <CheckRow
               key={m.id}
               checked={record.milestonesDone.includes(m.id)}
               label={m.label}
-              onToggle={() => toggleItem(periodId, 'milestonesDone', m.id)}
+              onToggle={() => toggleItem(record.id, 'milestonesDone', m.id)}
             />
           ))}
         </div>
@@ -234,7 +172,7 @@ function ChallengeCard({
               <Button onClick={handleCreateRepo}>Create {repoName}</Button>
             ) : (
               <a
-                href={newRepoUrl(repoName, template.summary)}
+                href={newRepoUrl(repoName, bounty.summary)}
                 target="_blank"
                 rel="noreferrer"
                 className="rounded-md bg-accent px-3 py-1.5 text-sm font-medium text-white outline-none transition-colors hover:bg-accent-hover focus-visible:ring-2 focus-visible:ring-accent"
@@ -253,7 +191,7 @@ function ChallengeCard({
               variant="ghost"
               disabled={!repoInput.trim()}
               onClick={() => {
-                setRepo(periodId, repoInput.trim())
+                setRepo(record.id, repoInput.trim())
                 setRepoInput('')
               }}
             >
@@ -270,13 +208,13 @@ function ChallengeCard({
           <span className="font-mono text-xs tabular-nums text-text-3">{score}%</span>
         </div>
         <div className="mt-1">
-          {template.rubric.map((r) => (
+          {bounty.rubric.map((r) => (
             <CheckRow
               key={r.id}
               checked={record.rubricChecked.includes(r.id)}
               label={r.label}
               sub={`${r.points} pts`}
-              onToggle={() => toggleItem(periodId, 'rubricChecked', r.id)}
+              onToggle={() => toggleItem(record.id, 'rubricChecked', r.id)}
             />
           ))}
         </div>
@@ -289,58 +227,135 @@ function ChallengeCard({
   )
 }
 
+function BountyPosting({ bounty, onClaim }: { bounty: Bounty; onClaim: (b: Bounty) => void }) {
+  return (
+    <Card className="flex flex-col p-4">
+      <div className="flex flex-wrap items-center gap-2">
+        <Badge variant={TIER_META[bounty.tier].variant}>{TIER_META[bounty.tier].label}</Badge>
+        <span className="text-xs text-text-3">{bounty.estimate}</span>
+        {bounty.collab && (
+          <Badge variant="accent">
+            <span className="flex items-center gap-1">
+              <Users className="size-3" aria-hidden />
+              Team-up
+            </span>
+          </Badge>
+        )}
+      </div>
+      <h3 className="mt-2 font-medium">{bounty.title}</h3>
+      <p className="mt-1 text-sm text-text-2">{bounty.summary}</p>
+      <ul className="mt-2 list-inside list-disc space-y-0.5 text-xs text-text-3">
+        {bounty.requirements.slice(0, 3).map((r) => (
+          <li key={r}>{r}</li>
+        ))}
+      </ul>
+      <div className="mt-3 flex flex-1 items-end justify-between gap-2">
+        {bounty.source ? (
+          <a
+            href={bounty.source}
+            target="_blank"
+            rel="noreferrer"
+            className="flex items-center gap-1 text-xs text-text-3 outline-none transition-colors hover:text-text focus-visible:ring-2 focus-visible:ring-accent"
+          >
+            idea source
+            <ExternalLink className="size-3" aria-hidden />
+          </a>
+        ) : (
+          <span />
+        )}
+        <Button onClick={() => onClaim(bounty)}>Claim bounty</Button>
+      </div>
+    </Card>
+  )
+}
+
 export function ChallengesPage() {
   const challenges = useAppStore((s) => s.challenges)
-  const now = new Date()
+  const startChallenge = useAppStore((s) => s.startChallenge)
 
-  const weekId = weekChallengeId(now)
-  const monthId = monthChallengeId(now)
-  const weekRecord = challenges.find((c) => c.id === weekId)
-  const monthRecord = challenges.find((c) => c.id === monthId)
-
+  const active = challenges.filter((c) => c.status === 'active')
+  const claimedSlugs = new Set(challenges.map((c) => c.templateSlug))
+  const board = weeklyBoard(new Date(), claimedSlugs)
   const history = challenges
     .filter((c) => c.status === 'completed')
     .sort((a, b) => (b.completedAt ?? 0) - (a.completedAt ?? 0))
+
+  function claim(bounty: Bounty) {
+    startChallenge({
+      id: bounty.slug,
+      kind: bounty.tier,
+      templateSlug: bounty.slug,
+      dueDay: bountyDueDay(bounty.tier, new Date()),
+    })
+  }
 
   return (
     <>
       <PageHeader
         title="Challenges"
-        description="One project a week, one bigger build a month — scored and archived."
+        description="The bounty board — fresh postings every Monday. Claim, build, score, archive."
       />
 
-      <div className="grid gap-4 xl:grid-cols-2">
-        <ChallengeCard
-          kind="week"
-          periodId={weekId}
-          template={weekRecord ? (templateBySlug(weekRecord.templateSlug) ?? templateFor('week', now)) : templateFor('week', now)}
-          dueDay={weekRecord?.dueDay ?? dueDayFor('week', now)}
-          record={weekRecord}
-        />
-        <ChallengeCard
-          kind="month"
-          periodId={monthId}
-          template={monthRecord ? (templateBySlug(monthRecord.templateSlug) ?? templateFor('month', now)) : templateFor('month', now)}
-          dueDay={monthRecord?.dueDay ?? dueDayFor('month', now)}
-          record={monthRecord}
-        />
-      </div>
+      {active.length > 0 && (
+        <section className="mb-6">
+          <h2 className="mb-3 text-sm font-semibold text-text-2">
+            Claimed ({active.length})
+          </h2>
+          <div className="grid gap-4 xl:grid-cols-2">
+            {active.map((r) => (
+              <ActiveBountyCard key={r.id} record={r} />
+            ))}
+          </div>
+        </section>
+      )}
+
+      <section>
+        <h2 className="mb-3 text-sm font-semibold text-text-2">This week's board</h2>
+        <div className="flex flex-col gap-4">
+          {TIERS.map((tier) => {
+            const postings = board[tier]
+            return (
+              <div key={tier}>
+                <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-text-3">
+                  {TIER_META[tier].label} — {TIER_META[tier].estimate}
+                </p>
+                {postings.length === 0 ? (
+                  <Card className="px-4 py-6 text-center">
+                    <p className="text-sm text-text-3">
+                      Tier cleared — you have claimed everything here. More bounties land
+                      in future updates.
+                    </p>
+                  </Card>
+                ) : (
+                  <div className="grid gap-4 lg:grid-cols-2">
+                    {postings.map((b) => (
+                      <BountyPosting key={b.slug} bounty={b} onClaim={claim} />
+                    ))}
+                  </div>
+                )}
+              </div>
+            )
+          })}
+        </div>
+      </section>
 
       <section className="mt-8">
         <h2 className="mb-3 text-sm font-semibold text-text-2">History</h2>
         {history.length === 0 ? (
           <Card className="px-6 py-10 text-center">
             <p className="text-sm text-text-2">
-              Completed challenges are archived here with their scores.
+              Completed bounties are archived here with their scores.
             </p>
           </Card>
         ) : (
           <Card className="divide-y divide-border-subtle">
             {history.map((c) => {
-              const t = templateBySlug(c.templateSlug)
+              const t = bountyBySlug(c.templateSlug)
               return (
                 <div key={c.id} className="flex flex-wrap items-center gap-3 px-4 py-3">
-                  <Badge variant="accent">{c.kind === 'week' ? 'Weekly' : 'Monthly'}</Badge>
+                  <Badge variant={KIND_VARIANT[c.kind] ?? 'accent'}>
+                    {KIND_LABEL[c.kind] ?? c.kind}
+                  </Badge>
                   <span className="min-w-0 flex-1 truncate text-sm font-medium">
                     {t?.title ?? c.templateSlug}
                   </span>

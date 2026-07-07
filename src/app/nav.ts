@@ -47,7 +47,7 @@ export const NAV_ITEMS: NavItem[] = [
     to: '/challenges',
     label: 'Challenges',
     icon: Flag,
-    description: 'Weekly and monthly projects with rubrics and auto-created repos.',
+    description: 'Weekly bounty board: low, mid, and high-tier projects to claim.',
     phase: 5,
   },
   {

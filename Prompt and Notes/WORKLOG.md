@@ -5,6 +5,31 @@ where to pick up.
 
 ---
 
+## Session 12 — 2026-07-07 (Phase 5b — bounty board amendment)
+
+Owner amendment mid-flight: challenges -> weekly bounty board with three tiers
+(low ~week, mid ~month, high multi-month/team-up) and researched idea sourcing.
+Did two WebSearches over 2026 project-idea/hackathon roundups (dev.to, hackr.io,
+hackerearth) and wrote 9 new bounties grounded in them (source URLs on each);
+the 12 legacy templates were absorbed via a retier MAPPING in
+src/data/challengeBounties.ts — challengeTemplates.ts untouched, its tests intact.
+
+Mechanics: weeklyBoard is deterministic per ISO week, posts 2/2/1 per tier,
+excludes every slug the owner has ever claimed, and degrades gracefully as pools
+exhaust. Claims are ordinary ChallengeRecords (id = slug, kind = tier, dueDay =
+claim + 7/30/90d), so completion events, history, and the challenge achievements
+all kept working untouched. Gotcha: pasted guide-shaped fields (batch/tagline)
+into bounty literals — regex-stripped; excess-property checks would have caught it
+anyway. 100 tests green; claim flow browser-verified; dev data cleared.
+
+Cleanup debt noted for Phase 13: challenges.ts period-based fns now dead
+(templateFor, dueDayFor, repoNameFor, monthChallengeId) + their tests.
+
+NEXT: Phase 13 polish & release (README rewrite, lazy loading, a11y, LICENSE,
+prune dead challenge fns). Blocked-on-owner unchanged: LC username, PAT, OAuth.
+
+---
+
 ## Session 11 — 2026-07-07 (Phase 12, ~60% usage)
 
 Shipped the career module. Key move: NO content retyping — scripts/extract-career.mjs
