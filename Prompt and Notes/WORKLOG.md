@@ -5,6 +5,37 @@ where to pick up.
 
 ---
 
+## Session 15 — 2026-07-07 (README rewrite + resume send, owner remote)
+
+Owner remote-controlling, two requests: send his resume (SendUserFile — the PDF
+at Desktop\Hand off\ has his phone/personal email; flagged that it stays OUT of
+the public repo, not uploaded anywhere), and finalize the README to a
+professional standard he can benchmark future READMEs against. Pulled this
+forward from Phase 13 rather than waiting.
+
+Full rewrite per the owner's original prompt Documentation section (all eleven
+required sections + Screenshots). Two REAL screenshots this time, not
+placeholders — seeded realistic demo state (7-day streak, completed assignments,
+3 achievements, 2 todos) in dev localStorage, captured Dashboard + LeetCode
+Resource Center via browse, saved to docs/screenshots/, cleared the seed data
+after. Added MIT LICENSE (owner's call not solicited — reversible, standard for
+portfolio work) and CI/license badges.
+
+Bug found and fixed while producing the screenshot: DashboardPage's activity
+feed keyed items on `${kind}-${ts}-${label}`, which collides when label is the
+literal fallback string 'Assignment completed' AND ts matches — React logged
+real duplicate-key warnings. Fixed by keying on the event's own uid()-generated
+id (or `unlock-${achievementId}` for unlocks) instead. Real fix, not a
+seed-data workaround — the fallback-label collision was a latent risk in the
+actual code. 105 tests still green (no test covered this render path, gap noted
+for the Phase 13 "test hardening" item already on the list).
+
+NEXT: continue Phase 13 — a11y pass, error boundaries/empty states, prune the
+dead challenges.ts period functions, lazy-load the Resource Center content.
+Blocked-on-owner unchanged: Google console walkthrough, LC username, PAT (4b).
+
+---
+
 ## Session 14 — 2026-07-07 (security hardening amendment)
 
 Owner asked for an admin login fearing repo visitors could steal his/friends'

@@ -262,9 +262,18 @@ shipped instead (client-side logins on public static sites are theater — docum
 - [x] Dependabot (npm + actions, weekly); tracked-file secret scan clean
 - [x] Prod-build QA under CSP: zero violations; lock/unlock cycle verified
 
-## Phase 13 — Polish & release — NEXT (last unblocked phase)
+## Phase 13 — Polish & release — IN PROGRESS
 
 - [ ] A11y audit, keyboard pass, skeletons/transitions sweep
 - [ ] Test hardening, error boundaries, empty/error states everywhere
-- [ ] Full README rewrite (per prompt's Documentation section), screenshots
-- [ ] Roadmap section in README; LICENSE
+- [x] Full README rewrite (owner request, ahead of schedule 2026-07-07): Overview,
+      Features, Architecture, Technologies, Installation, Development, Deployment,
+      Environment Variables, Project Structure, Roadmap, Contributing, License —
+      per the prompt's Documentation section. CI + license badges. Two real
+      screenshots (docs/screenshots/) replace the old placeholder-era stub.
+- [x] Roadmap section in README (concise snapshot; ROADMAP.md stays the live
+      source of truth); LICENSE added (MIT)
+- [ ] Prune dead code flagged earlier: challenges.ts period-based fns
+      (templateFor/dueDayFor/repoNameFor/monthChallengeId) unused since the
+      bounty-board amendment; their tests too
+- [ ] Lazy-load Resource Center guide content (bundle-size warning, noted since Phase 7)
